@@ -1,4 +1,4 @@
-# PBR-Material-BlenderHooker
+# PBR-Material-Hooker
 Powerful PBR Hooker
 # Usage
 Install script to Blender. Go to Edit->Preferences->Add-ons->Install... 
