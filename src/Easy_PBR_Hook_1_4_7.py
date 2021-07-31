@@ -4,12 +4,12 @@ import os
 #CREDITS
 ####################################################################################################
 bl_info = {
-    "name": "PBR Material Hooker",
+    "name": "Easy PBR Hook",
     "author": "Dmitry F.",
     "version": (1, 4, 7),
     "blender": (2, 80, 0),
     "location": "Properties > Material",
-    "description": "PBR Material Hooker",
+    "description": "Easy PBR Hook",
     "warning": "",
     "doc_url": "",
     "tracker_url": "",
@@ -894,7 +894,7 @@ class GetTextureOperator(bpy.types.Operator):
 #MAIN PANEL CLASS
 ####################################################################################################
 class PBR_Panel(bpy.types.Panel):
-    bl_label = "PBR Hooker"
+    bl_label = "Easy PBR Hook"
     bl_idname = "PBR_PT_Core"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
