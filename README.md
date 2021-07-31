@@ -1,8 +1,9 @@
 # Easy PBR Hook
 Powerful PBR Hook tool. (description)
-# Usage
-Install script to Blender. Go to Edit->Preferences->Add-ons->Install... 
-
-Choose PBR_Material_Hooker_x_x_x.py, click "Install Add-on" and enable it.
-
-Now, in your Material Properties you have PBR Hooker Panel.
+# Guide
+- **Installation**<br />
+  Install script to Blender. Go to Edit->Preferences->Add-ons->Install...<br />
+  Choose Easy_PBR_Hook_x_x_x.py, click "Install Add-on" and enable it.<br />
+  Now, in your Material Properties you have Easy PBR Hook Panel.<br />
+- **Usage**<br />
+  bla-bla-bla
