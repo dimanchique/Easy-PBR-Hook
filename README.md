@@ -14,8 +14,8 @@ Powerful PBR Hook tool. (description)
   
   Click Assign textures button. You're done.
   
-If your textures are as messy as mine you could have MetalSmoothness, OcclusionRoughnessMetallic, Metallic and Roughness maps in the same folder.
-If that's the case Easy PBR Hook will choose one of those and create a full set up. If you want to use another Pipeline you can do so via
-'Change Pipeline' button. 
+  If your textures are as messy as mine you could have MetalSmoothness, OcclusionRoughnessMetallic, Metallic and Roughness maps in the same folder.
+  If that's the case Easy PBR Hook will choose one of those and create a full set up. If you want to use another Pipeline you can do so via
+  'Change Pipeline' button. 
 
-Use Texture Properties and Texture Coordinates drop-downs to further set up the look of your material.
+  Use Texture Properties and Texture Coordinates drop-downs to further set up the look of your material.
