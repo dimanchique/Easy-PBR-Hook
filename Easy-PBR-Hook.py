@@ -7,7 +7,7 @@ bl_info = {
     "name": "Easy PBR Hook",
     "author": "Dmitry F.",
     "version": (1, 4, 9),
-    "blender": (2, 70, 0),
+    "blender": (2, 80, 0),
     "location": "Properties > Material",
     "description": "Easy PBR Hook",
     "warning": "",
