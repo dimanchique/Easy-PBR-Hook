@@ -6,8 +6,8 @@ import os
 bl_info = {
     "name": "Easy PBR Hook",
     "author": "Dmitry F.",
-    "version": (1, 4, 7),
-    "blender": (2, 80, 0),
+    "version": (1, 4, 9),
+    "blender": (2, 70, 0),
     "location": "Properties > Material",
     "description": "Easy PBR Hook",
     "warning": "",
@@ -181,16 +181,17 @@ def updateUV(self, context):
 
 def resetProps():
     prop = bpy.context.active_object.active_material.props
+    prop.RoughnessAdd = 1
+    prop.MetallicAdd = 1
+    prop.SpecularAdd = 1
+    prop.EmissionMult = 1
+    prop.NormaMaplStrength = 1
+    prop.AO_Strength = 1
+    prop.AlphaTreshold = 0
+    prop.NormalMapInvertorEnabled = False
     prop.MixR = (1,1,1,1)
     prop.MixG = (1,1,1,1)
     prop.MixB = (1,1,1,1)
-    prop.NormaMaplStrength = 1
-    prop.SpecularAdd = 1
-    prop.MetallicAdd = 1
-    prop.RoughnessAdd = 1
-    prop.EmissionMult = 1
-    prop.NormalMapInvertorEnabled = False
-    prop.AlphaTreshold = 0
     prop.Location = (0,0,0)
     prop.Rotation = (0,0,0)
     prop.Scale = (1,1,1)
