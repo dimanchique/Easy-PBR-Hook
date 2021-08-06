@@ -144,8 +144,8 @@ def PlaceNormalMapMapInvertor():
     if "NormalMapInvertor" not in bpy.data.node_groups:
         CreateNormalMapInvertor()
     CreateNode("ShaderNodeGroup", (-360, -650), nodename="NormalMapInvertor", nodegroup="NormalMapInvertor", hide=True)
-    LinkNodesInARow( (FROM("Normal Map", "Color"), TO("NormalMapInvertor", "NM Input")), (FROM("NormalMapInvertor", "NM Output"), TO("Normal Map Strength", "Color")),
-                     (FROM("Normal Map Strength", "Normal"), TO("Principled BSDF", "Normal")) )
+    LinkNodesInARow( (FROM("Normal Map", "Color"), TO("NormalMapInvertor", "NM Input")), 
+                     (FROM("NormalMapInvertor", "NM Output"), TO("Normal Map Strength", "Color")) )
 
 def RemoveNormalMapInvertor():
     nodes = bpy.context.object.active_material.node_tree.nodes
@@ -213,7 +213,6 @@ def UV_items(self, context):
         item = (data, data, '')
         Enum_items.append(item)
     return Enum_items
-
 ####################################################################################################
 #NODE FUNCTIONS
 ####################################################################################################
@@ -292,8 +291,6 @@ def CreateNormalMix():
                      (FROM("Group Input", "Detail Mask"), TO("Subtract", "Fac")), (FROM("Add", "Color"), TO("Subtract", "Color1")), (FROM("Subtract", "Color"), TO("Separate RGB (3)", "Image")),
                      (FROM("Multiply", "Value"), TO("Combine RGB (3)", "B")), (FROM("Separate RGB (3)", "R"), TO("Combine RGB (3)", "R")), (FROM("Separate RGB (3)", "G"), TO("Combine RGB (3)", "G")),
                      (FROM("Combine RGB (3)", "Image"), TO("Group Output", "Color")), nodetree=NormalMix)
-
-
 ####################################################################################################
 #PLACE FUNCTIONS
 ####################################################################################################
@@ -347,21 +344,24 @@ def PlaceNormalMap():
     if PBR_Panel.MATERIALS['CURRENT'].found["Normal Map"]:
         CreateNode("ShaderNodeTexImage", (-700, -600), nodename="Normal Map", image=PBR_Panel.MATERIALS['CURRENT'].images["Normal Map"])
         CreateNode("ShaderNodeNormalMap", (-360, -600), nodename="Normal Map Strength", hide=True)
-        LinkNodesInARow( (FROM("Normal Map", "Color"), TO("Normal Map Strength", "Color")), (FROM("Normal Map Strength", "Normal"), TO("Principled BSDF", "Normal")) )
+        LinkNodesInARow( (FROM("Normal Map", "Color"), TO("Normal Map Strength", "Color")),
+                         (FROM("Normal Map Strength", "Normal"), TO("Principled BSDF", "Normal")) )
         CheckAndAddToNodesList("Normal Map")
 
 def PlaceEmission():
     if PBR_Panel.MATERIALS['CURRENT'].found["Emission"]:
         CreateNode("ShaderNodeTexImage", (-700, -300), nodename="Emission", image=PBR_Panel.MATERIALS['CURRENT'].images["Emission"])
         CreateNode("ShaderNodeMath", (-360, -300), nodename="Emission Multiply", operation="MULTIPLY", hide=True)
-        LinkNodesInARow( (FROM("Emission", "Color"), TO("Emission Multiply", "Value")), (FROM("Emission Multiply", "Value"), TO("Principled BSDF", "Emission")) )
+        LinkNodesInARow( (FROM("Emission", "Color"), TO("Emission Multiply", "Value")),
+                         (FROM("Emission Multiply", "Value"), TO("Principled BSDF", "Emission")) )
         CheckAndAddToNodesList("Emission")
 
 def PlaceSpecular():
     if PBR_Panel.MATERIALS['CURRENT'].found["Specular"]:
         CreateNode("ShaderNodeTexImage", (-700, -1200), nodename="Specular", image=PBR_Panel.MATERIALS['CURRENT'].images["Specular"])
         CreateNode("ShaderNodeMath", (-360, -1200), nodename="Specular Add", operation="ADD", hide=True)
-        LinkNodesInARow( (FROM("Specular", "Color"), TO("Specular Add", "Value")), (FROM("Specular Add", "Value"), TO("Principled BSDF", "Specular")) )
+        LinkNodesInARow( (FROM("Specular", "Color"), TO("Specular Add", "Value")),
+                         (FROM("Specular Add", "Value"), TO("Principled BSDF", "Specular")) )
         CheckAndAddToNodesList("Specular")
 
 def PlaceOcclusion():
@@ -371,7 +371,8 @@ def PlaceOcclusion():
         CreateNode("ShaderNodeMixRGB", (-360, 220), nodename="AO_Mult_Albedo", blendtype="MULTIPLY", defaultinput=("Fac", 1), hide=True)
         CreateNode("ShaderNodeMixRGB", (-360, 170), nodename="AO_Mult_Spec", blendtype="MULTIPLY", defaultinput=("Fac", 1), hide=True)
         if PBR_Panel.MATERIALS['CURRENT'].found["Specular"]:
-            LinkNodesInARow( (FROM("Specular", "Color"), TO("Specular Add", "Value")), (FROM("Specular Add", "Value"), TO("AO_Mult_Spec", "Color1")) )
+            LinkNodesInARow( (FROM("Specular", "Color"), TO("Specular Add", "Value")),
+                             (FROM("Specular Add", "Value"), TO("AO_Mult_Spec", "Color1")) )
             nodes["Specular Add"].location = (-360, 50)
             nodes["Specular"].location = (-1000, 0)
         else:
@@ -387,7 +388,8 @@ def PlaceDisplacement():
     if PBR_Panel.MATERIALS['CURRENT'].found["Displacement"]:
         CreateNode("ShaderNodeTexImage", (-700, -900), nodename="Displacement", image=PBR_Panel.MATERIALS['CURRENT'].images["Displacement"])
         CreateNode("ShaderNodeDisplacement", (-360, -900), nodename="Normal Displacement", hide=True)
-        LinkNodesInARow( (FROM("Displacement", "Color"), TO("Normal Displacement", "Normal")), (FROM("Normal Displacement", "Displacement"), TO("Material Output", "Displacement")) )
+        LinkNodesInARow( (FROM("Displacement", "Color"), TO("Normal Displacement", "Normal")),
+                         (FROM("Normal Displacement", "Displacement"), TO("Material Output", "Displacement")) )
         CheckAndAddToNodesList("Displacement")
 
 def PlaceOpacity():
@@ -513,8 +515,8 @@ def PlaceManual(PipeLineType):
 ####################################################################################################
 #SOME ADDITIONAL FUNCTIONS
 ####################################################################################################
-def GetMode(statement):
-    return "Automatic" if statement else "Manual"
+def GetMode():
+    return f"Mode: {' + '.join(PBR_Panel.MATERIALS['CURRENT'].nodeslist)} ({'Automatic' if PBR_Panel.MATERIALS['CURRENT'].automatic else 'Manual'})"
 
 def CheckAndAddToNodesList(mode):
     if mode not in PBR_Panel.MATERIALS['CURRENT'].nodeslist:
@@ -738,7 +740,7 @@ class TextureModePanel(bpy.types.Panel):
         if PBR_Panel.MATERIALS['CURRENT'].nodeslist == []:
             row.label(text = "Mode: None")
         else:
-            row.label(text = f"Mode: {' + '.join(PBR_Panel.MATERIALS['CURRENT'].nodeslist)} ({GetMode(PBR_Panel.MATERIALS['CURRENT'].automatic)})")
+            row.label(text = GetMode())
         row = layout.row()
         row.operator(PipelineMenu.bl_idname)
 
@@ -837,7 +839,6 @@ class OpacityPanel(bpy.types.Panel):
         if PBR_Panel.MATERIALS['CURRENT'].opacity_mode == "Fade":
             row = layout.row()
             row.prop(MaterialProps, "AlphaMode")
-        if PBR_Panel.MATERIALS['CURRENT'].opacity_mode != "Opaque":
             row = layout.row()
             row.prop(MaterialProps, "Opacity")
 ####################################################################################################
@@ -868,22 +869,22 @@ class GetTextureOperator(bpy.types.Operator):
 
     def getTexture(texture, Colored = False):
         file = GetTextureOperator.current_file
-        name = file.split(".")[0].lower()
         if len(file.split(".")) >= 3:
             return False
+        name = file.lower().split(".")[0]
         if texture != "Albedo":
             checkmask = TEXTURES_MASK.copy()
             checkmask.pop(texture)
             if any(name.endswith(checkmask[texture]) for texture in checkmask):
                 return False
-        pattern = bpy.context.active_object.active_material.props.texture_pattern.split("-")
+        pattern = bpy.context.active_object.active_material.props.texture_pattern.lower().split("-")
         if len(pattern)>1:
             pattern, skip = pattern[0], pattern[1]
         else:
             pattern, skip = pattern[0], None
         if skip != None and skip in name:
             return False
-        if name.endswith(TEXTURES_MASK[texture]) and pattern.lower() in name:
+        if name.endswith(TEXTURES_MASK[texture]) and pattern in name:
             if file in bpy.data.images:
                 image = bpy.data.images[file]
             else:
@@ -901,6 +902,7 @@ class PBR_Panel(bpy.types.Panel):
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "material"
+
     current_path = ""
     current_pattern = ""
     MATERIALS = {}
@@ -927,12 +929,11 @@ class PBR_Panel(bpy.types.Panel):
         material_name = bpy.context.selected_objects[0].active_material.name
         if 'CURRENT' not in PBR_Panel.MATERIALS:
             Material(material_name)
-        else:
-            if PBR_Panel.MATERIALS['CURRENT'].name != material_name:
-                if material_name not in PBR_Panel.MATERIALS:
-                    Material(material_name)
-                else:
-                    PBR_Panel.MATERIALS['CURRENT'] = PBR_Panel.MATERIALS[material_name]
+        elif PBR_Panel.MATERIALS['CURRENT'].name != material_name:
+            if material_name not in PBR_Panel.MATERIALS:
+                Material(material_name)
+            else:
+                PBR_Panel.MATERIALS['CURRENT'] = PBR_Panel.MATERIALS[material_name]
 
     def BadState(layout):
         if bpy.context.selected_objects==[]:
@@ -968,4 +969,3 @@ def unregister():
 
 if __name__ == "__main__":
     register()
-    
