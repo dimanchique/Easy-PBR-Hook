@@ -873,9 +873,9 @@ class GetTextureOperator(bpy.types.Operator):
                 return False
         pattern = bpy.context.active_object.active_material.props.texture_pattern.lower().split("-")
         if len(pattern)>1:
-            pattern, skip = pattern[0], pattern[1]
+            pattern, skip = pattern[0].strip(), pattern[1].strip()
         else:
-            pattern, skip = pattern[0], None
+            pattern, skip = pattern[0].strip(), None
         if skip != None and skip in name:
             return False
         if name.endswith(TEXTURES_MASK[texture]) and pattern in name:
