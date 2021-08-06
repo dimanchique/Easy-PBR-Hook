@@ -23,8 +23,8 @@ class Material():
         self.name = name
         PBR_Panel.MATERIALS[name] = self
         PBR_Panel.MATERIALS['CURRENT'] = self
-        self.found = {texture:False for texture in TEXTURES}
-        self.images = {texture:None for texture in TEXTURES}
+        self.found = dict.fromkeys(TEXTURES, False)
+        self.images = dict.fromkeys(TEXTURES, None)
         self.nodeslist = []
         self.opacity_mode = "Opaque"
         self.opacity_from_albedo = False
@@ -32,8 +32,8 @@ class Material():
         self.automatic = True
 
     def reset(self):
-        self.found = {texture:False for texture in TEXTURES}
-        self.images = {texture:None for texture in TEXTURES}
+        self.found = dict.fromkeys(TEXTURES, False)
+        self.images = dict.fromkeys(TEXTURES, None)
         self.finished = False
         self.automatic = True
         self.softreset()
@@ -145,8 +145,7 @@ def PlaceNormalMapMapInvertor():
     if "NormalMapInvertor" not in bpy.data.node_groups:
         CreateNormalMapInvertor()
     CreateNode("ShaderNodeGroup", (-360, -650), nodename="NormalMapInvertor", nodegroup="NormalMapInvertor", hide=True)
-    LinkNodesInARow( (FROM("Normal Map", "Color"), TO("NormalMapInvertor", "NM Input")), 
-                     (FROM("NormalMapInvertor", "NM Output"), TO("Normal Map Strength", "Color")) )
+    LinkNodesInARow( (FROM("Normal Map", "Color"), TO("NormalMapInvertor", "NM Input")), (FROM("NormalMapInvertor", "NM Output"), TO("Normal Map Strength", "Color")) )
 
 def RemoveNormalMapInvertor():
     nodes = bpy.context.object.active_material.node_tree.nodes
@@ -299,7 +298,6 @@ def ClearMaterial():
     nodes = bpy.context.object.active_material.node_tree.nodes
     bpy.context.object.active_material.use_backface_culling = False
     [nodes.remove(nodes[node]) for node in nodes.keys()]
-    #[CreateNode(node['name'], node['location']) for node in [{'name':"ShaderNodeBsdfPrincipled", 'location':(0, 0)}, {'name':"ShaderNodeOutputMaterial", 'location':(300, 0)}]]
     CreateNode("ShaderNodeBsdfPrincipled", (0, 0))
     CreateNode("ShaderNodeOutputMaterial", (300, 0))
     LinkNodes(FROM("Principled BSDF", "BSDF"), TO("Material Output", "Surface"))
@@ -345,24 +343,21 @@ def PlaceNormalMap():
     if PBR_Panel.MATERIALS['CURRENT'].found["Normal Map"]:
         CreateNode("ShaderNodeTexImage", (-700, -600), nodename="Normal Map", image=PBR_Panel.MATERIALS['CURRENT'].images["Normal Map"])
         CreateNode("ShaderNodeNormalMap", (-360, -600), nodename="Normal Map Strength", hide=True)
-        LinkNodesInARow( (FROM("Normal Map", "Color"), TO("Normal Map Strength", "Color")),
-                         (FROM("Normal Map Strength", "Normal"), TO("Principled BSDF", "Normal")) )
+        LinkNodesInARow( (FROM("Normal Map", "Color"), TO("Normal Map Strength", "Color")), (FROM("Normal Map Strength", "Normal"), TO("Principled BSDF", "Normal")) )
         CheckAndAddToNodesList("Normal Map")
 
 def PlaceEmission():
     if PBR_Panel.MATERIALS['CURRENT'].found["Emission"]:
         CreateNode("ShaderNodeTexImage", (-700, -300), nodename="Emission", image=PBR_Panel.MATERIALS['CURRENT'].images["Emission"])
         CreateNode("ShaderNodeMath", (-360, -300), nodename="Emission Multiply", operation="MULTIPLY", hide=True)
-        LinkNodesInARow( (FROM("Emission", "Color"), TO("Emission Multiply", "Value")),
-                         (FROM("Emission Multiply", "Value"), TO("Principled BSDF", "Emission")) )
+        LinkNodesInARow( (FROM("Emission", "Color"), TO("Emission Multiply", "Value")), (FROM("Emission Multiply", "Value"), TO("Principled BSDF", "Emission")) )
         CheckAndAddToNodesList("Emission")
 
 def PlaceSpecular():
     if PBR_Panel.MATERIALS['CURRENT'].found["Specular"]:
         CreateNode("ShaderNodeTexImage", (-700, -1200), nodename="Specular", image=PBR_Panel.MATERIALS['CURRENT'].images["Specular"])
         CreateNode("ShaderNodeMath", (-360, -1200), nodename="Specular Add", operation="ADD", hide=True)
-        LinkNodesInARow( (FROM("Specular", "Color"), TO("Specular Add", "Value")),
-                         (FROM("Specular Add", "Value"), TO("Principled BSDF", "Specular")) )
+        LinkNodesInARow( (FROM("Specular", "Color"), TO("Specular Add", "Value")), (FROM("Specular Add", "Value"), TO("Principled BSDF", "Specular")) )
         CheckAndAddToNodesList("Specular")
 
 def PlaceOcclusion():
@@ -372,8 +367,7 @@ def PlaceOcclusion():
         CreateNode("ShaderNodeMixRGB", (-360, 220), nodename="AO_Mult_Albedo", blendtype="MULTIPLY", defaultinput=("Fac", 1), hide=True)
         CreateNode("ShaderNodeMixRGB", (-360, 170), nodename="AO_Mult_Spec", blendtype="MULTIPLY", defaultinput=("Fac", 1), hide=True)
         if PBR_Panel.MATERIALS['CURRENT'].found["Specular"]:
-            LinkNodesInARow( (FROM("Specular", "Color"), TO("Specular Add", "Value")),
-                             (FROM("Specular Add", "Value"), TO("AO_Mult_Spec", "Color1")) )
+            LinkNodesInARow( (FROM("Specular", "Color"), TO("Specular Add", "Value")), (FROM("Specular Add", "Value"), TO("AO_Mult_Spec", "Color1")) )
             nodes["Specular Add"].location = (-360, 50)
             nodes["Specular"].location = (-1000, 0)
         else:
@@ -389,8 +383,7 @@ def PlaceDisplacement():
     if PBR_Panel.MATERIALS['CURRENT'].found["Displacement"]:
         CreateNode("ShaderNodeTexImage", (-700, -900), nodename="Displacement", image=PBR_Panel.MATERIALS['CURRENT'].images["Displacement"])
         CreateNode("ShaderNodeDisplacement", (-360, -900), nodename="Normal Displacement", hide=True)
-        LinkNodesInARow( (FROM("Displacement", "Color"), TO("Normal Displacement", "Normal")),
-                         (FROM("Normal Displacement", "Displacement"), TO("Material Output", "Displacement")) )
+        LinkNodesInARow( (FROM("Displacement", "Color"), TO("Normal Displacement", "Normal")), (FROM("Normal Displacement", "Displacement"), TO("Material Output", "Displacement")) )
         CheckAndAddToNodesList("Displacement")
 
 def PlaceOpacity():
