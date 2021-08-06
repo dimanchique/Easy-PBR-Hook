@@ -6,7 +6,7 @@ import os
 bl_info = {
     "name": "Easy PBR Hook",
     "author": "Dmitry F.",
-    "version": (1, 4, 9),
+    "version": (1, 4, 11),
     "blender": (2, 80, 0),
     "location": "Properties > Material",
     "description": "Easy PBR Hook",
@@ -23,8 +23,8 @@ class Material():
         self.name = name
         PBR_Panel.MATERIALS[name] = self
         PBR_Panel.MATERIALS['CURRENT'] = self
-        self.found = {texture:False for texture in TEXTURES_MASK}
-        self.images = {texture:None for texture in TEXTURES_MASK}
+        self.found = {texture:False for texture in TEXTURES}
+        self.images = {texture:None for texture in TEXTURES}
         self.nodeslist = []
         self.opacity_mode = "Opaque"
         self.opacity_from_albedo = False
@@ -32,8 +32,8 @@ class Material():
         self.automatic = True
 
     def reset(self):
-        self.found = {texture:False for texture in TEXTURES_MASK}
-        self.images = {texture:None for texture in TEXTURES_MASK}
+        self.found = {texture:False for texture in TEXTURES}
+        self.images = {texture:None for texture in TEXTURES}
         self.finished = False
         self.automatic = True
         self.softreset()
@@ -48,7 +48,7 @@ class Material():
 #TEXTURES MASK
 ####################################################################################################
 TEXTURES_MASK = {"Albedo": ("basecolor", "base_color", "bc", "color", "albedo", "albedotransparency", "albedo_transparency", "diffuse", "diffusemap", "diffuse_map", "alb"),
-                 "Metal Smoothness": ("metsm", "met_sm", "metal_smoothness", "metalic_smoothness","metalsmoothness", "metallicsmoothness","metal_smooth", "metalsmooth", "metsmooth"),
+                 "Metal Smoothness": ("metsm", "met_sm", "metal_smoothness", "metalic_smoothness", "metalsmoothness", "metallicsmoothness","metal_smooth", "metalsmooth", "metsmooth"),
                  "Metal": ("met", "metal", "_m", "metall", "metallic"),
                  "Roughness": ("_r", "rough", "roughness"),
                  "ORM": ("_orm", "occlusionroughnessmetallic"),
@@ -68,20 +68,21 @@ class MaterialProps(bpy.types.PropertyGroup):
     @classmethod
     def register(cls):
         bpy.types.Material.props = bpy.props.PointerProperty(name="Custom properties", description="Custom Properties for Material", type=cls)
-        cls.RoughnessAdd = bpy.props.FloatProperty(default=0.0, name="Roughness", min = 0, max = 1, update=lambda a,b: updateFloat(a,b,"Roughness"))
-        cls.MetallicAdd = bpy.props.FloatProperty(default=0.0, name="Metallic", min = 0, max = 1, update=lambda a,b: updateFloat(a,b,"Metallic"))
-        cls.SpecularAdd = bpy.props.FloatProperty(default=0.0, name="Specular", min = 0, max = 100, update=lambda a,b: updateFloat(a,b,"Specular"))
-        cls.EmissionMult = bpy.props.FloatProperty(default=0.0, name="Emission", min = 0, max = 1, update=lambda a,b: updateFloat(a,b,"Emission"))
-        cls.NormaMaplStrength = bpy.props.FloatProperty(default=0.0, name="Normal Strength", min = 0, update=lambda a,b: updateFloat(a,b,"Normal Strength"))
-        cls.AO_Strength = bpy.props.FloatProperty(default=0.0, name="AO Strength", min = 0, max = 1, update=lambda a,b: updateFloat(a,b,"AO Strength"))
-        cls.AlphaTreshold = bpy.props.FloatProperty(default=0.0, name="Alpha Treshold", min = 0, max = 1, update=lambda a,b: updateFloat(a,b,"Alpha Treshold"))
 
-        cls.NormalMapInvertorEnabled = bpy.props.BoolProperty(default=False, name="Invert", update=updateNormal)
+        cls.RoughnessAdd = bpy.props.FloatProperty(name="Roughness", min = 0, max = 1, update = lambda a,b: updateFloat(a,b,"Roughness"))
+        cls.MetallicAdd = bpy.props.FloatProperty(name = "Metallic", min = 0, max = 1, update = lambda a,b: updateFloat(a,b,"Metallic"))
+        cls.SpecularAdd = bpy.props.FloatProperty(name = "Specular", min = 0, max = 100, update = lambda a,b: updateFloat(a,b,"Specular"))
+        cls.EmissionMult = bpy.props.FloatProperty(name = "Emission", min = 0, max = 1, update = lambda a,b: updateFloat(a,b,"Emission"))
+        cls.NormaMaplStrength = bpy.props.FloatProperty(name = "Normal Strength", min = 0, update = lambda a,b: updateFloat(a,b,"Normal Strength"))
+        cls.AO_Strength = bpy.props.FloatProperty(name = "AO Strength", min = 0, max = 1, update = lambda a,b: updateFloat(a,b,"AO Strength"))
+        cls.AlphaTreshold = bpy.props.FloatProperty(name = "Alpha Treshold", min = 0, max = 1, update = lambda a,b: updateFloat(a,b,"Alpha Treshold"))
 
-        cls.MixR = bpy.props.FloatVectorProperty(name="Red сhannel", subtype="COLOR",size=4,default=(1,1,1,1), min = 0, max = 1, update=updateColor)
-        cls.MixG = bpy.props.FloatVectorProperty(name="Green сhannel", subtype="COLOR",size=4,default=(1,1,1,1), min = 0, max = 1, update=updateColor)
-        cls.MixB = bpy.props.FloatVectorProperty(name="Blue сhannel", subtype="COLOR",size=4,default=(1,1,1,1), min = 0, max = 1, update=updateColor)
-        cls.AlbedoColor = bpy.props.FloatVectorProperty(name="Albedo Color", subtype="COLOR",size=4,default=(1,1,1,1), min = 0, max = 1, update=updateColor)
+        cls.NormalMapInvertorEnabled = bpy.props.BoolProperty(name = "Invert", update=updateNormal)
+
+        cls.MixR = bpy.props.FloatVectorProperty(name = "Red сhannel", subtype = "COLOR", size = 4, min = 0, max = 1, update=updateColor)
+        cls.MixG = bpy.props.FloatVectorProperty(name = "Green сhannel", subtype = "COLOR", size = 4, min = 0, max = 1, update=updateColor)
+        cls.MixB = bpy.props.FloatVectorProperty(name = "Blue сhannel", subtype = "COLOR", size = 4, min = 0, max = 1, update=updateColor)
+        cls.AlbedoColor = bpy.props.FloatVectorProperty(name = "Albedo Color", subtype = "COLOR", size = 4, min = 0, max = 1, update=updateColor)
 
         cls.conf_path = bpy.props.StringProperty(
             name = "Path to textures", default = "",  description = "Sets the path to texture folder",
@@ -91,12 +92,12 @@ class MaterialProps(bpy.types.PropertyGroup):
             description = "Keyword to find specific texture pack. You can use '-' to describe skip keyword",
             update=updateString)
 
-        cls.Location = bpy.props.FloatVectorProperty(default=(0.0, 0.0, 0.0), name="Location", subtype='XYZ', update=lambda a,b: updateFloat(a,b,"Location"))
-        cls.Rotation = bpy.props.FloatVectorProperty(default=(0.0, 0.0, 0.0), name="Rotation", subtype='EULER', update=lambda a,b: updateFloat(a,b,"Rotation"))
-        cls.Scale = bpy.props.FloatVectorProperty(default=(1.0, 1.0, 1.0), name="Scale", subtype='XYZ', update=lambda a,b: updateFloat(a,b,"Scale"))
+        cls.Location = bpy.props.FloatVectorProperty(name = "Location", subtype = 'XYZ', update=lambda a,b: updateFloat(a,b,"Location"))
+        cls.Rotation = bpy.props.FloatVectorProperty(name = "Rotation", subtype = 'EULER', update=lambda a,b: updateFloat(a,b,"Rotation"))
+        cls.Scale = bpy.props.FloatVectorProperty(name = "Scale", subtype = 'XYZ', update=lambda a,b: updateFloat(a,b,"Scale"))
 
         cls.AlphaMode = bpy.props.EnumProperty(items=[('STRAIGHT', 'Straight', ''), ('CHANNEL_PACKED', 'Channel Packed', '')], update=updateAlpha)
-        cls.Opacity = bpy.props.FloatProperty(default=0.0, name="Opacity", min = 0, max = 1, update=lambda a,b: updateFloat(a,b,"Opacity"))
+        cls.OpacityAdd = bpy.props.FloatProperty(name = "Opacity", min = 0, max = 1, update=lambda a,b: updateFloat(a,b,"Opacity"))
 
         bpy.types.Scene.UVMap = bpy.props.EnumProperty(items=UV_items, update=updateUV)
         bpy.types.Scene.test_collection = bpy.props.CollectionProperty(type=UVMapProp)
@@ -130,7 +131,7 @@ def updateFloat(self, context, origin=""):
     elif origin == "Scale" and "Mapping" in nodes:
         nodes["Mapping"].inputs["Scale"].default_value = MaterialProps.Scale
     elif origin == "Opacity":
-        nodes["Opacity Add"].inputs[1].default_value = MaterialProps.Opacity
+        nodes["Opacity Add"].inputs[1].default_value = MaterialProps.OpacityAdd
 
 def updateNormal(self, context):
     MaterialProps = bpy.context.active_object.active_material.props
@@ -195,7 +196,7 @@ def resetProps():
     prop.Location = (0,0,0)
     prop.Rotation = (0,0,0)
     prop.Scale = (1,1,1)
-    prop.Opacity = 1
+    prop.OpacityAdd = 0
 
 def resetColors():
     nodes = bpy.context.object.active_material.node_tree.nodes
@@ -601,7 +602,7 @@ def updateOpacityAdd(mode):
         elif node_name == 'Opacity':
             socket_name = 'Color'
             location = (-700, -560)
-        CreateNode("ShaderNodeMath", location, nodename="Opacity Add", operation="ADD", hide=True)
+        CreateNode("ShaderNodeMath", location, nodename="Opacity Add", operation="ADD", defaultinput=(1, 0), hide=True)
         print(node_name, socket_name) 
         LinkNodesInARow( (FROM(node_name, socket_name), TO("Opacity Add", "Value")), (FROM("Opacity Add", "Value"), TO("Principled BSDF", "Alpha")) )
     return
@@ -840,7 +841,7 @@ class OpacityPanel(bpy.types.Panel):
             row = layout.row()
             row.prop(MaterialProps, "AlphaMode")
             row = layout.row()
-            row.prop(MaterialProps, "Opacity")
+            row.prop(MaterialProps, "OpacityAdd")
 ####################################################################################################
 #TEXTURE GETTER CLASS
 ####################################################################################################
