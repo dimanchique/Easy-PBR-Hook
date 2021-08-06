@@ -6,7 +6,7 @@ Easy PBR Hook add-on is a really powerful tool for gamedev guys! This tool can s
 - **Automatic creating** of nodes for found textures (not for all at the same time! We have a priority system: ORM+Color Mask -> ORM -> Metal Smoothness -> Metal/Roughness).
 - Full configuration of your material is **descripted in one line**.
 - Creating not only texture nodes, but **control nodes too**! Normal Map Strength, Metallic Add, Ambient Occlusion Multiply and a lot of other stuff!
-- **Control every parameter** of you material in one place! For every property (as written above) we creating a control tool (switch/slider/buton) and all of this controls stores in one sub panel called **Texture Properties**
+- **Control every parameter** of you material in one place! For every property (as written above) we creating a control tool (switch/slider/buton) and each control stores in one sub panel called **Texture Properties**
 # Guide
 - **Installation**<br />
   Install script to Blender. Go to Edit->Preferences->Add-ons->Install...<br />
