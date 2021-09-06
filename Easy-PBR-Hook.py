@@ -471,7 +471,7 @@ def PlaceCoordinates():
     nodes = bpy.context.object.active_material.node_tree.nodes
     CreateNode("ShaderNodeUVMap", (-1900, 600), nodename="UVMap")
     CreateNode("ShaderNodeMapping", (-1700, 600), nodename="Mapping")
-    nodes['UVMap'].uv_map = bpy.data.meshes[bpy.context.active_object.name].uv_layers.keys()[0]
+    nodes['UVMap'].uv_map = bpy.data.meshes[bpy.context.active_object.data.name].uv_layers.keys()[0]
     LinkNodes( FROM("UVMap", "UV"), TO("Mapping", "Vector") )
     for texture in PBR_Panel.MATERIALS['CURRENT'].found:
         if PBR_Panel.MATERIALS['CURRENT'].found[texture] and texture in nodes:
