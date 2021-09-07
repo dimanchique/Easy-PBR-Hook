@@ -6,7 +6,7 @@ import os
 bl_info = {
     "name": "Easy PBR Hook",
     "author": "Dmitry F.",
-    "version": (1, 4, 11),
+    "version": (1, 4, 12),
     "blender": (2, 80, 0),
     "location": "Properties > Material",
     "description": "Easy PBR Hook",
@@ -208,7 +208,7 @@ class UVMapProp(bpy.types.PropertyGroup):
 
 def UV_items(self, context):
     Enum_items = []
-    for UV in bpy.data.meshes[context.active_object.name].uv_layers.keys():
+    for UV in bpy.data.meshes[context.active_object.data.name].uv_layers.keys():
         data = str(UV)
         item = (data, data, '')
         Enum_items.append(item)
@@ -706,7 +706,7 @@ class UVMapPanel(bpy.types.Panel):
     def poll(self, context):
         if bpy.context.selected_objects == []:
             return False
-        return PBR_Panel.MATERIALS['CURRENT'].finished and bpy.context.active_object.active_material != None and len(bpy.data.meshes[bpy.context.active_object.name].uv_layers.keys())>1
+        return PBR_Panel.MATERIALS['CURRENT'].finished and bpy.context.active_object.active_material != None and len(bpy.data.meshes[bpy.context.active_object.data.name].uv_layers.keys())>1
 
     def draw(self, context):
         layout = self.layout
