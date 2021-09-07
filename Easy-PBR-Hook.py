@@ -6,7 +6,7 @@ import os
 bl_info = {
     "name": "Easy PBR Hook",
     "author": "Dmitry F.",
-    "version": (1, 4, 11),
+    "version": (1, 4, 12),
     "blender": (2, 80, 0),
     "location": "Properties > Material",
     "description": "Easy PBR Hook",
@@ -208,7 +208,7 @@ class UVMapProp(bpy.types.PropertyGroup):
 
 def UV_items(self, context):
     Enum_items = []
-    for UV in bpy.data.meshes[context.active_object.name].uv_layers.keys():
+    for UV in bpy.data.meshes[context.active_object.data.name].uv_layers.keys():
         data = str(UV)
         item = (data, data, '')
         Enum_items.append(item)
