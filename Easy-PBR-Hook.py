@@ -880,9 +880,8 @@ class GetTextureOperator(bpy.types.Operator):
             return False
         if name.endswith(TEXTURES_MASK[texture]) and pattern in name:
             if file in bpy.data.images:
-                image = bpy.data.images[file]
-            else:
-                image = bpy.data.images.load(filepath = os.path.join(bpy.context.active_object.active_material.props.conf_path,file))
+                bpy.data.images.remove(bpy.data.images[file])
+            image = bpy.data.images.load(filepath = os.path.join(bpy.context.active_object.active_material.props.conf_path,file))
             if not Colored:
                 image.colorspace_settings.name = "Non-Color"
             PBR_Panel.MATERIALS['CURRENT'].found[texture], PBR_Panel.MATERIALS['CURRENT'].images[texture] = True, image
