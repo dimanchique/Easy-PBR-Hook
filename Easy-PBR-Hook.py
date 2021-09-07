@@ -706,7 +706,7 @@ class UVMapPanel(bpy.types.Panel):
     def poll(self, context):
         if bpy.context.selected_objects == []:
             return False
-        return PBR_Panel.MATERIALS['CURRENT'].finished and bpy.context.active_object.active_material != None and len(bpy.data.meshes[bpy.context.active_object.name].uv_layers.keys())>1
+        return PBR_Panel.MATERIALS['CURRENT'].finished and bpy.context.active_object.active_material != None and len(bpy.data.meshes[bpy.context.active_object.data.name].uv_layers.keys())>1
 
     def draw(self, context):
         layout = self.layout
