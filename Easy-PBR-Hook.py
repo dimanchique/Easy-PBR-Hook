@@ -30,6 +30,7 @@ class Material():
         self.opacity_from_albedo = False
         self.finished = False
         self.automatic = True
+        self.mask_source = "Detail Mask"
 
     def reset(self):
         self.found = dict.fromkeys(TEXTURES, False)
@@ -44,6 +45,7 @@ class Material():
         self.nodeslist = []
         self.opacity_mode = "Opaque"
         self.opacity_from_albedo = False
+        self.mask_source = "Detail Mask"
 ####################################################################################################
 #TEXTURES MASK
 ####################################################################################################
@@ -58,7 +60,9 @@ TEXTURES_MASK = {"Albedo": ("basecolor", "base_color", "bc", "color", "albedo", 
                  "Specular": ("_s", "specular", "spec"),
                  "Occlusion": ("occlusion", "_ao", "ambientocclusion"),
                  "Displacement": ("displacement", "height", "hightmap"),
-                 "Opacity": ("opacity", "transparency")}
+                 "Opacity": ("opacity", "transparency"),
+                 "Detail Map": ("detailnrm", "detail_nrm", "detail", "detailmap", "detail_map", "detail_n", "detailn"),
+                 "Detail Mask": ("detailmsk", "detail_msk", "detailmask", "detail_mask", "detmsk", "det_msk", "detmask", "det_mask")}
 
 TEXTURES = list(TEXTURES_MASK.keys())
 ####################################################################################################
@@ -77,7 +81,10 @@ class MaterialProps(bpy.types.PropertyGroup):
         cls.AO_Strength = bpy.props.FloatProperty(name = "AO Strength", min = 0, max = 1, update = lambda a,b: updateFloat(a,b,"AO Strength"))
         cls.AlphaTreshold = bpy.props.FloatProperty(name = "Alpha Treshold", min = 0, max = 1, update = lambda a,b: updateFloat(a,b,"Alpha Treshold"))
 
-        cls.NormalMapInvertorEnabled = bpy.props.BoolProperty(name = "Invert", update=updateNormal)
+        cls.DetailMaskStrength = bpy.props.FloatProperty(name = "Detail Mask Strength", min = 0, max = 1, update = lambda a,b: updateFloat(a,b,"Detail Mask Strength"))
+
+        cls.NormalMapInvertorEnabled = bpy.props.BoolProperty(name = "Invert Normal", update=updateNormal)
+        cls.DetailMapInvertorEnabled = bpy.props.BoolProperty(name = "Invert Detail", update=updateDetail)
 
         cls.MixR = bpy.props.FloatVectorProperty(name = "Red сhannel", subtype = "COLOR", size = 4, min = 0, max = 1, update=updateColor)
         cls.MixG = bpy.props.FloatVectorProperty(name = "Green сhannel", subtype = "COLOR", size = 4, min = 0, max = 1, update=updateColor)
@@ -95,6 +102,10 @@ class MaterialProps(bpy.types.PropertyGroup):
         cls.Location = bpy.props.FloatVectorProperty(name = "Location", subtype = 'XYZ', update=lambda a,b: updateFloat(a,b,"Location"))
         cls.Rotation = bpy.props.FloatVectorProperty(name = "Rotation", subtype = 'EULER', update=lambda a,b: updateFloat(a,b,"Rotation"))
         cls.Scale = bpy.props.FloatVectorProperty(name = "Scale", subtype = 'XYZ', update=lambda a,b: updateFloat(a,b,"Scale"))
+
+        cls.DetailMapLocation = bpy.props.FloatVectorProperty(name = "Location", subtype = 'XYZ', update=lambda a,b: updateFloat(a,b,"Detail Map Location"))
+        cls.DetailMapRotation = bpy.props.FloatVectorProperty(name = "Rotation", subtype = 'EULER', update=lambda a,b: updateFloat(a,b,"Detail Map Rotation"))
+        cls.DetailMapScale = bpy.props.FloatVectorProperty(name = "Scale", subtype = 'XYZ', update=lambda a,b: updateFloat(a,b,"Detail Map Scale"))
 
         cls.AlphaMode = bpy.props.EnumProperty(items=[('STRAIGHT', 'Straight', ''), ('CHANNEL_PACKED', 'Channel Packed', '')], update=updateAlpha)
         cls.OpacityAdd = bpy.props.FloatProperty(name = "Opacity", min = 0, max = 1, update=lambda a,b: updateFloat(a,b,"Opacity"))
@@ -130,28 +141,74 @@ def updateFloat(self, context, origin=""):
         nodes["Mapping"].inputs["Rotation"].default_value = MaterialProps.Rotation
     elif origin == "Scale" and "Mapping" in nodes:
         nodes["Mapping"].inputs["Scale"].default_value = MaterialProps.Scale
-    elif origin == "Opacity":
+    elif origin == "Detail Map Location" and "Detail Mapping" in nodes:
+        nodes["Detail Mapping"].inputs["Location"].default_value = MaterialProps.DetailMapLocation
+    elif origin == "Detail Map Rotation" and "Detail Mapping" in nodes:
+        nodes["Detail Mapping"].inputs["Rotation"].default_value = MaterialProps.DetailMapRotation
+    elif origin == "Detail Map Scale" and "Detail Mapping" in nodes:
+        nodes["Detail Mapping"].inputs["Scale"].default_value = MaterialProps.DetailMapScale
+    elif origin == "Detail Mask Strength" and "NormalMix" in nodes:
+        nodes["NormalMix"].inputs["Detail Mask"].default_value = MaterialProps.DetailMaskStrength
+    elif origin == "Opacity" and "Opacity Add" in nodes:
         nodes["Opacity Add"].inputs[1].default_value = MaterialProps.OpacityAdd
 
 def updateNormal(self, context):
     MaterialProps = bpy.context.active_object.active_material.props
     if "Normal Map" in PBR_Panel.MATERIALS['CURRENT'].nodeslist:
         if MaterialProps.NormalMapInvertorEnabled:
-            PlaceNormalMapMapInvertor()
+            PlaceNormalMapInvertor("Normal")
         else:
-            RemoveNormalMapInvertor()
+            RemoveNormalMapInvertor("Normal")
 
-def PlaceNormalMapMapInvertor():
+def updateDetail(self, context):
+    MaterialProps = bpy.context.active_object.active_material.props
+    if "Detail Map" in PBR_Panel.MATERIALS['CURRENT'].nodeslist:
+        if MaterialProps.DetailMapInvertorEnabled:
+            PlaceNormalMapInvertor("Detail")
+        else:
+            RemoveNormalMapInvertor("Detail")
+
+def PlaceNormalMapInvertor(origin = "Normal"):
+    nodes = bpy.context.object.active_material.node_tree.nodes
     if "NormalMapInvertor" not in bpy.data.node_groups:
         CreateNormalMapInvertor()
-    CreateNode("ShaderNodeGroup", (-360, -650), nodename="NormalMapInvertor", nodegroup="NormalMapInvertor", hide=True)
-    LinkNodesInARow( (FROM("Normal Map", "Color"), TO("NormalMapInvertor", "NM Input")), (FROM("NormalMapInvertor", "NM Output"), TO("Normal Map Strength", "Color")) )
+    if origin == "Normal":
+        location = (-360, -700)
+        node = "Normal Map"
+        nodename = "NormalMapInvertor"
+        socket = "Main"
+    else:
+        location = (-360, -750)
+        node = "Detail Map"
+        nodename = "DetailMapInvertor"
+        socket = "Detail"
+    CreateNode("ShaderNodeGroup", location, nodename=nodename, nodegroup="NormalMapInvertor", hide=True)
+    if "NormalMix" in nodes:
+        LinkNodesInARow( (FROM(node, "Color"), TO(nodename, "NM Input")), (FROM(nodename, "NM Output"), TO("NormalMix", socket)) )
+    else:
+        LinkNodesInARow( (FROM("Normal Map", "Color"), TO("NormalMapInvertor", "NM Input")), (FROM("NormalMapInvertor", "NM Output"), TO("Normal Map Strength", "Color")) )
 
-def RemoveNormalMapInvertor():
+def PlaceNormalMix():
+    if "NormalMix" not in bpy.data.node_groups:
+        CreateNormalMix()
+    CreateNode("ShaderNodeGroup", (-360, -650), nodename="NormalMix", nodegroup="NormalMix", hide=True)
+
+def RemoveNormalMapInvertor(origin = "Normal"):
     nodes = bpy.context.object.active_material.node_tree.nodes
-    if "NormalMapInvertor" in nodes:
-        nodes.remove(nodes["NormalMapInvertor"])
-        LinkNodes( FROM("Normal Map", "Color"), TO("Normal Map Strength", "Color") )
+    if origin == "Normal":
+        node = "Normal Map"
+        socket = "Main"
+        target_node = "NormalMapInvertor"
+    else:
+        node = "Detail Map"
+        socket = "Detail"
+        target_node = "DetailMapInvertor"
+    if target_node in nodes:
+        nodes.remove(nodes[target_node])
+        if "NormalMix" in nodes:
+            LinkNodes( FROM(node, "Color"), TO("NormalMix", socket) )
+        else:
+            LinkNodes( FROM("Normal Map", "Color"), TO("Normal Map Strength", "Color") )
 
 def updateColor(self, context):
     nodes = bpy.context.object.active_material.node_tree.nodes
@@ -189,12 +246,16 @@ def resetProps():
     prop.AO_Strength = 1
     prop.AlphaTreshold = 0
     prop.NormalMapInvertorEnabled = False
+    prop.DetailMapInvertorEnabled = False
     prop.MixR = (1,1,1,1)
     prop.MixG = (1,1,1,1)
     prop.MixB = (1,1,1,1)
     prop.Location = (0,0,0)
     prop.Rotation = (0,0,0)
     prop.Scale = (1,1,1)
+    prop.DetailMapLocation = (0,0,0)
+    prop.DetailMapRotation = (0,0,0)
+    prop.DetailMapScale = (1,1,1)
     prop.OpacityAdd = 0
 
 def resetColors():
@@ -343,7 +404,20 @@ def PlaceNormalMap():
     if PBR_Panel.MATERIALS['CURRENT'].found["Normal Map"]:
         CreateNode("ShaderNodeTexImage", (-700, -600), nodename="Normal Map", image=PBR_Panel.MATERIALS['CURRENT'].images["Normal Map"])
         CreateNode("ShaderNodeNormalMap", (-360, -600), nodename="Normal Map Strength", hide=True)
-        LinkNodesInARow( (FROM("Normal Map", "Color"), TO("Normal Map Strength", "Color")), (FROM("Normal Map Strength", "Normal"), TO("Principled BSDF", "Normal")) )
+        if PBR_Panel.MATERIALS['CURRENT'].found["Detail Map"]:
+            CreateNode("ShaderNodeTexImage", (-700, -900), nodename="Detail Map", image=PBR_Panel.MATERIALS['CURRENT'].images["Detail Map"])
+            PlaceNMCoordinates()
+            PlaceNormalMix()
+            if PBR_Panel.MATERIALS['CURRENT'].found["Detail Mask"]:
+                CreateNode("ShaderNodeTexImage", (-700, -1200), nodename="Detail Mask", image=PBR_Panel.MATERIALS['CURRENT'].images["Detail Mask"])
+                LinkNodesInARow( (FROM("Detail Mask", "Color"), TO("NormalMix", "Detail Mask")) )
+                CheckAndAddToNodesList("Detail Mask")
+            LinkNodesInARow( (FROM("Normal Map", "Color"), TO("NormalMix", "Main")), (FROM("Detail Map", "Color"), TO("NormalMix", "Detail")),
+                             (FROM("NormalMix", "Color"), TO("Normal Map Strength", "Color")) )
+            CheckAndAddToNodesList("Detail Map")
+        else:
+            LinkNodesInARow( (FROM("Normal Map", "Color"), TO("Normal Map Strength", "Color")) )
+        LinkNodesInARow( (FROM("Normal Map Strength", "Normal"), TO("Principled BSDF", "Normal")) )
         CheckAndAddToNodesList("Normal Map")
 
 def PlaceEmission():
@@ -381,8 +455,8 @@ def PlaceOcclusion():
 
 def PlaceDisplacement():
     if PBR_Panel.MATERIALS['CURRENT'].found["Displacement"]:
-        CreateNode("ShaderNodeTexImage", (-700, -900), nodename="Displacement", image=PBR_Panel.MATERIALS['CURRENT'].images["Displacement"])
-        CreateNode("ShaderNodeDisplacement", (-360, -900), nodename="Normal Displacement", hide=True)
+        CreateNode("ShaderNodeTexImage", (-1000, -900), nodename="Displacement", image=PBR_Panel.MATERIALS['CURRENT'].images["Displacement"])
+        CreateNode("ShaderNodeDisplacement", (-360, -950), nodename="Normal Displacement", hide=True)
         LinkNodesInARow( (FROM("Displacement", "Color"), TO("Normal Displacement", "Normal")), (FROM("Normal Displacement", "Displacement"), TO("Material Output", "Displacement")) )
         CheckAndAddToNodesList("Displacement")
 
@@ -475,7 +549,12 @@ def PlaceCoordinates():
     LinkNodes( FROM("UVMap", "UV"), TO("Mapping", "Vector") )
     for texture in PBR_Panel.MATERIALS['CURRENT'].found:
         if PBR_Panel.MATERIALS['CURRENT'].found[texture] and texture in nodes:
-            LinkNodes( FROM("Mapping", "Vector"), TO(texture, "Vector") )
+            if texture != "Detail Map":
+                LinkNodes( FROM("Mapping", "Vector"), TO(texture, "Vector") )
+
+def PlaceNMCoordinates():
+    CreateNode("ShaderNodeMapping", (-1700, -600), nodename="Detail Mapping")
+    LinkNodes( FROM("Detail Mapping", "Vector"), TO("Detail Map", "Vector") )
 
 def PlaceAutomatic():
     PlaceBase()
@@ -591,12 +670,11 @@ def updateOpacityAdd(mode):
             if 'ORM' in PBR_Panel.MATERIALS['CURRENT'].nodeslist:
                 location = (-960, 520)
             else:
-                location = (-360, 200)
+                location = (-360, 70)
         elif node_name == 'Opacity':
             socket_name = 'Color'
             location = (-700, -560)
         CreateNode("ShaderNodeMath", location, nodename="Opacity Add", operation="ADD", defaultinput=(1, 0), hide=True)
-        print(node_name, socket_name) 
         LinkNodesInARow( (FROM(node_name, socket_name), TO("Opacity Add", "Value")), (FROM("Opacity Add", "Value"), TO("Principled BSDF", "Alpha")) )
     return
 ####################################################################################################
@@ -630,6 +708,56 @@ class PipelineMenu(bpy.types.Operator):
             layout.operator(MetalRoughnessTexturer.bl_idname, text = text)
         if not any(texture in PBR_Panel.MATERIALS['CURRENT'].found for texture in ["ORM", "Metal Smoothness", "Metal", "Roughness"]):
             layout.label(text = "No options")
+
+class DetailMaskMenu(bpy.types.Operator):
+    bl_idname = "pbr.detailmaskmenu"
+    bl_label = "Change Detail Map Source"
+    bl_description = "Set sorce to put in Normal Mix node"
+
+    def execute(self, context):
+        wm = bpy.context.window_manager
+        wm.popup_menu(DetailMaskMenu.ShowMenu, title="Available Detail Mask Sources:")
+        return {"FINISHED"}
+
+    def ShowMenu(self, context):
+        layout = self.layout
+        if PBR_Panel.MATERIALS['CURRENT'].found["Detail Mask"]:
+            layout.operator(DetailMaskSource.bl_idname, text = "Detail Mask")
+        if PBR_Panel.MATERIALS['CURRENT'].found["Albedo"]:
+            layout.operator(AlbedoAlphaSource.bl_idname, text = "Albedo Alpha")
+        layout.operator(NoneSource.bl_idname, text = "None")
+
+class DetailMaskSource(bpy.types.Operator):
+    bl_idname = "pbr.detailmasksource"
+    bl_label = "DetailMaskSource"
+    bl_description = "Link Detail Mask to Normal Mix"
+
+    def execute(self, context):
+        LinkNodes( FROM("Detail Mask", "Color"), TO("NormalMix", "Detail Mask") )
+        PBR_Panel.MATERIALS['CURRENT'].mask_source = "Detail Mask"
+        return {"FINISHED"}
+
+class AlbedoAlphaSource(bpy.types.Operator):
+    bl_idname = "pbr.albedoalphasource"
+    bl_label = "AlbedoAlphaSource"
+    bl_description = "Link Albedo Alpha to Normal Mix"
+
+    def execute(self, context):
+        LinkNodes( FROM("Albedo", "Alpha"), TO("NormalMix", "Detail Mask") )
+        PBR_Panel.MATERIALS['CURRENT'].mask_source = "Albedo Alpha"
+        return {"FINISHED"}
+
+class NoneSource(bpy.types.Operator):
+    bl_idname = "pbr.nonesource"
+    bl_label = "NoneSource"
+    bl_description = "Remove Detail Mask link from Normal Mix"
+
+    def execute(self, context):
+        PBR_Panel.MATERIALS['CURRENT'].mask_source = "None"
+        nodes = bpy.context.object.active_material.node_tree
+        if nodes.nodes['NormalMix'].inputs['Detail Mask'].links != ():
+            nodes.links.remove(nodes.nodes['NormalMix'].inputs['Detail Mask'].links[0])
+        return {"FINISHED"}
 
 class MetalRoughnessTexturer(bpy.types.Operator):
     bl_idname = "pbr.metalroughness"
@@ -760,12 +888,19 @@ class TexturePropsPanel(bpy.types.Panel):
             row = layout.row()
             row.prop(MaterialProps, "AlbedoColor")
         if "Normal Map" in PBR_Panel.MATERIALS['CURRENT'].nodeslist:
-            row = layout.row(align = False)
-            row.scale_x = 2.5
+            row = layout.row()
             row.prop(MaterialProps, "NormaMaplStrength")
-            sub = row.row(align = False)
-            sub.scale_x = 0.6
-            sub.prop(MaterialProps, "NormalMapInvertorEnabled")
+            row = layout.row()
+            row.prop(MaterialProps, "NormalMapInvertorEnabled")
+            if "NormalMix" in bpy.context.object.active_material.node_tree.nodes:
+                row = layout.row()
+                row.prop(MaterialProps, "DetailMapInvertorEnabled")
+                if "Detail Mask" not in PBR_Panel.MATERIALS['CURRENT'].nodeslist and PBR_Panel.MATERIALS['CURRENT'].mask_source == "None":
+                    row = layout.row()
+                    row.prop(MaterialProps, "DetailMaskStrength")
+                row = layout.row()
+                row.operator(DetailMaskMenu.bl_idname)
+                row = layout.row()
         TexturePropsPanel.ShowProp(context, layout, ["Metal", "ORM", "Metal Smoothness"], ["MetallicAdd"])
         TexturePropsPanel.ShowProp(context, layout, ["Roughness", "ORM", "Metal Smoothness"], ["RoughnessAdd"])
         TexturePropsPanel.ShowProp(context, layout, ["Emission"], ["EmissionMult"])
@@ -802,6 +937,28 @@ class TextureCoordinatesPanel(bpy.types.Panel):
         MaterialProps = bpy.context.active_object.active_material.props
         layout = self.layout
         for property in ["Location", "Rotation", "Scale"]:
+            row = layout.row()
+            row.prop(MaterialProps, property)
+
+class DetailMapCoordinatesPanel(bpy.types.Panel):
+    bl_parent_id = "PBR_PT_Core"
+    bl_idname = "PBR_PT_DetailMapCoordinates"
+    bl_space_type = "PROPERTIES"
+    bl_label = "Detail Map Coordinates"
+    bl_region_type = "WINDOW"
+    bl_context = "material"
+    bl_options = {"DEFAULT_CLOSED"}
+
+    @classmethod
+    def poll(self, context):
+        if bpy.context.selected_objects == []:
+            return False
+        return PBR_Panel.MATERIALS['CURRENT'].finished and bpy.context.active_object.active_material != None and "Detail Mapping" in bpy.context.object.active_material.node_tree.nodes
+
+    def draw(self, context):
+        MaterialProps = bpy.context.active_object.active_material.props
+        layout = self.layout
+        for property in ["DetailMapLocation", "DetailMapRotation", "DetailMapScale"]:
             row = layout.row()
             row.prop(MaterialProps, property)
 
@@ -843,48 +1000,51 @@ class GetTextureOperator(bpy.types.Operator):
     bl_label = "Assign Textures"
     bl_description = "Assign files with textures using choosen name pattern"
 
-    current_file = None
-
     def execute(self, context):
         ClearImages()
         PBR_Panel.MATERIALS['CURRENT'].reset()
         path = bpy.context.active_object.active_material.props.conf_path
         filenames = next(os.walk(path), (None, None, []))[2]
         for file in filenames:
-            GetTextureOperator.current_file = file
-            for texture in TEXTURES:
-                colored = any(texture == colored for colored in ["Albedo", "Emission", "Specular", "Occlusion"])
-                if not PBR_Panel.MATERIALS['CURRENT'].found[texture]:
-                    if GetTextureOperator.getTexture(texture, Colored = colored):
-                        continue
+            GetTextureOperator.getTexture(file)
         PBR_Panel.MATERIALS['CURRENT'].finished = True
         PlaceAutomatic()
         return {"FINISHED"}
 
-    def getTexture(texture, Colored = False):
-        file = GetTextureOperator.current_file
+    def getTexture(file):
+
+        treshold = 0
+        title = ''
+    
         if len(file.split(".")) >= 3:
             return False
+
         name = file.lower().split(".")[0]
-        if texture != "Albedo":
-            checkmask = TEXTURES_MASK.copy()
-            checkmask.pop(texture)
-            if any(name.endswith(checkmask[texture]) for texture in checkmask):
-                return False
         pattern = bpy.context.active_object.active_material.props.texture_pattern.lower().split("-")
+
         if len(pattern)>1:
             pattern, skip = pattern[0].strip(), pattern[1].strip()
         else:
             pattern, skip = pattern[0].strip(), None
         if skip != None and skip in name:
             return False
-        if name.endswith(TEXTURES_MASK[texture]) and pattern in name:
+        
+        for texture in TEXTURES:
+            for mask in TEXTURES_MASK[texture]:
+                if name.endswith(mask.lower()):
+                    if len(mask.lower())>treshold:
+                        treshold = len(mask.lower())
+                        title = texture
+                        break
+
+        if treshold!=0 and pattern in name:
             if file in bpy.data.images:
                 bpy.data.images.remove(bpy.data.images[file])
             image = bpy.data.images.load(filepath = os.path.join(bpy.context.active_object.active_material.props.conf_path,file))
-            if not Colored:
+
+            if not any(title == colored for colored in ["Albedo", "Emission", "Specular", "Occlusion"]):
                 image.colorspace_settings.name = "Non-Color"
-            PBR_Panel.MATERIALS['CURRENT'].found[texture], PBR_Panel.MATERIALS['CURRENT'].images[texture] = True, image
+            PBR_Panel.MATERIALS['CURRENT'].found[title], PBR_Panel.MATERIALS['CURRENT'].images[title] = True, image
         return True
 ####################################################################################################
 #MAIN PANEL CLASS
@@ -949,8 +1109,9 @@ class PBR_Panel(bpy.types.Panel):
 ####################################################################################################
 modules = [PBR_Panel, UVMapProp, MaterialProps, GetTextureOperator, PipelineMenu,
            ORMTexturer, MetalSmoothnessTexturer, MetalRoughnessTexturer, ORMMSKTexturer,
-           FadeMode, OpaqueMode, CutoutMode, OpacityMenu, 
-           UVMapPanel, TextureListPanel, TextureModePanel, TexturePropsPanel, TextureCoordinatesPanel, OpacityPanel]
+           FadeMode, OpaqueMode, CutoutMode, OpacityMenu, UVMapPanel, TextureListPanel, TextureModePanel, 
+           TexturePropsPanel, DetailMaskMenu, DetailMaskSource, AlbedoAlphaSource, NoneSource,
+           TextureCoordinatesPanel, DetailMapCoordinatesPanel, OpacityPanel]
 
 def register():
     for module in modules:
