@@ -1016,7 +1016,7 @@ class GetTextureOperator(bpy.types.Operator):
         treshold = 0
         title = ''
     
-        if len(file.split(".")) >= 3:
+        if file.split(".")[-1].lower() == 'meta':
             return False
 
         name = file.lower().split(".")[0]
