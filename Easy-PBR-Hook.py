@@ -1,7 +1,8 @@
 import bpy
 import os
+
 ####################################################################################################
-#CREDITS
+# CREDITS
 ####################################################################################################
 bl_info = {
     "name": "Easy PBR Hook",
@@ -15,14 +16,18 @@ bl_info = {
     "tracker_url": "",
     "category": "Material",
 }
+
+
 ####################################################################################################
-#MATERIAL CLASS
+# MATERIAL CLASS
 ####################################################################################################
-class Material():
+
+
+class Material:
     def __init__(self, name):
         self.name = name
-        PBR_Panel.MATERIALS[name] = self
-        PBR_Panel.MATERIALS['CURRENT'] = self
+        PBRPanel.MATERIALS[name] = self
+        PBRPanel.MATERIALS['CURRENT'] = self
         self.found = dict.fromkeys(TEXTURES, False)
         self.images = dict.fromkeys(TEXTURES, None)
         self.nodeslist = []
@@ -46,159 +51,205 @@ class Material():
         self.opacity_mode = "Opaque"
         self.opacity_from_albedo = False
         self.mask_source = "Detail Mask"
+
+
 ####################################################################################################
-#TEXTURES MASK
+# TEXTURES MASK
 ####################################################################################################
-TEXTURES_MASK = {"Albedo": ("basecolor", "base_color", "bc", "color", "albedo", "albedotransparency", "albedo_transparency", "diffuse", "diffusemap", "diffuse_map", "alb"),
-                 "Metal Smoothness": ("metsm", "met_sm", "metal_smoothness", "metalic_smoothness", "metalsmoothness", "metallicsmoothness","metal_smooth", "metalsmooth", "metsmooth"),
-                 "Metal": ("met", "metal", "_m", "metall", "metallic"),
-                 "Roughness": ("_r", "rough", "roughness"),
-                 "ORM": ("_orm", "occlusionroughnessmetallic"),
-                 "Color Mask": ("_m", "msk", "colormask", "color_mask", "_mask"),
-                 "Normal Map": ("normal", "nm", "_n", "normal_map", "normalmap", "normaldx", "normal_dx", "nrm"),
-                 "Emission": ("_e", "emis", "emiss", "emission"),
-                 "Specular": ("_s", "specular", "spec"),
-                 "Occlusion": ("occlusion", "_ao", "ambientocclusion"),
-                 "Displacement": ("displacement", "height", "hightmap"),
-                 "Opacity": ("opacity", "transparency"),
-                 "Detail Map": ("detailnrm", "detail_nrm", "detail", "detailmap", "detail_map", "detail_n", "detailn"),
-                 "Detail Mask": ("detailmsk", "detail_msk", "detailmask", "detail_mask", "detmsk", "det_msk", "detmask", "det_mask")}
+
+
+TEXTURES_MASK = {"Albedo": (
+    "basecolor", "base_color", "bc", "color", "albedo", "albedotransparency", "albedo_transparency", "diffuse",
+    "diffusemap", "diffuse_map", "alb"),
+    "Metal Smoothness": (
+        "metsm", "met_sm", "metal_smoothness", "metalic_smoothness", "metalsmoothness", "metallicsmoothness",
+        "metal_smooth", "metalsmooth", "metsmooth"),
+    "Metal": ("met", "metal", "_m", "metall", "metallic"),
+    "Roughness": ("_r", "rough", "roughness"),
+    "ORM": ("_orm", "occlusionroughnessmetallic"),
+    "Color Mask": ("_m", "msk", "colormask", "color_mask", "_mask"),
+    "Normal Map": ("normal", "nm", "_n", "normal_map", "normalmap", "normaldx", "normal_dx", "nrm"),
+    "Emission": ("_e", "emis", "emiss", "emission"),
+    "Specular": ("_s", "specular", "spec"),
+    "Occlusion": ("occlusion", "_ao", "ambientocclusion"),
+    "Displacement": ("displacement", "height", "hightmap"),
+    "Opacity": ("opacity", "transparency"),
+    "Detail Map": ("detailnrm", "detail_nrm", "detail", "detailmap", "detail_map", "detail_n", "detailn"),
+    "Detail Mask": (
+        "detailmsk", "detail_msk", "detailmask", "detail_mask", "detmsk", "det_msk", "detmask",
+        "det_mask")}
 
 TEXTURES = list(TEXTURES_MASK.keys())
+
+
 ####################################################################################################
-#PROPS CLASS AND ITS UPDATE
+# PROPS CLASS AND ITS UPDATE
 ####################################################################################################
+
+
 class MaterialProps(bpy.types.PropertyGroup):
     @classmethod
     def register(cls):
-        bpy.types.Material.props = bpy.props.PointerProperty(name="Custom properties", description="Custom Properties for Material", type=cls)
+        bpy.types.Material.props = bpy.props.PointerProperty(name="Custom properties",
+                                                             description="Custom Properties for Material", type=cls)
 
-        cls.RoughnessAdd = bpy.props.FloatProperty(name="Roughness", min = 0, max = 1, update = lambda a,b: updateFloat(a,b,"Roughness"))
-        cls.MetallicAdd = bpy.props.FloatProperty(name = "Metallic", min = 0, max = 1, update = lambda a,b: updateFloat(a,b,"Metallic"))
-        cls.SpecularAdd = bpy.props.FloatProperty(name = "Specular", min = 0, max = 100, update = lambda a,b: updateFloat(a,b,"Specular"))
-        cls.EmissionMult = bpy.props.FloatProperty(name = "Emission", min = 0, max = 1, update = lambda a,b: updateFloat(a,b,"Emission"))
-        cls.NormaMaplStrength = bpy.props.FloatProperty(name = "Normal Strength", min = 0, update = lambda a,b: updateFloat(a,b,"Normal Strength"))
-        cls.AO_Strength = bpy.props.FloatProperty(name = "AO Strength", min = 0, max = 1, update = lambda a,b: updateFloat(a,b,"AO Strength"))
-        cls.AlphaTreshold = bpy.props.FloatProperty(name = "Alpha Treshold", min = 0, max = 1, update = lambda a,b: updateFloat(a,b,"Alpha Treshold"))
+        cls.RoughnessAdd = bpy.props.FloatProperty(name="Roughness", min=0, max=1,
+                                                   update=lambda a, b: update_float(a, b, "Roughness"))
+        cls.MetallicAdd = bpy.props.FloatProperty(name="Metallic", min=0, max=1,
+                                                  update=lambda a, b: update_float(a, b, "Metallic"))
+        cls.SpecularAdd = bpy.props.FloatProperty(name="Specular", min=0, max=100,
+                                                  update=lambda a, b: update_float(a, b, "Specular"))
+        cls.EmissionMult = bpy.props.FloatProperty(name="Emission", min=0, max=1,
+                                                   update=lambda a, b: update_float(a, b, "Emission"))
+        cls.NormaMaplStrength = bpy.props.FloatProperty(name="Normal Strength", min=0,
+                                                        update=lambda a, b: update_float(a, b, "Normal Strength"))
+        cls.AO_Strength = bpy.props.FloatProperty(name="AO Strength", min=0, max=1,
+                                                  update=lambda a, b: update_float(a, b, "AO Strength"))
+        cls.AlphaThreshold = bpy.props.FloatProperty(name="Alpha Threshold", min=0, max=1,
+                                                     update=lambda a, b: update_float(a, b, "Alpha Threshold"))
 
-        cls.DetailMaskStrength = bpy.props.FloatProperty(name = "Detail Mask Strength", min = 0, max = 1, update = lambda a,b: updateFloat(a,b,"Detail Mask Strength"))
+        cls.DetailMaskStrength = bpy.props.FloatProperty(name="Detail Mask Strength", min=0, max=1,
+                                                         update=lambda a, b: update_float(a, b, "Detail Mask Strength"))
 
-        cls.NormalMapInvertorEnabled = bpy.props.BoolProperty(name = "Invert Normal", update=updateNormal)
-        cls.DetailMapInvertorEnabled = bpy.props.BoolProperty(name = "Invert Detail", update=updateDetail)
+        cls.NormalMapInverterEnabled = bpy.props.BoolProperty(name="Invert Normal", update=update_normal)
+        cls.DetailMapInvertorEnabled = bpy.props.BoolProperty(name="Invert Detail", update=update_detail)
 
-        cls.MixR = bpy.props.FloatVectorProperty(name = "Red сhannel", subtype = "COLOR", size = 4, min = 0, max = 1, update=updateColor)
-        cls.MixG = bpy.props.FloatVectorProperty(name = "Green сhannel", subtype = "COLOR", size = 4, min = 0, max = 1, update=updateColor)
-        cls.MixB = bpy.props.FloatVectorProperty(name = "Blue сhannel", subtype = "COLOR", size = 4, min = 0, max = 1, update=updateColor)
-        cls.AlbedoColor = bpy.props.FloatVectorProperty(name = "Albedo Color", subtype = "COLOR", size = 4, min = 0, max = 1, update=updateColor)
+        cls.MixR = bpy.props.FloatVectorProperty(name="Red сhannel", subtype="COLOR", size=4, min=0, max=1,
+                                                 update=update_color)
+        cls.MixG = bpy.props.FloatVectorProperty(name="Green сhannel", subtype="COLOR", size=4, min=0, max=1,
+                                                 update=update_color)
+        cls.MixB = bpy.props.FloatVectorProperty(name="Blue сhannel", subtype="COLOR", size=4, min=0, max=1,
+                                                 update=update_color)
+        cls.AlbedoColor = bpy.props.FloatVectorProperty(name="Albedo Color", subtype="COLOR", size=4, min=0, max=1,
+                                                        update=update_color)
 
         cls.conf_path = bpy.props.StringProperty(
-            name = "Path to textures", default = "",  description = "Sets the path to texture folder",
-            subtype = "DIR_PATH", update=updateString)
+            name="Path to textures", default="", description="Sets the path to texture folder",
+            subtype="DIR_PATH", update=update_string)
         cls.texture_pattern = bpy.props.StringProperty(
-            name = "Keyword", default = "",
-            description = "Keyword to find specific texture pack. You can use '-' to describe skip keyword",
-            update=updateString)
+            name="Keyword", default="",
+            description="Keyword to find specific texture pack. You can use '-' to describe skip keyword",
+            update=update_string)
 
-        cls.Location = bpy.props.FloatVectorProperty(name = "Location", subtype = 'XYZ', update=lambda a,b: updateFloat(a,b,"Location"))
-        cls.Rotation = bpy.props.FloatVectorProperty(name = "Rotation", subtype = 'EULER', update=lambda a,b: updateFloat(a,b,"Rotation"))
-        cls.Scale = bpy.props.FloatVectorProperty(name = "Scale", subtype = 'XYZ', update=lambda a,b: updateFloat(a,b,"Scale"))
+        cls.Location = bpy.props.FloatVectorProperty(name="Location", subtype='XYZ',
+                                                     update=lambda a, b: update_float(a, b, "Location"))
+        cls.Rotation = bpy.props.FloatVectorProperty(name="Rotation", subtype='EULER',
+                                                     update=lambda a, b: update_float(a, b, "Rotation"))
+        cls.Scale = bpy.props.FloatVectorProperty(name="Scale", subtype='XYZ',
+                                                  update=lambda a, b: update_float(a, b, "Scale"))
 
-        cls.DetailMapLocation = bpy.props.FloatVectorProperty(name = "Location", subtype = 'XYZ', update=lambda a,b: updateFloat(a,b,"Detail Map Location"))
-        cls.DetailMapRotation = bpy.props.FloatVectorProperty(name = "Rotation", subtype = 'EULER', update=lambda a,b: updateFloat(a,b,"Detail Map Rotation"))
-        cls.DetailMapScale = bpy.props.FloatVectorProperty(name = "Scale", subtype = 'XYZ', update=lambda a,b: updateFloat(a,b,"Detail Map Scale"))
+        cls.DetailMapLocation = bpy.props.FloatVectorProperty(name="Location", subtype='XYZ',
+                                                              update=lambda a, b: update_float(a, b,
+                                                                                               "Detail Map Location"))
+        cls.DetailMapRotation = bpy.props.FloatVectorProperty(name="Rotation", subtype='EULER',
+                                                              update=lambda a, b: update_float(a, b,
+                                                                                               "Detail Map Rotation"))
+        cls.DetailMapScale = bpy.props.FloatVectorProperty(name="Scale", subtype='XYZ',
+                                                           update=lambda a, b: update_float(a, b, "Detail Map Scale"))
 
-        cls.AlphaMode = bpy.props.EnumProperty(items=[('STRAIGHT', 'Straight', ''), ('CHANNEL_PACKED', 'Channel Packed', '')], update=updateAlpha)
-        cls.OpacityAdd = bpy.props.FloatProperty(name = "Opacity", min = 0, max = 1, update=lambda a,b: updateFloat(a,b,"Opacity"))
+        cls.AlphaMode = bpy.props.EnumProperty(
+            items=[('STRAIGHT', 'Straight', ''), ('CHANNEL_PACKED', 'Channel Packed', '')], update=update_alpha)
+        cls.OpacityAdd = bpy.props.FloatProperty(name="Opacity", min=0, max=1,
+                                                 update=lambda a, b: update_float(a, b, "Opacity"))
 
-        bpy.types.Scene.UVMap = bpy.props.EnumProperty(items=UV_items, update=updateUV)
+        bpy.types.Scene.UVMap = bpy.props.EnumProperty(items=uv_items, update=update_uv)
         bpy.types.Scene.test_collection = bpy.props.CollectionProperty(type=UVMapProp)
 
     @classmethod
     def unregister(cls):
         del bpy.types.Material.props
 
-def updateFloat(self, context, origin=""):
-    nodes = bpy.context.object.active_material.node_tree.nodes
-    MaterialProps = bpy.context.active_object.active_material.props
+
+def update_float(self, context, origin=""):
+    nodes = context.object.active_material.node_tree.nodes
+    material_prop = context.active_object.active_material.props
     if origin == "Roughness" and "Roughness Add" in nodes:
-        nodes["Roughness Add"].inputs[1].default_value = MaterialProps.RoughnessAdd - 1
+        nodes["Roughness Add"].inputs[1].default_value = material_prop.RoughnessAdd - 1
     elif origin == "Metallic" and "Metallic Add" in nodes:
-        nodes["Metallic Add"].inputs[1].default_value = MaterialProps.MetallicAdd - 1
+        nodes["Metallic Add"].inputs[1].default_value = material_prop.MetallicAdd - 1
     elif origin == "Specular" and "Specular Add" in nodes:
-        nodes["Specular Add"].inputs[1].default_value = MaterialProps.SpecularAdd
+        nodes["Specular Add"].inputs[1].default_value = material_prop.SpecularAdd
     elif origin == "Emission" and "Emission Multiply" in nodes:
-        nodes["Emission Multiply"].inputs[1].default_value = MaterialProps.EmissionMult
+        nodes["Emission Multiply"].inputs[1].default_value = material_prop.EmissionMult
     elif origin == "Normal Strength" and "Normal Map Strength" in nodes:
-        nodes["Normal Map Strength"].inputs["Strength"].default_value = MaterialProps.NormaMaplStrength
+        nodes["Normal Map Strength"].inputs["Strength"].default_value = material_prop.NormaMaplStrength
     elif origin == "AO Strength" and all(AO in nodes for AO in ["AO_Mult_Albedo", "AO_Mult_Spec"]):
-        nodes["AO_Mult_Albedo"].inputs[0].default_value = nodes["AO_Mult_Spec"].inputs[0].default_value = MaterialProps.AO_Strength
-    elif origin == "Alpha Treshold":
-        if bpy.context.object.active_material.blend_method != "OPAQUE":
-            bpy.context.object.active_material.alpha_threshold = MaterialProps.AlphaTreshold
+        nodes["AO_Mult_Albedo"].inputs[0].default_value = nodes["AO_Mult_Spec"].inputs[
+            0].default_value = material_prop.AO_Strength
+    elif origin == "Alpha Threshold":
+        if context.object.active_material.blend_method != "OPAQUE":
+            context.object.active_material.alpha_threshold = material_prop.AlphaThreshold
     elif origin == "Location" and "Mapping" in nodes:
-        nodes["Mapping"].inputs["Location"].default_value = MaterialProps.Location
+        nodes["Mapping"].inputs["Location"].default_value = material_prop.Location
     elif origin == "Rotation" and "Mapping" in nodes:
-        nodes["Mapping"].inputs["Rotation"].default_value = MaterialProps.Rotation
+        nodes["Mapping"].inputs["Rotation"].default_value = material_prop.Rotation
     elif origin == "Scale" and "Mapping" in nodes:
-        nodes["Mapping"].inputs["Scale"].default_value = MaterialProps.Scale
+        nodes["Mapping"].inputs["Scale"].default_value = material_prop.Scale
     elif origin == "Detail Map Location" and "Detail Mapping" in nodes:
-        nodes["Detail Mapping"].inputs["Location"].default_value = MaterialProps.DetailMapLocation
+        nodes["Detail Mapping"].inputs["Location"].default_value = material_prop.DetailMapLocation
     elif origin == "Detail Map Rotation" and "Detail Mapping" in nodes:
-        nodes["Detail Mapping"].inputs["Rotation"].default_value = MaterialProps.DetailMapRotation
+        nodes["Detail Mapping"].inputs["Rotation"].default_value = material_prop.DetailMapRotation
     elif origin == "Detail Map Scale" and "Detail Mapping" in nodes:
-        nodes["Detail Mapping"].inputs["Scale"].default_value = MaterialProps.DetailMapScale
+        nodes["Detail Mapping"].inputs["Scale"].default_value = material_prop.DetailMapScale
     elif origin == "Detail Mask Strength" and "NormalMix" in nodes:
-        nodes["NormalMix"].inputs["Detail Mask"].default_value = MaterialProps.DetailMaskStrength
+        nodes["NormalMix"].inputs["Detail Mask"].default_value = material_prop.DetailMaskStrength
     elif origin == "Opacity" and "Opacity Add" in nodes:
-        nodes["Opacity Add"].inputs[1].default_value = MaterialProps.OpacityAdd
+        nodes["Opacity Add"].inputs[1].default_value = material_prop.OpacityAdd
 
-def updateNormal(self, context):
-    MaterialProps = bpy.context.active_object.active_material.props
-    if "Normal Map" in PBR_Panel.MATERIALS['CURRENT'].nodeslist:
-        if MaterialProps.NormalMapInvertorEnabled:
-            PlaceNormalMapInvertor("Normal")
+
+def update_normal(self, context):
+    material_prop = context.active_object.active_material.props
+    if "Normal Map" in PBRPanel.MATERIALS['CURRENT'].nodeslist:
+        if material_prop.NormalMapInverterEnabled:
+            place_normal_map_invertor("Normal")
         else:
-            RemoveNormalMapInvertor("Normal")
+            remove_normal_map_invertor("Normal")
 
-def updateDetail(self, context):
-    MaterialProps = bpy.context.active_object.active_material.props
-    if "Detail Map" in PBR_Panel.MATERIALS['CURRENT'].nodeslist:
-        if MaterialProps.DetailMapInvertorEnabled:
-            PlaceNormalMapInvertor("Detail")
+
+def update_detail(self, context):
+    material_prop = context.active_object.active_material.props
+    if "Detail Map" in PBRPanel.MATERIALS['CURRENT'].nodeslist:
+        if material_prop.DetailMapInvertorEnabled:
+            place_normal_map_invertor("Detail")
         else:
-            RemoveNormalMapInvertor("Detail")
+            remove_normal_map_invertor("Detail")
 
-def PlaceNormalMapInvertor(origin = "Normal"):
+
+def place_normal_map_invertor(origin="Normal"):
     nodes = bpy.context.object.active_material.node_tree.nodes
-    if "NormalMapInvertor" not in bpy.data.node_groups:
-        CreateNormalMapInvertor()
+    if "NormalMapInverter" not in bpy.data.node_groups:
+        create_normal_map_inverter()
     if origin == "Normal":
         location = (-360, -700)
         node = "Normal Map"
-        nodename = "NormalMapInvertor"
+        nodename = "NormalMapInverter"
         socket = "Main"
     else:
         location = (-360, -750)
         node = "Detail Map"
         nodename = "DetailMapInvertor"
         socket = "Detail"
-    CreateNode("ShaderNodeGroup", location, nodename=nodename, nodegroup="NormalMapInvertor", hide=True)
+    create_node("ShaderNodeGroup", location, nodename=nodename, nodegroup="NormalMapInverter", hide=True)
     if "NormalMix" in nodes:
-        LinkNodesInARow( (FROM(node, "Color"), TO(nodename, "NM Input")), (FROM(nodename, "NM Output"), TO("NormalMix", socket)) )
+        link_nodes_in_a_row((FROM(node, "Color"), TO(nodename, "NM Input")),
+                            (FROM(nodename, "NM Output"), TO("NormalMix", socket)))
     else:
-        LinkNodesInARow( (FROM("Normal Map", "Color"), TO("NormalMapInvertor", "NM Input")), (FROM("NormalMapInvertor", "NM Output"), TO("Normal Map Strength", "Color")) )
+        link_nodes_in_a_row((FROM("Normal Map", "Color"), TO("NormalMapInverter", "NM Input")),
+                            (FROM("NormalMapInverter", "NM Output"), TO("Normal Map Strength", "Color")))
 
-def PlaceNormalMix():
+
+def place_normal_mix():
     if "NormalMix" not in bpy.data.node_groups:
-        CreateNormalMix()
-    CreateNode("ShaderNodeGroup", (-360, -650), nodename="NormalMix", nodegroup="NormalMix", hide=True)
+        create_normal_mix()
+    create_node("ShaderNodeGroup", (-360, -650), nodename="NormalMix", nodegroup="NormalMix", hide=True)
 
-def RemoveNormalMapInvertor(origin = "Normal"):
+
+def remove_normal_map_invertor(origin="Normal"):
     nodes = bpy.context.object.active_material.node_tree.nodes
     if origin == "Normal":
         node = "Normal Map"
         socket = "Main"
-        target_node = "NormalMapInvertor"
+        target_node = "NormalMapInverter"
     else:
         node = "Detail Map"
         socket = "Detail"
@@ -206,37 +257,42 @@ def RemoveNormalMapInvertor(origin = "Normal"):
     if target_node in nodes:
         nodes.remove(nodes[target_node])
         if "NormalMix" in nodes:
-            LinkNodes( FROM(node, "Color"), TO("NormalMix", socket) )
+            link_nodes(FROM(node, "Color"), TO("NormalMix", socket))
         else:
-            LinkNodes( FROM("Normal Map", "Color"), TO("Normal Map Strength", "Color") )
+            link_nodes(FROM("Normal Map", "Color"), TO("Normal Map Strength", "Color"))
 
-def updateColor(self, context):
-    nodes = bpy.context.object.active_material.node_tree.nodes
-    MaterialProps = bpy.context.active_object.active_material.props
-    if "Albedo" in PBR_Panel.MATERIALS['CURRENT'].nodeslist and nodes["Albedo"].type == "RGB":
-        nodes["Albedo"].outputs["Color"].default_value  = MaterialProps.AlbedoColor
+
+def update_color(self, context):
+    nodes = context.object.active_material.node_tree.nodes
+    material_prop = context.active_object.active_material.props
+    if "Albedo" in PBRPanel.MATERIALS['CURRENT'].nodeslist and nodes["Albedo"].type == "RGB":
+        nodes["Albedo"].outputs["Color"].default_value = material_prop.AlbedoColor
     else:
-        nodes["Principled BSDF"].inputs["Base Color"].default_value  = MaterialProps.AlbedoColor
-    if "Color Mask" in PBR_Panel.MATERIALS['CURRENT'].nodeslist:
-        nodes["RedColor"].outputs["Color"].default_value  = MaterialProps.MixR
-        nodes["GreenColor"].outputs["Color"].default_value = MaterialProps.MixG
-        nodes["BlueColor"].outputs["Color"].default_value = MaterialProps.MixB
+        nodes["Principled BSDF"].inputs["Base Color"].default_value = material_prop.AlbedoColor
+    if "Color Mask" in PBRPanel.MATERIALS['CURRENT'].nodeslist:
+        nodes["RedColor"].outputs["Color"].default_value = material_prop.MixR
+        nodes["GreenColor"].outputs["Color"].default_value = material_prop.MixG
+        nodes["BlueColor"].outputs["Color"].default_value = material_prop.MixB
 
-def updateString(self, context):
-    if bpy.context.active_object.active_material.props.conf_path != bpy.path.abspath(bpy.context.active_object.active_material.props.conf_path):
-        bpy.context.active_object.active_material.props.conf_path = bpy.path.abspath(bpy.context.active_object.active_material.props.conf_path)
-    if PBR_Panel.current_path != bpy.context.active_object.active_material.props.conf_path or PBR_Panel.current_pattern != bpy.context.active_object.active_material.props.texture_pattern:
-        PBR_Panel.MATERIALS['CURRENT'].finished = False
 
-def updateAlpha(self, context):
-    MaterialProps = bpy.context.active_object.active_material.props
-    bpy.data.images[PBR_Panel.MATERIALS['CURRENT'].images['Albedo'].name].alpha_mode = MaterialProps.AlphaMode
+def update_string(self, context):
+    if context.active_object.active_material.props.conf_path != bpy.path.abspath(context.active_object.active_material.props.conf_path):
+        context.active_object.active_material.props.conf_path = bpy.path.abspath(context.active_object.active_material.props.conf_path)
+    if PBRPanel.current_path != context.active_object.active_material.props.conf_path or PBRPanel.current_pattern != context.active_object.active_material.props.texture_pattern:
+        PBRPanel.MATERIALS['CURRENT'].finished = False
 
-def updateUV(self, context):
-    nodes = bpy.context.object.active_material.node_tree.nodes
-    nodes["UVMap"].uv_map = bpy.context.scene.UVMap
 
-def resetProps():
+def update_alpha(self, context):
+    material_prop = context.active_object.active_material.props
+    bpy.data.images[PBRPanel.MATERIALS['CURRENT'].images['Albedo'].name].alpha_mode = material_prop.AlphaMode
+
+
+def update_uv(self, context):
+    nodes = context.object.active_material.node_tree.nodes
+    nodes["UVMap"].uv_map = context.scene.UVMap
+
+
+def reset_props():
     prop = bpy.context.active_object.active_material.props
     prop.RoughnessAdd = 1
     prop.MetallicAdd = 1
@@ -244,41 +300,46 @@ def resetProps():
     prop.EmissionMult = 1
     prop.NormaMaplStrength = 1
     prop.AO_Strength = 1
-    prop.AlphaTreshold = 0
-    prop.NormalMapInvertorEnabled = False
+    prop.AlphaThreshold = 0
+    prop.NormalMapInverterEnabled = False
     prop.DetailMapInvertorEnabled = False
-    prop.MixR = (1,1,1,1)
-    prop.MixG = (1,1,1,1)
-    prop.MixB = (1,1,1,1)
-    prop.Location = (0,0,0)
-    prop.Rotation = (0,0,0)
-    prop.Scale = (1,1,1)
-    prop.DetailMapLocation = (0,0,0)
-    prop.DetailMapRotation = (0,0,0)
-    prop.DetailMapScale = (1,1,1)
+    prop.MixR = (1, 1, 1, 1)
+    prop.MixG = (1, 1, 1, 1)
+    prop.MixB = (1, 1, 1, 1)
+    prop.Location = (0, 0, 0)
+    prop.Rotation = (0, 0, 0)
+    prop.Scale = (1, 1, 1)
+    prop.DetailMapLocation = (0, 0, 0)
+    prop.DetailMapRotation = (0, 0, 0)
+    prop.DetailMapScale = (1, 1, 1)
     prop.OpacityAdd = 0
 
-def resetColors():
+
+def reset_colors():
     nodes = bpy.context.object.active_material.node_tree.nodes
-    nodes["RedColor"].outputs["Color"].default_value = (1,1,1,1)
-    nodes["GreenColor"].outputs["Color"].default_value = (1,1,1,1)
-    nodes["BlueColor"].outputs["Color"].default_value = (1,1,1,1)
+    nodes["RedColor"].outputs["Color"].default_value = (1, 1, 1, 1)
+    nodes["GreenColor"].outputs["Color"].default_value = (1, 1, 1, 1)
+    nodes["BlueColor"].outputs["Color"].default_value = (1, 1, 1, 1)
+
 
 class UVMapProp(bpy.types.PropertyGroup):
     uv: bpy.props.StringProperty()
 
-def UV_items(self, context):
-    Enum_items = []
+
+def uv_items(self, context):
+    enum_items = []
     for UV in bpy.data.meshes[context.active_object.data.name].uv_layers.keys():
         data = str(UV)
         item = (data, data, '')
-        Enum_items.append(item)
-    return Enum_items
+        enum_items.append(item)
+    return enum_items
+
+
 ####################################################################################################
-#NODE FUNCTIONS
+# NODE FUNCTIONS
 ####################################################################################################
-def CreateNode(nodetype, location, nodename="", blendtype="", operation="", nodegroup=None, image=None, hide=False, defaultinput=None, nodetree="default"):
-    nodes = bpy.context.object.active_material.node_tree.nodes if nodetree=="default" else nodetree.nodes
+def create_node(nodetype, location, nodename="", blendtype="", operation="", nodegroup=None, image=None, hide=False, defaultinput=None, nodetree="default"):
+    nodes = bpy.context.object.active_material.node_tree.nodes if nodetree == "default" else nodetree.nodes
     newnode = nodes.new(nodetype)
     newnode.location = location
     if nodename:
@@ -293,366 +354,459 @@ def CreateNode(nodetype, location, nodename="", blendtype="", operation="", node
         newnode.image = image
     if defaultinput:
         newnode.inputs[defaultinput[0]].default_value = defaultinput[1]
-    newnode.hide=hide
+    newnode.hide = hide
 
-def LinkNodes(FROM, TO, nodetree="default"):
-    node_tree = bpy.context.object.active_material.node_tree if nodetree=="default" else nodetree
+
+def link_nodes(FROM, TO, nodetree="default"):
+    node_tree = bpy.context.object.active_material.node_tree if nodetree == "default" else nodetree
     node_tree.links.new(node_tree.nodes[FROM[0]].outputs[FROM[1]], node_tree.nodes[TO[0]].inputs[TO[1]])
 
-def LinkNodesInARow(*routes, nodetree="default"):
-    [LinkNodes((route[0][0], route[0][1]), (route[1][0], route[1][1]), nodetree) for route in routes]
+
+def link_nodes_in_a_row(*routes, nodetree="default"):
+    [link_nodes((route[0][0], route[0][1]), (route[1][0], route[1][1]), nodetree) for route in routes]
+
 
 def FROM(name, socket):
     return [name, socket]
 
+
 def TO(name, socket):
-    return [name,socket]
+    return [name, socket]
 
-def CreateSockets(node, *sockets, socket=""):
-    node_sockets = node.inputs if socket=="INPUT" else node.outputs
+
+def create_sockets(node, *sockets, socket=""):
+    node_sockets = node.inputs if socket == "INPUT" else node.outputs
     [node_sockets.new(sockettype, socket) for sockettype, socket in sockets]
-####################################################################################################
-#CREATING NODE GROUPS
-####################################################################################################
-def CreateNormalMapInvertor():
-    NormalMapInvert = bpy.data.node_groups.new("NormalMapInvertor", "ShaderNodeTree")
-    NormalMapInvert.name = "NormalMapInvertor"
-    CreateSockets(NormalMapInvert, ("NodeSocketImage","NM Input"), socket="INPUT")
-    CreateSockets(NormalMapInvert, ("NodeSocketImage","NM Output"), socket="OUTPUT")
-    CreateNode("NodeGroupInput", (-300,0), nodename="Group Input", hide=True, nodetree=NormalMapInvert)
-    CreateNode("NodeGroupOutput", (340,0), nodename="Group Output", hide=True, nodetree=NormalMapInvert)
-    CreateNode("ShaderNodeSeparateRGB", (-140,0), nodename="Separate RGB", hide=True, nodetree=NormalMapInvert)
-    CreateNode("ShaderNodeCombineRGB", (180,0), nodename="Combine RGB", hide=True, nodetree=NormalMapInvert)
-    CreateNode("ShaderNodeInvert", (20,0), nodename="Invert", hide=True, nodetree=NormalMapInvert)
-    LinkNodesInARow( (FROM("Group Input", "NM Input"), TO("Separate RGB", "Image")), (FROM("Separate RGB", "R"), TO("Combine RGB", "R")),
-                     (FROM("Separate RGB", "B"), TO("Combine RGB", "B")), (FROM("Separate RGB", "G"), TO("Invert", "Color")),
-                     (FROM("Invert", "Color"), TO("Combine RGB", "G")), (FROM("Combine RGB", "Image"), TO("Group Output", "NM Output")), nodetree=NormalMapInvert)
 
-def CreateNormalMix():
+
+####################################################################################################
+# CREATING NODE GROUPS
+####################################################################################################
+def create_normal_map_inverter():
+    NormalMapInvert = bpy.data.node_groups.new("NormalMapInverter", "ShaderNodeTree")
+    NormalMapInvert.name = "NormalMapInverter"
+    create_sockets(NormalMapInvert, ("NodeSocketImage", "NM Input"), socket="INPUT")
+    create_sockets(NormalMapInvert, ("NodeSocketImage", "NM Output"), socket="OUTPUT")
+    create_node("NodeGroupInput", (-300, 0), nodename="Group Input", hide=True, nodetree=NormalMapInvert)
+    create_node("NodeGroupOutput", (340, 0), nodename="Group Output", hide=True, nodetree=NormalMapInvert)
+    create_node("ShaderNodeSeparateRGB", (-140, 0), nodename="Separate RGB", hide=True, nodetree=NormalMapInvert)
+    create_node("ShaderNodeCombineRGB", (180, 0), nodename="Combine RGB", hide=True, nodetree=NormalMapInvert)
+    create_node("ShaderNodeInvert", (20, 0), nodename="Invert", hide=True, nodetree=NormalMapInvert)
+    link_nodes_in_a_row((FROM("Group Input", "NM Input"), TO("Separate RGB", "Image")),
+                        (FROM("Separate RGB", "R"), TO("Combine RGB", "R")),
+                        (FROM("Separate RGB", "B"), TO("Combine RGB", "B")),
+                        (FROM("Separate RGB", "G"), TO("Invert", "Color")),
+                        (FROM("Invert", "Color"), TO("Combine RGB", "G")),
+                        (FROM("Combine RGB", "Image"), TO("Group Output", "NM Output")), nodetree=NormalMapInvert)
+
+
+def create_normal_mix():
     NormalMix = bpy.data.node_groups.new("NormalMix", "ShaderNodeTree")
     NormalMix.name = "NormalMix"
-    CreateSockets(NormalMix, ("NodeSocketImage","Main"), ("NodeSocketImage","Detail"), ("NodeSocketFloat","Detail Mask"), socket="INPUT")
-    CreateSockets(NormalMix, ("NodeSocketImage","Color"), socket="OUTPUT")
-    CreateNode("NodeGroupInput", (0,-40), nodename="Group Input", hide=True, nodetree=NormalMix)
-    CreateNode("NodeGroupOutput", (1400,-36), nodename="Group Output", hide=True, nodetree=NormalMix)
-    CreateNode("ShaderNodeSeparateRGB", (200,0), nodename="Separate RGB (1)", hide=True, nodetree=NormalMix)
-    CreateNode("ShaderNodeSeparateRGB", (200,-75), nodename="Separate RGB (2)", hide=True, nodetree=NormalMix)
-    CreateNode("ShaderNodeSeparateRGB", (1000,-36), nodename="Separate RGB (3)", hide=True, nodetree=NormalMix)
-    CreateNode("ShaderNodeCombineRGB", (400,0), nodename="Combine RGB (1)", hide=True, nodetree=NormalMix)
-    CreateNode("ShaderNodeCombineRGB", (400,-75), nodename="Combine RGB (2)", hide=True, nodetree=NormalMix)
-    CreateNode("ShaderNodeCombineRGB", (1200,-36), nodename="Combine RGB (3)", hide=True, nodetree=NormalMix)
-    CreateNode("ShaderNodeMixRGB", (800,-36), nodename="Subtract", blendtype="SUBTRACT", hide=True, nodetree=NormalMix)
-    CreateNode("ShaderNodeMixRGB", (600,-36), nodename="Add", blendtype="ADD", hide=True, nodetree=NormalMix)
-    CreateNode("ShaderNodeMath", (400, -36), nodename="Multiply", operation="MULTIPLY", hide=True, nodetree=NormalMix)
-    LinkNodesInARow( (FROM("Group Input", "Main"), TO("Separate RGB (1)", "Image")), (FROM("Group Input", "Detail"), TO("Separate RGB (2)", "Image")),
-                     (FROM("Separate RGB (1)", "R"), TO("Combine RGB (1)", "R")), (FROM("Separate RGB (1)", "G"), TO("Combine RGB (1)", "G")),
-                     (FROM("Separate RGB (2)", "R"), TO("Combine RGB (2)", "R")), (FROM("Separate RGB (2)", "G"), TO("Combine RGB (2)", "G")),
-                     (FROM("Separate RGB (1)", "B"), TO("Multiply", 0)), (FROM("Separate RGB (2)", "B"), TO("Multiply", 1)),
-                     (FROM("Combine RGB (1)", "Image"), TO("Add", "Color1")), (FROM("Combine RGB (2)", "Image"), TO("Add", "Color2")), (FROM("Group Input", "Detail Mask"), TO("Add", "Fac")),
-                     (FROM("Group Input", "Detail Mask"), TO("Subtract", "Fac")), (FROM("Add", "Color"), TO("Subtract", "Color1")), (FROM("Subtract", "Color"), TO("Separate RGB (3)", "Image")),
-                     (FROM("Multiply", "Value"), TO("Combine RGB (3)", "B")), (FROM("Separate RGB (3)", "R"), TO("Combine RGB (3)", "R")), (FROM("Separate RGB (3)", "G"), TO("Combine RGB (3)", "G")),
-                     (FROM("Combine RGB (3)", "Image"), TO("Group Output", "Color")), nodetree=NormalMix)
+    create_sockets(NormalMix, ("NodeSocketImage", "Main"), ("NodeSocketImage", "Detail"),
+                   ("NodeSocketFloat", "Detail Mask"), socket="INPUT")
+    create_sockets(NormalMix, ("NodeSocketImage", "Color"), socket="OUTPUT")
+    create_node("NodeGroupInput", (0, -40), nodename="Group Input", hide=True, nodetree=NormalMix)
+    create_node("NodeGroupOutput", (1400, -36), nodename="Group Output", hide=True, nodetree=NormalMix)
+    create_node("ShaderNodeSeparateRGB", (200, 0), nodename="Separate RGB (1)", hide=True, nodetree=NormalMix)
+    create_node("ShaderNodeSeparateRGB", (200, -75), nodename="Separate RGB (2)", hide=True, nodetree=NormalMix)
+    create_node("ShaderNodeSeparateRGB", (1000, -36), nodename="Separate RGB (3)", hide=True, nodetree=NormalMix)
+    create_node("ShaderNodeCombineRGB", (400, 0), nodename="Combine RGB (1)", hide=True, nodetree=NormalMix)
+    create_node("ShaderNodeCombineRGB", (400, -75), nodename="Combine RGB (2)", hide=True, nodetree=NormalMix)
+    create_node("ShaderNodeCombineRGB", (1200, -36), nodename="Combine RGB (3)", hide=True, nodetree=NormalMix)
+    create_node("ShaderNodeMixRGB", (800, -36), nodename="Subtract", blendtype="SUBTRACT", hide=True, nodetree=NormalMix)
+    create_node("ShaderNodeMixRGB", (600, -36), nodename="Add", blendtype="ADD", hide=True, nodetree=NormalMix)
+    create_node("ShaderNodeMath", (400, -36), nodename="Multiply", operation="MULTIPLY", hide=True, nodetree=NormalMix)
+    link_nodes_in_a_row((FROM("Group Input", "Main"), TO("Separate RGB (1)", "Image")),
+                        (FROM("Group Input", "Detail"), TO("Separate RGB (2)", "Image")),
+                        (FROM("Separate RGB (1)", "R"), TO("Combine RGB (1)", "R")),
+                        (FROM("Separate RGB (1)", "G"), TO("Combine RGB (1)", "G")),
+                        (FROM("Separate RGB (2)", "R"), TO("Combine RGB (2)", "R")),
+                        (FROM("Separate RGB (2)", "G"), TO("Combine RGB (2)", "G")),
+                        (FROM("Separate RGB (1)", "B"), TO("Multiply", 0)),
+                        (FROM("Separate RGB (2)", "B"), TO("Multiply", 1)),
+                        (FROM("Combine RGB (1)", "Image"), TO("Add", "Color1")),
+                        (FROM("Combine RGB (2)", "Image"), TO("Add", "Color2")),
+                        (FROM("Group Input", "Detail Mask"), TO("Add", "Fac")),
+                        (FROM("Group Input", "Detail Mask"), TO("Subtract", "Fac")),
+                        (FROM("Add", "Color"), TO("Subtract", "Color1")),
+                        (FROM("Subtract", "Color"), TO("Separate RGB (3)", "Image")),
+                        (FROM("Multiply", "Value"), TO("Combine RGB (3)", "B")),
+                        (FROM("Separate RGB (3)", "R"), TO("Combine RGB (3)", "R")),
+                        (FROM("Separate RGB (3)", "G"), TO("Combine RGB (3)", "G")),
+                        (FROM("Combine RGB (3)", "Image"), TO("Group Output", "Color")), nodetree=NormalMix)
+
+
 ####################################################################################################
-#PLACE FUNCTIONS
+# PLACE FUNCTIONS
 ####################################################################################################
-def ClearMaterial():
+def clear_material():
     nodes = bpy.context.object.active_material.node_tree.nodes
     bpy.context.object.active_material.use_backface_culling = False
     [nodes.remove(nodes[node]) for node in nodes.keys()]
-    CreateNode("ShaderNodeBsdfPrincipled", (0, 0))
-    CreateNode("ShaderNodeOutputMaterial", (300, 0))
-    LinkNodes(FROM("Principled BSDF", "BSDF"), TO("Material Output", "Surface"))
+    create_node("ShaderNodeBsdfPrincipled", (0, 0))
+    create_node("ShaderNodeOutputMaterial", (300, 0))
+    link_nodes(FROM("Principled BSDF", "BSDF"), TO("Material Output", "Surface"))
 
-def ClearImages():
-    if len(bpy.data.materials)<=2:
+
+def clear_images():
+    if len(bpy.data.materials) <= 2:
         nodes = bpy.context.object.active_material.node_tree.nodes
         for node in nodes.keys():
             if hasattr(nodes[node], "image"):
-                if nodes[node].image != None:
+                if nodes[node].image is not None:
                     bpy.data.images.remove(nodes[node].image)
 
-def PlaceBase():
-    nodes = bpy.context.object.active_material.node_tree.nodes
-    ClearMaterial()
-    if "Albedo" not in nodes:
-        PlaceAlbedo()
-    if "Normal Map" not in nodes:
-        PlaceNormalMap()
-    if "Emission" not in nodes:
-        PlaceEmission()
-    if "Specular" not in nodes:
-        PlaceSpecular()
-    if "Displacement" not in nodes:
-        PlaceDisplacement()
-    if "Opacity" not in nodes:
-        PlaceOpacity()
 
-def PlaceAlbedo():
-    if PBR_Panel.MATERIALS['CURRENT'].found["Albedo"]:
-        CreateNode("ShaderNodeTexImage", (-700, 300), nodename="Albedo", image=PBR_Panel.MATERIALS['CURRENT'].images["Albedo"])
-        LinkNodes( FROM("Albedo", "Color"), TO("Principled BSDF", "Base Color") )
-        if PBR_Panel.MATERIALS['CURRENT'].images["Albedo"].name.lower().split(".")[0].endswith("transparency"):
-            LinkNodes( FROM("Albedo", "Alpha"), TO("Principled BSDF", "Alpha") )
-            PBR_Panel.MATERIALS['CURRENT'].opacity_from_albedo = True
-    elif PBR_Panel.MATERIALS['CURRENT'].found["ORM"] or PBR_Panel.MATERIALS['CURRENT'].found["Occlusion"]:
-        CreateNode("ShaderNodeRGB", (-700, 300), nodename="Albedo")
+def place_base():
+    nodes = bpy.context.object.active_material.node_tree.nodes
+    clear_material()
+    if "Albedo" not in nodes:
+        place_albedo()
+    if "Normal Map" not in nodes:
+        place_normal_map()
+    if "Emission" not in nodes:
+        place_emission()
+    if "Specular" not in nodes:
+        place_specular()
+    if "Displacement" not in nodes:
+        place_displacement()
+    if "Opacity" not in nodes:
+        place_opacity()
+
+
+def place_albedo():
+    if PBRPanel.MATERIALS['CURRENT'].found["Albedo"]:
+        create_node("ShaderNodeTexImage", (-700, 300), nodename="Albedo",
+                    image=PBRPanel.MATERIALS['CURRENT'].images["Albedo"])
+        link_nodes(FROM("Albedo", "Color"), TO("Principled BSDF", "Base Color"))
+        if PBRPanel.MATERIALS['CURRENT'].images["Albedo"].name.lower().split(".")[0].endswith("transparency"):
+            link_nodes(FROM("Albedo", "Alpha"), TO("Principled BSDF", "Alpha"))
+            PBRPanel.MATERIALS['CURRENT'].opacity_from_albedo = True
+    elif PBRPanel.MATERIALS['CURRENT'].found["ORM"] or PBRPanel.MATERIALS['CURRENT'].found["Occlusion"]:
+        create_node("ShaderNodeRGB", (-700, 300), nodename="Albedo")
     else:
         return
-    CheckAndAddToNodesList("Albedo")
+    check_and_add_to_nodeslist("Albedo")
 
-def PlaceNormalMap():
-    if PBR_Panel.MATERIALS['CURRENT'].found["Normal Map"]:
-        CreateNode("ShaderNodeTexImage", (-700, -600), nodename="Normal Map", image=PBR_Panel.MATERIALS['CURRENT'].images["Normal Map"])
-        CreateNode("ShaderNodeNormalMap", (-360, -600), nodename="Normal Map Strength", hide=True)
-        if PBR_Panel.MATERIALS['CURRENT'].found["Detail Map"]:
-            CreateNode("ShaderNodeTexImage", (-700, -900), nodename="Detail Map", image=PBR_Panel.MATERIALS['CURRENT'].images["Detail Map"])
-            PlaceNMCoordinates()
-            PlaceNormalMix()
-            if PBR_Panel.MATERIALS['CURRENT'].found["Detail Mask"]:
-                CreateNode("ShaderNodeTexImage", (-700, -1200), nodename="Detail Mask", image=PBR_Panel.MATERIALS['CURRENT'].images["Detail Mask"])
-                LinkNodesInARow( (FROM("Detail Mask", "Color"), TO("NormalMix", "Detail Mask")) )
-                CheckAndAddToNodesList("Detail Mask")
-            LinkNodesInARow( (FROM("Normal Map", "Color"), TO("NormalMix", "Main")), (FROM("Detail Map", "Color"), TO("NormalMix", "Detail")),
-                             (FROM("NormalMix", "Color"), TO("Normal Map Strength", "Color")) )
-            CheckAndAddToNodesList("Detail Map")
+
+def place_normal_map():
+    if PBRPanel.MATERIALS['CURRENT'].found["Normal Map"]:
+        create_node("ShaderNodeTexImage", (-700, -600), nodename="Normal Map",
+                    image=PBRPanel.MATERIALS['CURRENT'].images["Normal Map"])
+        create_node("ShaderNodeNormalMap", (-360, -600), nodename="Normal Map Strength", hide=True)
+        if PBRPanel.MATERIALS['CURRENT'].found["Detail Map"]:
+            create_node("ShaderNodeTexImage", (-700, -900), nodename="Detail Map",
+                        image=PBRPanel.MATERIALS['CURRENT'].images["Detail Map"])
+            place_normal_map_coordinates()
+            place_normal_mix()
+            if PBRPanel.MATERIALS['CURRENT'].found["Detail Mask"]:
+                create_node("ShaderNodeTexImage", (-700, -1200), nodename="Detail Mask",
+                            image=PBRPanel.MATERIALS['CURRENT'].images["Detail Mask"])
+                link_nodes_in_a_row((FROM("Detail Mask", "Color"), TO("NormalMix", "Detail Mask")))
+                check_and_add_to_nodeslist("Detail Mask")
+            link_nodes_in_a_row((FROM("Normal Map", "Color"), TO("NormalMix", "Main")),
+                                (FROM("Detail Map", "Color"), TO("NormalMix", "Detail")),
+                                (FROM("NormalMix", "Color"), TO("Normal Map Strength", "Color")))
+            check_and_add_to_nodeslist("Detail Map")
         else:
-            LinkNodesInARow( (FROM("Normal Map", "Color"), TO("Normal Map Strength", "Color")) )
-        LinkNodesInARow( (FROM("Normal Map Strength", "Normal"), TO("Principled BSDF", "Normal")) )
-        CheckAndAddToNodesList("Normal Map")
+            link_nodes_in_a_row((FROM("Normal Map", "Color"), TO("Normal Map Strength", "Color")))
+        link_nodes_in_a_row((FROM("Normal Map Strength", "Normal"), TO("Principled BSDF", "Normal")))
+        check_and_add_to_nodeslist("Normal Map")
 
-def PlaceEmission():
-    if PBR_Panel.MATERIALS['CURRENT'].found["Emission"]:
-        CreateNode("ShaderNodeTexImage", (-700, -300), nodename="Emission", image=PBR_Panel.MATERIALS['CURRENT'].images["Emission"])
-        CreateNode("ShaderNodeMath", (-360, -300), nodename="Emission Multiply", operation="MULTIPLY", hide=True)
-        LinkNodesInARow( (FROM("Emission", "Color"), TO("Emission Multiply", "Value")), (FROM("Emission Multiply", "Value"), TO("Principled BSDF", "Emission")) )
-        CheckAndAddToNodesList("Emission")
 
-def PlaceSpecular():
-    if PBR_Panel.MATERIALS['CURRENT'].found["Specular"]:
-        CreateNode("ShaderNodeTexImage", (-700, -1200), nodename="Specular", image=PBR_Panel.MATERIALS['CURRENT'].images["Specular"])
-        CreateNode("ShaderNodeMath", (-360, -1200), nodename="Specular Add", operation="ADD", hide=True)
-        LinkNodesInARow( (FROM("Specular", "Color"), TO("Specular Add", "Value")), (FROM("Specular Add", "Value"), TO("Principled BSDF", "Specular")) )
-        CheckAndAddToNodesList("Specular")
+def place_emission():
+    if PBRPanel.MATERIALS['CURRENT'].found["Emission"]:
+        create_node("ShaderNodeTexImage", (-700, -300), nodename="Emission",
+                    image=PBRPanel.MATERIALS['CURRENT'].images["Emission"])
+        create_node("ShaderNodeMath", (-360, -300), nodename="Emission Multiply", operation="MULTIPLY", hide=True)
+        link_nodes_in_a_row((FROM("Emission", "Color"), TO("Emission Multiply", "Value")),
+                            (FROM("Emission Multiply", "Value"), TO("Principled BSDF", "Emission")))
+        check_and_add_to_nodeslist("Emission")
 
-def PlaceOcclusion():
-    if PBR_Panel.MATERIALS['CURRENT'].found["Occlusion"]:
+
+def place_specular():
+    if PBRPanel.MATERIALS['CURRENT'].found["Specular"]:
+        create_node("ShaderNodeTexImage", (-700, -1200), nodename="Specular",
+                    image=PBRPanel.MATERIALS['CURRENT'].images["Specular"])
+        create_node("ShaderNodeMath", (-360, -1200), nodename="Specular Add", operation="ADD", hide=True)
+        link_nodes_in_a_row((FROM("Specular", "Color"), TO("Specular Add", "Value")),
+                            (FROM("Specular Add", "Value"), TO("Principled BSDF", "Specular")))
+        check_and_add_to_nodeslist("Specular")
+
+
+def place_occlusion():
+    if PBRPanel.MATERIALS['CURRENT'].found["Occlusion"]:
         nodes = bpy.context.object.active_material.node_tree.nodes
-        CreateNode("ShaderNodeTexImage", (-1000, 300), nodename="Occlusion", image=PBR_Panel.MATERIALS['CURRENT'].images["Occlusion"])
-        CreateNode("ShaderNodeMixRGB", (-360, 220), nodename="AO_Mult_Albedo", blendtype="MULTIPLY", defaultinput=("Fac", 1), hide=True)
-        CreateNode("ShaderNodeMixRGB", (-360, 170), nodename="AO_Mult_Spec", blendtype="MULTIPLY", defaultinput=("Fac", 1), hide=True)
-        if PBR_Panel.MATERIALS['CURRENT'].found["Specular"]:
-            LinkNodesInARow( (FROM("Specular", "Color"), TO("Specular Add", "Value")), (FROM("Specular Add", "Value"), TO("AO_Mult_Spec", "Color1")) )
+        create_node("ShaderNodeTexImage", (-1000, 300), nodename="Occlusion",
+                    image=PBRPanel.MATERIALS['CURRENT'].images["Occlusion"])
+        create_node("ShaderNodeMixRGB", (-360, 220), nodename="AO_Mult_Albedo", blendtype="MULTIPLY",
+                    defaultinput=("Fac", 1), hide=True)
+        create_node("ShaderNodeMixRGB", (-360, 170), nodename="AO_Mult_Spec", blendtype="MULTIPLY",
+                    defaultinput=("Fac", 1), hide=True)
+        if PBRPanel.MATERIALS['CURRENT'].found["Specular"]:
+            link_nodes_in_a_row((FROM("Specular", "Color"), TO("Specular Add", "Value")),
+                                (FROM("Specular Add", "Value"), TO("AO_Mult_Spec", "Color1")))
             nodes["Specular Add"].location = (-360, 50)
             nodes["Specular"].location = (-1000, 0)
         else:
-            CreateNode("ShaderNodeValue", (-360, 120), nodename="Specular Value", hide=True)
-            LinkNodes( FROM("Specular Value", "Value"), TO("AO_Mult_Spec", "Color1") )
+            create_node("ShaderNodeValue", (-360, 120), nodename="Specular Value", hide=True)
+            link_nodes(FROM("Specular Value", "Value"), TO("AO_Mult_Spec", "Color1"))
 
-        LinkNodesInARow( (FROM("Occlusion", "Color"), TO("AO_Mult_Albedo", "Color2")), (FROM("Occlusion", "Color"), TO("AO_Mult_Spec", "Color2")),
-                         (FROM("Albedo", "Color"), TO("AO_Mult_Albedo", "Color1")), (FROM("AO_Mult_Albedo", "Color"), TO("Principled BSDF", "Base Color")),
-                         (FROM("AO_Mult_Spec", "Color"), TO("Principled BSDF", "Specular")) )
-        CheckAndAddToNodesList("Occlusion")
+        link_nodes_in_a_row((FROM("Occlusion", "Color"), TO("AO_Mult_Albedo", "Color2")),
+                            (FROM("Occlusion", "Color"), TO("AO_Mult_Spec", "Color2")),
+                            (FROM("Albedo", "Color"), TO("AO_Mult_Albedo", "Color1")),
+                            (FROM("AO_Mult_Albedo", "Color"), TO("Principled BSDF", "Base Color")),
+                            (FROM("AO_Mult_Spec", "Color"), TO("Principled BSDF", "Specular")))
+        check_and_add_to_nodeslist("Occlusion")
 
-def PlaceDisplacement():
-    if PBR_Panel.MATERIALS['CURRENT'].found["Displacement"]:
-        CreateNode("ShaderNodeTexImage", (-1000, -900), nodename="Displacement", image=PBR_Panel.MATERIALS['CURRENT'].images["Displacement"])
-        CreateNode("ShaderNodeDisplacement", (-360, -950), nodename="Normal Displacement", hide=True)
-        LinkNodesInARow( (FROM("Displacement", "Color"), TO("Normal Displacement", "Normal")), (FROM("Normal Displacement", "Displacement"), TO("Material Output", "Displacement")) )
-        CheckAndAddToNodesList("Displacement")
 
-def PlaceOpacity():
-    if PBR_Panel.MATERIALS['CURRENT'].found["Opacity"]:
-        CreateNode("ShaderNodeTexImage", (-1000, -600), nodename="Opacity", image=PBR_Panel.MATERIALS['CURRENT'].images["Opacity"])
-        LinkNodes( FROM("Opacity", "Color"), TO("Principled BSDF", "Alpha") )
-        CheckAndAddToNodesList("Opacity")
+def place_displacement():
+    if PBRPanel.MATERIALS['CURRENT'].found["Displacement"]:
+        create_node("ShaderNodeTexImage", (-1000, -900), nodename="Displacement",
+                    image=PBRPanel.MATERIALS['CURRENT'].images["Displacement"])
+        create_node("ShaderNodeDisplacement", (-360, -950), nodename="Normal Displacement", hide=True)
+        link_nodes_in_a_row((FROM("Displacement", "Color"), TO("Normal Displacement", "Normal")),
+                            (FROM("Normal Displacement", "Displacement"), TO("Material Output", "Displacement")))
+        check_and_add_to_nodeslist("Displacement")
 
-def PlaceORMMSK():
-    PlaceORM()
-    PlaceColorMask()
 
-def PlaceORM():
-    PlaceBase()
-    CreateNode("ShaderNodeTexImage", (-1000, 0), nodename="ORM", image=PBR_Panel.MATERIALS['CURRENT'].images["ORM"])
-    CreateNode("ShaderNodeSeparateRGB", (-700, 0), nodename="SeparateORM", hide=True)
-    CreateNode("ShaderNodeMixRGB", (-360, 220), nodename="AO_Mult_Albedo", blendtype="MULTIPLY", defaultinput=("Fac", 1), hide=True)
-    CreateNode("ShaderNodeMixRGB", (-360, 170), nodename="AO_Mult_Spec", blendtype="MULTIPLY", defaultinput=("Fac", 1), hide=True)
-    CreateNode("ShaderNodeMath", (-360, 0), nodename="Metallic Add", operation="ADD", hide=True)
-    CreateNode("ShaderNodeMath", (-360, -50), nodename="Roughness Add", operation="ADD", hide=True)
+def place_opacity():
+    if PBRPanel.MATERIALS['CURRENT'].found["Opacity"]:
+        create_node("ShaderNodeTexImage", (-1000, -600), nodename="Opacity",
+                    image=PBRPanel.MATERIALS['CURRENT'].images["Opacity"])
+        link_nodes(FROM("Opacity", "Color"), TO("Principled BSDF", "Alpha"))
+        check_and_add_to_nodeslist("Opacity")
 
-    if PBR_Panel.MATERIALS['CURRENT'].found["Specular"]:
-        LinkNodes( FROM("Specular", "Color"), TO("Specular Add", "Value") )
-        LinkNodes( FROM("Specular Add", "Value"), TO("AO_Mult_Spec", "Color1") )
+
+def place_orm_msk():
+    place_orm()
+    place_color_mask()
+
+
+def place_orm():
+    place_base()
+    create_node("ShaderNodeTexImage", (-1000, 0), nodename="ORM", image=PBRPanel.MATERIALS['CURRENT'].images["ORM"])
+    create_node("ShaderNodeSeparateRGB", (-700, 0), nodename="SeparateORM", hide=True)
+    create_node("ShaderNodeMixRGB", (-360, 220), nodename="AO_Mult_Albedo", blendtype="MULTIPLY",
+                defaultinput=("Fac", 1), hide=True)
+    create_node("ShaderNodeMixRGB", (-360, 170), nodename="AO_Mult_Spec", blendtype="MULTIPLY", defaultinput=("Fac", 1),
+                hide=True)
+    create_node("ShaderNodeMath", (-360, 0), nodename="Metallic Add", operation="ADD", hide=True)
+    create_node("ShaderNodeMath", (-360, -50), nodename="Roughness Add", operation="ADD", hide=True)
+
+    if PBRPanel.MATERIALS['CURRENT'].found["Specular"]:
+        link_nodes(FROM("Specular", "Color"), TO("Specular Add", "Value"))
+        link_nodes(FROM("Specular Add", "Value"), TO("AO_Mult_Spec", "Color1"))
         nodes = bpy.context.object.active_material.node_tree.nodes
         nodes["Specular Add"].location = (-700, 350)
         nodes["Specular"].location = (-1000, 300)
     else:
-        CreateNode("ShaderNodeValue", (-360, 120), nodename="Specular Value", hide=True)
-        LinkNodes(FROM("Specular Value", "Value"), TO("AO_Mult_Spec", "Color1"))
-    LinkNodesInARow( (FROM("ORM", "Color"), TO("SeparateORM", "Image")), (FROM("SeparateORM", "G"), TO("Roughness Add", "Value")),
-                     (FROM("Roughness Add", "Value"), TO("Principled BSDF", "Roughness")), (FROM("SeparateORM", "B"), TO("Metallic Add", "Value")),
-                     (FROM("Metallic Add", "Value"), TO("Principled BSDF", "Metallic")), (FROM("SeparateORM", "R"), TO("AO_Mult_Spec", "Color2")),
-                     (FROM("SeparateORM", "R"), TO("AO_Mult_Albedo", "Color2")), (FROM("Albedo", "Color"), TO("AO_Mult_Albedo", "Color1")),
-                     (FROM("AO_Mult_Albedo", "Color"), TO("Principled BSDF", "Base Color")), (FROM("AO_Mult_Spec", "Color"), TO("Principled BSDF", "Specular")) )
-    CheckAndAddToNodesList("ORM")
+        create_node("ShaderNodeValue", (-360, 120), nodename="Specular Value", hide=True)
+        link_nodes(FROM("Specular Value", "Value"), TO("AO_Mult_Spec", "Color1"))
+    link_nodes_in_a_row((FROM("ORM", "Color"), TO("SeparateORM", "Image")),
+                        (FROM("SeparateORM", "G"), TO("Roughness Add", "Value")),
+                        (FROM("Roughness Add", "Value"), TO("Principled BSDF", "Roughness")),
+                        (FROM("SeparateORM", "B"), TO("Metallic Add", "Value")),
+                        (FROM("Metallic Add", "Value"), TO("Principled BSDF", "Metallic")),
+                        (FROM("SeparateORM", "R"), TO("AO_Mult_Spec", "Color2")),
+                        (FROM("SeparateORM", "R"), TO("AO_Mult_Albedo", "Color2")),
+                        (FROM("Albedo", "Color"), TO("AO_Mult_Albedo", "Color1")),
+                        (FROM("AO_Mult_Albedo", "Color"), TO("Principled BSDF", "Base Color")),
+                        (FROM("AO_Mult_Spec", "Color"), TO("Principled BSDF", "Specular")))
+    check_and_add_to_nodeslist("ORM")
 
-def PlaceColorMask():
+
+def place_color_mask():
     nodes = bpy.context.object.active_material.node_tree.nodes
-    CreateNode("ShaderNodeTexImage", (-1300, 300), nodename="Color Mask", image=PBR_Panel.MATERIALS['CURRENT'].images["Color Mask"])
-    CreateNode("ShaderNodeSeparateRGB", (-1200, 333), nodename="SeparateMSK", hide=True)
-    CreateNode("ShaderNodeMixRGB", (-970, 570), nodename="MixRed", blendtype="MULTIPLY", hide=True)
-    CreateNode("ShaderNodeMixRGB", (-770, 570), nodename="MixGreen", blendtype="MULTIPLY", hide=True)
-    CreateNode("ShaderNodeMixRGB", (-570, 570), nodename="MixBlue", blendtype="MULTIPLY", hide=True)
-    CreateNode("ShaderNodeRGB", (-1300, 800), nodename="RedColor")
-    CreateNode("ShaderNodeRGB", (-1100, 800), nodename="GreenColor")
-    CreateNode("ShaderNodeRGB", (-900, 800), nodename="BlueColor")
+    create_node("ShaderNodeTexImage", (-1300, 300), nodename="Color Mask",
+                image=PBRPanel.MATERIALS['CURRENT'].images["Color Mask"])
+    create_node("ShaderNodeSeparateRGB", (-1200, 333), nodename="SeparateMSK", hide=True)
+    create_node("ShaderNodeMixRGB", (-970, 570), nodename="MixRed", blendtype="MULTIPLY", hide=True)
+    create_node("ShaderNodeMixRGB", (-770, 570), nodename="MixGreen", blendtype="MULTIPLY", hide=True)
+    create_node("ShaderNodeMixRGB", (-570, 570), nodename="MixBlue", blendtype="MULTIPLY", hide=True)
+    create_node("ShaderNodeRGB", (-1300, 800), nodename="RedColor")
+    create_node("ShaderNodeRGB", (-1100, 800), nodename="GreenColor")
+    create_node("ShaderNodeRGB", (-900, 800), nodename="BlueColor")
     nodes["Albedo"].location = (-1300, 600)
     if "Specular" in nodes:
         nodes["Specular Add"].location = (-700, 300)
 
-    LinkNodesInARow( (FROM("Albedo", "Color"), TO("MixRed", "Color1")), (FROM("Color Mask", "Color"), TO("SeparateMSK", "Image")),
-                     (FROM("SeparateMSK", "R"), TO("MixRed", "Fac")), (FROM("SeparateMSK", "G"), TO("MixGreen", "Fac")), (FROM("SeparateMSK", "B"), TO("MixBlue", "Fac")),
-                     (FROM("MixRed", "Color"), TO("MixGreen", "Color1")), (FROM("MixGreen", "Color"), TO("MixBlue", "Color1")),
-                     (FROM("RedColor", "Color"), TO("MixRed", "Color2")), (FROM("GreenColor", "Color"), TO("MixGreen", "Color2")),
-                     (FROM("BlueColor", "Color"), TO("MixBlue", "Color2")), (FROM("MixBlue", "Color"), TO("AO_Mult_Albedo", "Color1")) )
-    resetColors()
-    CheckAndAddToNodesList("Color Mask")
+    link_nodes_in_a_row((FROM("Albedo", "Color"), TO("MixRed", "Color1")),
+                        (FROM("Color Mask", "Color"), TO("SeparateMSK", "Image")),
+                        (FROM("SeparateMSK", "R"), TO("MixRed", "Fac")), (FROM("SeparateMSK", "G"), TO("MixGreen", "Fac")),
+                        (FROM("SeparateMSK", "B"), TO("MixBlue", "Fac")),
+                        (FROM("MixRed", "Color"), TO("MixGreen", "Color1")),
+                        (FROM("MixGreen", "Color"), TO("MixBlue", "Color1")),
+                        (FROM("RedColor", "Color"), TO("MixRed", "Color2")),
+                        (FROM("GreenColor", "Color"), TO("MixGreen", "Color2")),
+                        (FROM("BlueColor", "Color"), TO("MixBlue", "Color2")),
+                        (FROM("MixBlue", "Color"), TO("AO_Mult_Albedo", "Color1")))
+    reset_colors()
+    check_and_add_to_nodeslist("Color Mask")
 
-def PlaceMetalSmoothness():
-    PlaceBase()
-    CreateNode("ShaderNodeTexImage", (-700, 0), nodename="Metal Smoothness", image=PBR_Panel.MATERIALS['CURRENT'].images["Metal Smoothness"])
-    CreateNode("ShaderNodeMath", (-360, 0), nodename="Metallic Add", operation="ADD", hide=True)
-    CreateNode("ShaderNodeInvert", (-360, -50), nodename="Invert", hide=True)
-    CreateNode("ShaderNodeMath", (-360, -100), nodename="Roughness Add", operation="ADD", hide=True)
-    LinkNodesInARow( (FROM("Metal Smoothness", "Alpha"), TO("Invert", "Color")), (FROM("Invert", "Color"), TO("Roughness Add", "Value")),
-                     (FROM("Roughness Add", "Value"), TO("Principled BSDF", "Roughness")), (FROM("Metal Smoothness", "Color"), TO("Metallic Add", "Value")),
-                     (FROM("Metallic Add", "Value"), TO("Principled BSDF", "Metallic")) )
-    CheckAndAddToNodesList("Metal Smoothness")
 
-def PlaceMetalRoughness():
-    PlaceBase()
-    if PBR_Panel.MATERIALS['CURRENT'].found["Metal"]:
-        CreateNode("ShaderNodeTexImage", (-700, 0), nodename="Metal", image=PBR_Panel.MATERIALS['CURRENT'].images["Metal"])
-        CreateNode("ShaderNodeMath", (-360, 0), nodename="Metallic Add", operation="ADD", hide=True)
-        LinkNodesInARow( (FROM("Metal", "Color"), TO("Metallic Add", "Value")), (FROM("Metallic Add", "Value"), TO("Principled BSDF", "Metallic")) )
-        CheckAndAddToNodesList("Metal")
-    if PBR_Panel.MATERIALS['CURRENT'].found["Roughness"]:
-        CreateNode("ShaderNodeTexImage", (-1000, -300), nodename="Roughness", image=PBR_Panel.MATERIALS['CURRENT'].images["Roughness"])
-        CreateNode("ShaderNodeMath", (-360, -250), nodename="Roughness Add", operation="ADD", hide=True)
-        LinkNodesInARow( (FROM("Roughness", "Color"), TO("Roughness Add", "Value")), (FROM("Roughness Add", "Value"), TO("Principled BSDF", "Roughness")) )
-        CheckAndAddToNodesList("Roughness")
+def place_metal_smoothness():
+    place_base()
+    create_node("ShaderNodeTexImage", (-700, 0), nodename="Metal Smoothness",
+                image=PBRPanel.MATERIALS['CURRENT'].images["Metal Smoothness"])
+    create_node("ShaderNodeMath", (-360, 0), nodename="Metallic Add", operation="ADD", hide=True)
+    create_node("ShaderNodeInvert", (-360, -50), nodename="Invert", hide=True)
+    create_node("ShaderNodeMath", (-360, -100), nodename="Roughness Add", operation="ADD", hide=True)
+    link_nodes_in_a_row((FROM("Metal Smoothness", "Alpha"), TO("Invert", "Color")),
+                        (FROM("Invert", "Color"), TO("Roughness Add", "Value")),
+                        (FROM("Roughness Add", "Value"), TO("Principled BSDF", "Roughness")),
+                        (FROM("Metal Smoothness", "Color"), TO("Metallic Add", "Value")),
+                        (FROM("Metallic Add", "Value"), TO("Principled BSDF", "Metallic")))
+    check_and_add_to_nodeslist("Metal Smoothness")
 
-def PlaceCoordinates():
+
+def place_metal_roughness():
+    place_base()
+    if PBRPanel.MATERIALS['CURRENT'].found["Metal"]:
+        create_node("ShaderNodeTexImage", (-700, 0), nodename="Metal",
+                    image=PBRPanel.MATERIALS['CURRENT'].images["Metal"])
+        create_node("ShaderNodeMath", (-360, 0), nodename="Metallic Add", operation="ADD", hide=True)
+        link_nodes_in_a_row((FROM("Metal", "Color"), TO("Metallic Add", "Value")),
+                            (FROM("Metallic Add", "Value"), TO("Principled BSDF", "Metallic")))
+        check_and_add_to_nodeslist("Metal")
+    if PBRPanel.MATERIALS['CURRENT'].found["Roughness"]:
+        create_node("ShaderNodeTexImage", (-1000, -300), nodename="Roughness",
+                    image=PBRPanel.MATERIALS['CURRENT'].images["Roughness"])
+        create_node("ShaderNodeMath", (-360, -250), nodename="Roughness Add", operation="ADD", hide=True)
+        link_nodes_in_a_row((FROM("Roughness", "Color"), TO("Roughness Add", "Value")),
+                            (FROM("Roughness Add", "Value"), TO("Principled BSDF", "Roughness")))
+        check_and_add_to_nodeslist("Roughness")
+
+
+def place_coordinates():
     nodes = bpy.context.object.active_material.node_tree.nodes
-    CreateNode("ShaderNodeUVMap", (-1900, 600), nodename="UVMap")
-    CreateNode("ShaderNodeMapping", (-1700, 600), nodename="Mapping")
+    create_node("ShaderNodeUVMap", (-1900, 600), nodename="UVMap")
+    create_node("ShaderNodeMapping", (-1700, 600), nodename="Mapping")
     nodes['UVMap'].uv_map = bpy.data.meshes[bpy.context.active_object.data.name].uv_layers.keys()[0]
-    LinkNodes( FROM("UVMap", "UV"), TO("Mapping", "Vector") )
-    for texture in PBR_Panel.MATERIALS['CURRENT'].found:
-        if PBR_Panel.MATERIALS['CURRENT'].found[texture] and texture in nodes:
+    link_nodes(FROM("UVMap", "UV"), TO("Mapping", "Vector"))
+    for texture in PBRPanel.MATERIALS['CURRENT'].found:
+        if PBRPanel.MATERIALS['CURRENT'].found[texture] and texture in nodes:
             if texture != "Detail Map":
-                LinkNodes( FROM("Mapping", "Vector"), TO(texture, "Vector") )
+                link_nodes(FROM("Mapping", "Vector"), TO(texture, "Vector"))
 
-def PlaceNMCoordinates():
-    CreateNode("ShaderNodeMapping", (-1700, -600), nodename="Detail Mapping")
-    LinkNodes( FROM("Detail Mapping", "Vector"), TO("Detail Map", "Vector") )
 
-def PlaceAutomatic():
-    PlaceBase()
-    if PBR_Panel.MATERIALS['CURRENT'].found["ORM"]:
-        PlaceORMMSK() if PBR_Panel.MATERIALS['CURRENT'].found["Color Mask"] else PlaceORM()
+def place_normal_map_coordinates():
+    create_node("ShaderNodeMapping", (-1700, -600), nodename="Detail Mapping")
+    link_nodes(FROM("Detail Mapping", "Vector"), TO("Detail Map", "Vector"))
+
+
+def place_automatic():
+    place_base()
+    if PBRPanel.MATERIALS['CURRENT'].found["ORM"]:
+        place_orm_msk() if PBRPanel.MATERIALS['CURRENT'].found["Color Mask"] else place_orm()
     else:
-        if PBR_Panel.MATERIALS['CURRENT'].found["Metal Smoothness"]:
-            PlaceMetalSmoothness()
-        elif any(texture in PBR_Panel.MATERIALS['CURRENT'].found for texture in ["Metal", "Roughness"]):
-            PlaceMetalRoughness()
-        PlaceOcclusion()
-    if any(PBR_Panel.MATERIALS['CURRENT'].found[texture] for texture in PBR_Panel.MATERIALS['CURRENT'].found):
-        PlaceCoordinates()
-    resetProps()
+        if PBRPanel.MATERIALS['CURRENT'].found["Metal Smoothness"]:
+            place_metal_smoothness()
+        elif any(texture in PBRPanel.MATERIALS['CURRENT'].found for texture in ["Metal", "Roughness"]):
+            place_metal_roughness()
+        place_occlusion()
+    if any(PBRPanel.MATERIALS['CURRENT'].found[texture] for texture in PBRPanel.MATERIALS['CURRENT'].found):
+        place_coordinates()
+    reset_props()
 
-def PlaceManual(PipeLineType):
-    PBR_Panel.MATERIALS['CURRENT'].softreset()
-    PBR_Panel.MATERIALS['CURRENT'].automatic = False
-    if PipeLineType == "MetalRoughness":
-        PlaceMetalRoughness()
-    elif PipeLineType == "MetalSmoothness":
-        PlaceMetalSmoothness()
-    elif PipeLineType == "ORM":
-        PlaceORM()
-    elif PipeLineType == "ORM+MSK":
-        PlaceORMMSK()
-    if not any([PipeLineType == "ORM", PipeLineType == "ORM+MSK"]):
-        PlaceOcclusion()
-    PlaceCoordinates()
-    resetProps()
-####################################################################################################
-#SOME ADDITIONAL FUNCTIONS
-####################################################################################################
-def GetMode():
-    return f"Mode: {' + '.join(PBR_Panel.MATERIALS['CURRENT'].nodeslist)} ({'Automatic' if PBR_Panel.MATERIALS['CURRENT'].automatic else 'Manual'})"
 
-def CheckAndAddToNodesList(mode):
-    if mode not in PBR_Panel.MATERIALS['CURRENT'].nodeslist:
-        PBR_Panel.MATERIALS['CURRENT'].nodeslist.append(mode)
+def place_manual(pipeline_type):
+    PBRPanel.MATERIALS['CURRENT'].softreset()
+    PBRPanel.MATERIALS['CURRENT'].automatic = False
+    if pipeline_type == "MetalRoughness":
+        place_metal_roughness()
+    elif pipeline_type == "MetalSmoothness":
+        place_metal_smoothness()
+    elif pipeline_type == "ORM":
+        place_orm()
+    elif pipeline_type == "ORM+MSK":
+        place_orm_msk()
+    if not any([pipeline_type == "ORM", pipeline_type == "ORM+MSK"]):
+        place_occlusion()
+    place_coordinates()
+    reset_props()
+
+
 ####################################################################################################
-#CHANGE OPACITY CLASS
+# SOME ADDITIONAL FUNCTIONS
+####################################################################################################
+def get_mode():
+    return f"Mode: {' + '.join(PBRPanel.MATERIALS['CURRENT'].nodeslist)} ({'Automatic' if PBRPanel.MATERIALS['CURRENT'].automatic else 'Manual'})"
+
+
+def check_and_add_to_nodeslist(mode):
+    if mode not in PBRPanel.MATERIALS['CURRENT'].nodeslist:
+        PBRPanel.MATERIALS['CURRENT'].nodeslist.append(mode)
+
+
+####################################################################################################
+# CHANGE OPACITY CLASS
 ####################################################################################################
 class OpacityMenu(bpy.types.Operator):
     bl_idname = "pbr.showopacitymenu"
     bl_label = "Opaque"
     bl_description = "Set opacity mode"
 
+    @staticmethod
     def execute(self, context):
-        wm = bpy.context.window_manager
-        wm.popup_menu(OpacityMenu.ShowMenu)
+        wm = context.window_manager
+        wm.popup_menu(OpacityMenu.show_menu)
         return {"FINISHED"}
 
-    def ShowMenu(self, context):
+    def show_menu(self, context):
         layout = self.layout
         layout.operator(OpaqueMode.bl_idname)
         layout.operator(CutoutMode.bl_idname)
         layout.operator(FadeMode.bl_idname)
+
 
 class OpaqueMode(bpy.types.Operator):
     bl_idname = "pbr.opaque"
     bl_label = "Opaque"
     bl_description = "opaque mode"
 
+    @staticmethod
     def execute(self, context):
-        updateOpacityAdd('CLEAR')
-        PBR_Panel.MATERIALS['CURRENT'].opacity_mode = "Opaque"
-        bpy.context.object.active_material.use_backface_culling = False
-        bpy.context.object.active_material.blend_method = "OPAQUE"
-        bpy.context.object.active_material.shadow_method = "OPAQUE"
+        update_opacity_add('CLEAR')
+        PBRPanel.MATERIALS['CURRENT'].opacity_mode = "Opaque"
+        context.object.active_material.use_backface_culling = False
+        context.object.active_material.blend_method = "OPAQUE"
+        context.object.active_material.shadow_method = "OPAQUE"
         return {"FINISHED"}
+
 
 class CutoutMode(bpy.types.Operator):
     bl_idname = "pbr.cutout"
     bl_label = "Cutout"
     bl_description = "cutout mode"
 
+    @staticmethod
     def execute(self, context):
-        updateOpacityAdd('CLEAR')
-        PBR_Panel.MATERIALS['CURRENT'].opacity_mode = "Cutout"
-        bpy.context.object.active_material.use_backface_culling = True
-        bpy.context.object.active_material.blend_method = "CLIP"
-        bpy.context.object.active_material.shadow_method = "CLIP"
+        update_opacity_add('CLEAR')
+        PBRPanel.MATERIALS['CURRENT'].opacity_mode = "Cutout"
+        context.object.active_material.use_backface_culling = True
+        context.object.active_material.blend_method = "CLIP"
+        context.object.active_material.shadow_method = "CLIP"
         return {"FINISHED"}
+
 
 class FadeMode(bpy.types.Operator):
     bl_idname = "pbr.fade"
     bl_label = "Fade"
     bl_description = "fade mode"
 
+    @staticmethod
     def execute(self, context):
-        updateOpacityAdd('CREATE')
-        PBR_Panel.MATERIALS['CURRENT'].opacity_mode = "Fade"
-        bpy.context.object.active_material.use_backface_culling = True
-        bpy.context.object.active_material.blend_method = "BLEND"
-        bpy.context.object.active_material.shadow_method = "HASHED"
+        update_opacity_add('CREATE')
+        PBRPanel.MATERIALS['CURRENT'].opacity_mode = "Fade"
+        context.object.active_material.use_backface_culling = True
+        context.object.active_material.blend_method = "BLEND"
+        context.object.active_material.shadow_method = "HASHED"
         return {"FINISHED"}
 
-def updateOpacityAdd(mode):
+
+def update_opacity_add(mode):
     nodes = bpy.context.object.active_material.node_tree.nodes
     if mode == 'CLEAR':
         if 'Opacity Add' in nodes:
@@ -660,142 +814,168 @@ def updateOpacityAdd(mode):
             from_socket_name = nodes['Opacity Add'].inputs['Value'].links[0].from_socket.name
             to_node_name = nodes['Opacity Add'].outputs['Value'].links[0].to_node.name
             to_socket_name = nodes['Opacity Add'].outputs['Value'].links[0].to_socket.name
-            LinkNodes( FROM(from_node_name, from_socket_name), TO(to_node_name, to_socket_name) )
+            link_nodes(FROM(from_node_name, from_socket_name), TO(to_node_name, to_socket_name))
             nodes.remove(nodes['Opacity Add'])
         return
     elif mode == 'CREATE':
+        location = (0,0)
+        socket_name = ''
         node_name = nodes['Principled BSDF'].inputs['Alpha'].links[0].from_node.name
         if node_name == 'Albedo':
             socket_name = 'Alpha'
-            if 'ORM' in PBR_Panel.MATERIALS['CURRENT'].nodeslist:
+            if 'ORM' in PBRPanel.MATERIALS['CURRENT'].nodeslist:
                 location = (-960, 520)
             else:
                 location = (-360, 70)
         elif node_name == 'Opacity':
             socket_name = 'Color'
             location = (-700, -560)
-        CreateNode("ShaderNodeMath", location, nodename="Opacity Add", operation="ADD", defaultinput=(1, 0), hide=True)
-        LinkNodesInARow( (FROM(node_name, socket_name), TO("Opacity Add", "Value")), (FROM("Opacity Add", "Value"), TO("Principled BSDF", "Alpha")) )
+        create_node("ShaderNodeMath", location, nodename="Opacity Add", operation="ADD", defaultinput=(1, 0), hide=True)
+        link_nodes_in_a_row((FROM(node_name, socket_name), TO("Opacity Add", "Value")),
+                            (FROM("Opacity Add", "Value"), TO("Principled BSDF", "Alpha")))
     return
+
+
 ####################################################################################################
-#CHANGE PIPELINE CLASS
+# CHANGE PIPELINE CLASS
 ####################################################################################################
 class PipelineMenu(bpy.types.Operator):
     bl_idname = "pbr.pipelinemenu"
     bl_label = "Change Pipeline"
     bl_description = "Set pipeline (ORM/MetalSmoothness/etc.)"
 
+    @staticmethod
     def execute(self, context):
-        wm = bpy.context.window_manager
-        wm.popup_menu(PipelineMenu.ShowMenu, title="Found pipelines")
+        wm = context.window_manager
+        wm.popup_menu(PipelineMenu.show_menu, title="Found pipelines")
         return {"FINISHED"}
 
-    def ShowMenu(self, context):
+    def show_menu(self, context):
         layout = self.layout
-        if PBR_Panel.MATERIALS['CURRENT'].found["ORM"]:
-            layout.operator(ORMTexturer.bl_idname, text = "ORM")
-            if PBR_Panel.MATERIALS['CURRENT'].found["Color Mask"]:
-                layout.operator(ORMMSKTexturer.bl_idname, text = "ORM+MSK")
-        if PBR_Panel.MATERIALS['CURRENT'].found["Metal Smoothness"]:
-            layout.operator(MetalSmoothnessTexturer.bl_idname, text = "Metal Smoothness")
-        if PBR_Panel.MATERIALS['CURRENT'].found["Metal"] or PBR_Panel.MATERIALS['CURRENT'].found["Roughness"]:
-            if PBR_Panel.MATERIALS['CURRENT'].found["Metal"] and PBR_Panel.MATERIALS['CURRENT'].found["Roughness"]:
+        text = ''
+        if PBRPanel.MATERIALS['CURRENT'].found["ORM"]:
+            layout.operator(ORMTexturer.bl_idname, text="ORM")
+            if PBRPanel.MATERIALS['CURRENT'].found["Color Mask"]:
+                layout.operator(ORMMSKTexturer.bl_idname, text="ORM+MSK")
+        if PBRPanel.MATERIALS['CURRENT'].found["Metal Smoothness"]:
+            layout.operator(MetalSmoothnessTexturer.bl_idname, text="Metal Smoothness")
+        if PBRPanel.MATERIALS['CURRENT'].found["Metal"] or PBRPanel.MATERIALS['CURRENT'].found["Roughness"]:
+            if PBRPanel.MATERIALS['CURRENT'].found["Metal"] and PBRPanel.MATERIALS['CURRENT'].found["Roughness"]:
                 text = "Metal+Roughness"
-            elif PBR_Panel.MATERIALS['CURRENT'].found["Metal"]:
+            elif PBRPanel.MATERIALS['CURRENT'].found["Metal"]:
                 text = "Metal"
-            elif PBR_Panel.MATERIALS['CURRENT'].found["Roughness"]:
+            elif PBRPanel.MATERIALS['CURRENT'].found["Roughness"]:
                 text = "Roughness"
-            layout.operator(MetalRoughnessTexturer.bl_idname, text = text)
-        if not any(texture in PBR_Panel.MATERIALS['CURRENT'].found for texture in ["ORM", "Metal Smoothness", "Metal", "Roughness"]):
-            layout.label(text = "No options")
+            layout.operator(MetalRoughnessTexturer.bl_idname, text=text)
+        if not any(texture in PBRPanel.MATERIALS['CURRENT'].found for texture in
+                   ["ORM", "Metal Smoothness", "Metal", "Roughness"]):
+            layout.label(text="No options")
+
 
 class DetailMaskMenu(bpy.types.Operator):
     bl_idname = "pbr.detailmaskmenu"
     bl_label = "Change Detail Map Source"
     bl_description = "Set sorce to put in Normal Mix node"
 
+    @staticmethod
     def execute(self, context):
-        wm = bpy.context.window_manager
-        wm.popup_menu(DetailMaskMenu.ShowMenu, title="Available Detail Mask Sources:")
+        wm = context.window_manager
+        wm.popup_menu(DetailMaskMenu.show_menu, title="Available Detail Mask Sources:")
         return {"FINISHED"}
 
-    def ShowMenu(self, context):
+    def show_menu(self, context):
         layout = self.layout
-        if PBR_Panel.MATERIALS['CURRENT'].found["Detail Mask"]:
-            layout.operator(DetailMaskSource.bl_idname, text = "Detail Mask")
-        if PBR_Panel.MATERIALS['CURRENT'].found["Albedo"]:
-            layout.operator(AlbedoAlphaSource.bl_idname, text = "Albedo Alpha")
-        layout.operator(NoneSource.bl_idname, text = "None")
+        if PBRPanel.MATERIALS['CURRENT'].found["Detail Mask"]:
+            layout.operator(DetailMaskSource.bl_idname, text="Detail Mask")
+        if PBRPanel.MATERIALS['CURRENT'].found["Albedo"]:
+            layout.operator(AlbedoAlphaSource.bl_idname, text="Albedo Alpha")
+        layout.operator(NoneSource.bl_idname, text="None")
+
 
 class DetailMaskSource(bpy.types.Operator):
     bl_idname = "pbr.detailmasksource"
     bl_label = "DetailMaskSource"
     bl_description = "Link Detail Mask to Normal Mix"
 
+    @staticmethod
     def execute(self, context):
-        LinkNodes( FROM("Detail Mask", "Color"), TO("NormalMix", "Detail Mask") )
-        PBR_Panel.MATERIALS['CURRENT'].mask_source = "Detail Mask"
+        link_nodes(FROM("Detail Mask", "Color"), TO("NormalMix", "Detail Mask"))
+        PBRPanel.MATERIALS['CURRENT'].mask_source = "Detail Mask"
         return {"FINISHED"}
+
 
 class AlbedoAlphaSource(bpy.types.Operator):
     bl_idname = "pbr.albedoalphasource"
     bl_label = "AlbedoAlphaSource"
     bl_description = "Link Albedo Alpha to Normal Mix"
 
+    @staticmethod
     def execute(self, context):
-        LinkNodes( FROM("Albedo", "Alpha"), TO("NormalMix", "Detail Mask") )
-        PBR_Panel.MATERIALS['CURRENT'].mask_source = "Albedo Alpha"
+        link_nodes(FROM("Albedo", "Alpha"), TO("NormalMix", "Detail Mask"))
+        PBRPanel.MATERIALS['CURRENT'].mask_source = "Albedo Alpha"
         return {"FINISHED"}
+
 
 class NoneSource(bpy.types.Operator):
     bl_idname = "pbr.nonesource"
     bl_label = "NoneSource"
     bl_description = "Remove Detail Mask link from Normal Mix"
 
+    @staticmethod
     def execute(self, context):
-        PBR_Panel.MATERIALS['CURRENT'].mask_source = "None"
-        nodes = bpy.context.object.active_material.node_tree
+        PBRPanel.MATERIALS['CURRENT'].mask_source = "None"
+        nodes = context.object.active_material.node_tree
         if nodes.nodes['NormalMix'].inputs['Detail Mask'].links != ():
             nodes.links.remove(nodes.nodes['NormalMix'].inputs['Detail Mask'].links[0])
         return {"FINISHED"}
+
 
 class MetalRoughnessTexturer(bpy.types.Operator):
     bl_idname = "pbr.metalroughness"
     bl_label = "MetalRoughness"
     bl_description = "Create Metal/Roughness Pipeline"
 
+    @staticmethod
     def execute(self, context):
-        PlaceManual("MetalRoughness")
+        place_manual("MetalRoughness")
         return {"FINISHED"}
+
 
 class MetalSmoothnessTexturer(bpy.types.Operator):
     bl_idname = "pbr.metsm"
     bl_label = "Metal Sm."
     bl_description = "Create Metal Smothness Pipeline"
 
+    @staticmethod
     def execute(self, context):
-        PlaceManual("MetalSmoothness")
+        place_manual("MetalSmoothness")
         return {"FINISHED"}
+
 
 class ORMTexturer(bpy.types.Operator):
     bl_idname = "pbr.orm"
     bl_label = "ORM"
     bl_description = "Create ORM Pipeline"
 
+    @staticmethod
     def execute(self, context):
-        PlaceManual("ORM")
+        place_manual("ORM")
         return {"FINISHED"}
+
 
 class ORMMSKTexturer(bpy.types.Operator):
     bl_idname = "pbr.ormmsk"
     bl_label = "ORM+MSK"
     bl_description = "Create ORM+MSK Pipeline"
-
+    
+    @staticmethod
     def execute(self, context):
-        PlaceManual("ORM+MSK")
+        place_manual("ORM+MSK")
         return {"FINISHED"}
+
+
 ####################################################################################################
-#SUBPANELS CLASSES
+# SUBPANELS CLASSES
 ####################################################################################################
 class TextureListPanel(bpy.types.Panel):
     bl_parent_id = "PBR_PT_Core"
@@ -807,19 +987,20 @@ class TextureListPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
 
     @classmethod
-    def poll(self, context):
-        if bpy.context.selected_objects == []:
+    def poll(cls, context):
+        if not context.selected_objects:
             return False
-        return PBR_Panel.MATERIALS['CURRENT'].finished and bpy.context.active_object.active_material != None
+        return PBRPanel.MATERIALS['CURRENT'].finished and context.active_object.active_material is not None
 
     def draw(self, context):
         layout = self.layout
-        for texture in PBR_Panel.MATERIALS['CURRENT'].found:
-            if PBR_Panel.MATERIALS['CURRENT'].found[texture]:
+        for texture in PBRPanel.MATERIALS['CURRENT'].found:
+            if PBRPanel.MATERIALS['CURRENT'].found[texture]:
                 row = layout.row()
-                row.label(text = f"{texture}:")
+                row.label(text=f"{texture}:")
                 sub = row.row()
-                sub.label(text = f"{PBR_Panel.MATERIALS['CURRENT'].images[texture].name}")
+                sub.label(text=f"{PBRPanel.MATERIALS['CURRENT'].images[texture].name}")
+
 
 class UVMapPanel(bpy.types.Panel):
     bl_parent_id = "PBR_PT_Core"
@@ -831,15 +1012,18 @@ class UVMapPanel(bpy.types.Panel):
     bl_options = {"HIDE_HEADER"}
 
     @classmethod
-    def poll(self, context):
-        if bpy.context.selected_objects == []:
+    def poll(cls, context):
+        if not bpy.context.selected_objects:
             return False
-        return PBR_Panel.MATERIALS['CURRENT'].finished and bpy.context.active_object.active_material != None and len(bpy.data.meshes[bpy.context.active_object.data.name].uv_layers.keys())>1
+        return PBRPanel.MATERIALS['CURRENT'].finished and \
+            context.active_object.active_material is not None and \
+            len(bpy.data.meshes[bpy.context.active_object.data.name].uv_layers.keys()) > 1
 
     def draw(self, context):
         layout = self.layout
         row = layout.row()
         row.prop(context.scene, "UVMap", text="List of available UV Maps")
+
 
 class TextureModePanel(bpy.types.Panel):
     bl_parent_id = "PBR_PT_Core"
@@ -851,20 +1035,21 @@ class TextureModePanel(bpy.types.Panel):
     bl_options = {"HIDE_HEADER"}
 
     @classmethod
-    def poll(self, context):
-        if bpy.context.selected_objects == []:
+    def poll(cls, context):
+        if not bpy.context.selected_objects:
             return False
-        return PBR_Panel.MATERIALS['CURRENT'].finished and bpy.context.active_object.active_material != None
+        return PBRPanel.MATERIALS['CURRENT'].finished and context.active_object.active_material is not None
 
     def draw(self, context):
         layout = self.layout
         row = layout.row()
-        if PBR_Panel.MATERIALS['CURRENT'].nodeslist == []:
-            row.label(text = "Mode: None")
+        if not PBRPanel.MATERIALS['CURRENT'].nodeslist:
+            row.label(text="Mode: None")
         else:
-            row.label(text = GetMode())
+            row.label(text=get_mode())
         row = layout.row()
         row.operator(PipelineMenu.bl_idname)
+
 
 class TexturePropsPanel(bpy.types.Panel):
     bl_parent_id = "PBR_PT_Core"
@@ -876,47 +1061,49 @@ class TexturePropsPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
 
     @classmethod
-    def poll(self, context):
-        if bpy.context.selected_objects == []:
+    def poll(cls, context):
+        if not context.selected_objects:
             return False
-        return PBR_Panel.MATERIALS['CURRENT'].finished and bpy.context.active_object.active_material != None
+        return PBRPanel.MATERIALS['CURRENT'].finished and context.active_object.active_material is not None
 
     def draw(self, context):
-        MaterialProps = bpy.context.active_object.active_material.props
+        material_prop = bpy.context.active_object.active_material.props
         layout = self.layout
-        if not PBR_Panel.MATERIALS['CURRENT'].found["Albedo"]:
+        if not PBRPanel.MATERIALS['CURRENT'].found["Albedo"]:
             row = layout.row()
-            row.prop(MaterialProps, "AlbedoColor")
-        if "Normal Map" in PBR_Panel.MATERIALS['CURRENT'].nodeslist:
+            row.prop(material_prop, "AlbedoColor")
+        if "Normal Map" in PBRPanel.MATERIALS['CURRENT'].nodeslist:
             row = layout.row()
-            row.prop(MaterialProps, "NormaMaplStrength")
+            row.prop(material_prop, "NormaMaplStrength")
             row = layout.row()
-            row.prop(MaterialProps, "NormalMapInvertorEnabled")
+            row.prop(material_prop, "NormalMapInverterEnabled")
             if "NormalMix" in bpy.context.object.active_material.node_tree.nodes:
                 row = layout.row()
-                row.prop(MaterialProps, "DetailMapInvertorEnabled")
-                if "Detail Mask" not in PBR_Panel.MATERIALS['CURRENT'].nodeslist and PBR_Panel.MATERIALS['CURRENT'].mask_source == "None":
+                row.prop(material_prop, "DetailMapInvertorEnabled")
+                if "Detail Mask" not in PBRPanel.MATERIALS['CURRENT'].nodeslist and PBRPanel.MATERIALS['CURRENT'].mask_source == "None":
                     row = layout.row()
-                    row.prop(MaterialProps, "DetailMaskStrength")
+                    row.prop(material_prop, "DetailMaskStrength")
                 row = layout.row()
                 row.operator(DetailMaskMenu.bl_idname)
                 row = layout.row()
-        TexturePropsPanel.ShowProp(context, layout, ["Metal", "ORM", "Metal Smoothness"], ["MetallicAdd"])
-        TexturePropsPanel.ShowProp(context, layout, ["Roughness", "ORM", "Metal Smoothness"], ["RoughnessAdd"])
-        TexturePropsPanel.ShowProp(context, layout, ["Emission"], ["EmissionMult"])
-        TexturePropsPanel.ShowProp(context, layout, ["ORM", "Occlusion"], ["AO_Strength"])
-        TexturePropsPanel.ShowProp(context, layout, ["Specular"], ["SpecularAdd"])
-        TexturePropsPanel.ShowProp(context, layout, ["Color Mask"], ["MixR", "MixG", "MixB"], header="Color mask settings:")
+        TexturePropsPanel.show_prop(context, layout, ["Metal", "ORM", "Metal Smoothness"], ["MetallicAdd"])
+        TexturePropsPanel.show_prop(context, layout, ["Roughness", "ORM", "Metal Smoothness"], ["RoughnessAdd"])
+        TexturePropsPanel.show_prop(context, layout, ["Emission"], ["EmissionMult"])
+        TexturePropsPanel.show_prop(context, layout, ["ORM", "Occlusion"], ["AO_Strength"])
+        TexturePropsPanel.show_prop(context, layout, ["Specular"], ["SpecularAdd"])
+        TexturePropsPanel.show_prop(context, layout, ["Color Mask"], ["MixR", "MixG", "MixB"], header="Color mask settings:")
 
-    def ShowProp(context, layout, textures, properties, header=""):
-        MaterialProps = bpy.context.active_object.active_material.props
-        if any(texture in PBR_Panel.MATERIALS['CURRENT'].nodeslist for texture in textures):
+    @staticmethod
+    def show_prop(context, layout, textures, properties, header=""):
+        material_prop = context.active_object.active_material.props
+        if any(texture in PBRPanel.MATERIALS['CURRENT'].nodeslist for texture in textures):
             if header != "":
                 row = layout.row()
-                row.label(text = header)
-            for property in properties:
+                row.label(text=header)
+            for prop in properties:
                 row = layout.row()
-                row.prop(MaterialProps, property)
+                row.prop(material_prop, prop)
+
 
 class TextureCoordinatesPanel(bpy.types.Panel):
     bl_parent_id = "PBR_PT_Core"
@@ -928,17 +1115,19 @@ class TextureCoordinatesPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
 
     @classmethod
-    def poll(self, context):
-        if bpy.context.selected_objects == []:
+    def poll(cls, context):
+        if not bpy.context.selected_objects:
             return False
-        return PBR_Panel.MATERIALS['CURRENT'].finished and bpy.context.active_object.active_material != None and "Mapping" in bpy.context.object.active_material.node_tree.nodes
+        return PBRPanel.MATERIALS['CURRENT'].finished and bpy.context.active_object.active_material is not None and \
+            "Mapping" in context.object.active_material.node_tree.nodes
 
     def draw(self, context):
-        MaterialProps = bpy.context.active_object.active_material.props
+        material_prop = context.active_object.active_material.props
         layout = self.layout
-        for property in ["Location", "Rotation", "Scale"]:
+        for prop in ["Location", "Rotation", "Scale"]:
             row = layout.row()
-            row.prop(MaterialProps, property)
+            row.prop(material_prop, prop)
+
 
 class DetailMapCoordinatesPanel(bpy.types.Panel):
     bl_parent_id = "PBR_PT_Core"
@@ -950,17 +1139,19 @@ class DetailMapCoordinatesPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
 
     @classmethod
-    def poll(self, context):
-        if bpy.context.selected_objects == []:
+    def poll(cls, context):
+        if not context.selected_objects:
             return False
-        return PBR_Panel.MATERIALS['CURRENT'].finished and bpy.context.active_object.active_material != None and "Detail Mapping" in bpy.context.object.active_material.node_tree.nodes
+        return PBRPanel.MATERIALS['CURRENT'].finished and context.active_object.active_material is not None and \
+            "Detail Mapping" in context.object.active_material.node_tree.nodes
 
     def draw(self, context):
-        MaterialProps = bpy.context.active_object.active_material.props
+        material_prop = context.active_object.active_material.props
         layout = self.layout
-        for property in ["DetailMapLocation", "DetailMapRotation", "DetailMapScale"]:
+        for prop in ["DetailMapLocation", "DetailMapRotation", "DetailMapScale"]:
             row = layout.row()
-            row.prop(MaterialProps, property)
+            row.prop(material_prop, prop)
+
 
 class OpacityPanel(bpy.types.Panel):
     bl_parent_id = "PBR_PT_Core"
@@ -972,84 +1163,92 @@ class OpacityPanel(bpy.types.Panel):
     bl_options = {"HIDE_HEADER"}
 
     @classmethod
-    def poll(self, context):
-        if 'CURRENT' in PBR_Panel.MATERIALS:
-            return (PBR_Panel.MATERIALS['CURRENT'].opacity_from_albedo or PBR_Panel.MATERIALS['CURRENT'].found["Opacity"]) and \
-            PBR_Panel.MATERIALS['CURRENT'].finished and bpy.context.active_object.active_material != None and bpy.context.selected_objects != []
+    def poll(cls, context):
+        if 'CURRENT' in PBRPanel.MATERIALS:
+            return (PBRPanel.MATERIALS['CURRENT'].opacity_from_albedo or PBRPanel.MATERIALS['CURRENT'].found["Opacity"]) and \
+                   PBRPanel.MATERIALS['CURRENT'].finished and \
+                   context.active_object.active_material is not None and \
+                   context.selected_objects != []
         return False
 
     def draw(self, context):
         layout = self.layout
         row = layout.row()
         row.label(text="Opacity Mode:")
-        row.operator(OpacityMenu.bl_idname, text=PBR_Panel.MATERIALS['CURRENT'].opacity_mode)
-        MaterialProps = bpy.context.active_object.active_material.props
-        if PBR_Panel.MATERIALS['CURRENT'].opacity_mode == "Cutout":
+        row.operator(OpacityMenu.bl_idname, text=PBRPanel.MATERIALS['CURRENT'].opacity_mode)
+        material_prop = context.active_object.active_material.props
+        if PBRPanel.MATERIALS['CURRENT'].opacity_mode == "Cutout":
             row = layout.row()
-            row.prop(context.active_object.active_material.props, "AlphaTreshold")
-        if PBR_Panel.MATERIALS['CURRENT'].opacity_mode == "Fade":
+            row.prop(context.active_object.active_material.props, "AlphaThreshold")
+        if PBRPanel.MATERIALS['CURRENT'].opacity_mode == "Fade":
             row = layout.row()
-            row.prop(MaterialProps, "AlphaMode")
+            row.prop(material_prop, "AlphaMode")
             row = layout.row()
-            row.prop(MaterialProps, "OpacityAdd")
+            row.prop(material_prop, "OpacityAdd")
+
+
 ####################################################################################################
-#TEXTURE GETTER CLASS
+# TEXTURE GETTER CLASS
 ####################################################################################################
 class GetTextureOperator(bpy.types.Operator):
     bl_idname = "textures.get"
     bl_label = "Assign Textures"
     bl_description = "Assign files with textures using choosen name pattern"
 
+    @staticmethod
     def execute(self, context):
-        ClearImages()
-        PBR_Panel.MATERIALS['CURRENT'].reset()
-        path = bpy.context.active_object.active_material.props.conf_path
+        clear_images()
+        PBRPanel.MATERIALS['CURRENT'].reset()
+        path = context.active_object.active_material.props.conf_path
         filenames = next(os.walk(path), (None, None, []))[2]
         for file in filenames:
-            GetTextureOperator.getTexture(file)
-        PBR_Panel.MATERIALS['CURRENT'].finished = True
-        PlaceAutomatic()
+            GetTextureOperator.get_texture(file)
+        PBRPanel.MATERIALS['CURRENT'].finished = True
+        place_automatic()
         return {"FINISHED"}
 
-    def getTexture(file):
-
-        treshold = 0
+    @staticmethod
+    def get_texture(file):
+        threshold = 0
         title = ''
-    
+
         if file.split(".")[-1].lower() == 'meta':
             return False
 
         name = file.lower().split(".")[0]
         pattern = bpy.context.active_object.active_material.props.texture_pattern.lower().split("-")
 
-        if len(pattern)>1:
+        if len(pattern) > 1:
             pattern, skip = pattern[0].strip(), pattern[1].strip()
         else:
             pattern, skip = pattern[0].strip(), None
-        if skip != None and skip in name:
+        if skip is not None and skip in name:
             return False
-        
+
         for texture in TEXTURES:
             for mask in TEXTURES_MASK[texture]:
                 if name.endswith(mask.lower()):
-                    if len(mask.lower())>treshold:
-                        treshold = len(mask.lower())
+                    if len(mask.lower()) > threshold:
+                        threshold = len(mask.lower())
                         title = texture
                         break
 
-        if treshold!=0 and pattern in name:
+        if threshold != 0 and pattern in name:
             if file in bpy.data.images:
                 bpy.data.images.remove(bpy.data.images[file])
-            image = bpy.data.images.load(filepath = os.path.join(bpy.context.active_object.active_material.props.conf_path,file))
+            image = bpy.data.images.load(
+                filepath=os.path.join(bpy.context.active_object.active_material.props.conf_path, file))
 
             if not any(title == colored for colored in ["Albedo", "Emission", "Specular", "Occlusion"]):
                 image.colorspace_settings.name = "Non-Color"
-            PBR_Panel.MATERIALS['CURRENT'].found[title], PBR_Panel.MATERIALS['CURRENT'].images[title] = True, image
+            PBRPanel.MATERIALS['CURRENT'].found[title], PBRPanel.MATERIALS['CURRENT'].images[title] = True, image
         return True
+
+
 ####################################################################################################
-#MAIN PANEL CLASS
+# MAIN PANEL CLASS
 ####################################################################################################
-class PBR_Panel(bpy.types.Panel):
+class PBRPanel(bpy.types.Panel):
     bl_label = "Easy PBR Hook"
     bl_idname = "PBR_PT_Core"
     bl_space_type = "PROPERTIES"
@@ -1061,65 +1260,73 @@ class PBR_Panel(bpy.types.Panel):
     MATERIALS = {}
 
     @classmethod
-    def poll(self, context):
-        return bpy.context.active_object.active_material != None
+    def poll(cls, context):
+        return context.active_object.active_material is not None
 
     def draw(self, context):
-        MaterialProps = bpy.context.active_object.active_material.props
-        PBR_Panel.current_path = MaterialProps.conf_path
-        PBR_Panel.current_pattern = MaterialProps.texture_pattern
+        material_prop = context.active_object.active_material.props
+        PBRPanel.current_path = material_prop.conf_path
+        PBRPanel.current_pattern = material_prop.texture_pattern
         layout = self.layout
-        if PBR_Panel.BadState(layout):
+        if PBRPanel.is_bad_state(layout):
             return
-        PBR_Panel.UpdateMaterial()
+        PBRPanel.update_material()
         row = layout.row()
-        row.prop(MaterialProps, "conf_path")
+        row.prop(material_prop, "conf_path")
         row = layout.row()
-        row.prop(MaterialProps, "texture_pattern")
-        PBR_Panel.AssignTextures(layout)
+        row.prop(material_prop, "texture_pattern")
+        PBRPanel.assign_textures(layout)
 
-    def UpdateMaterial():
+    @staticmethod
+    def update_material():
         material_name = bpy.context.selected_objects[0].active_material.name
-        if 'CURRENT' not in PBR_Panel.MATERIALS:
+        if 'CURRENT' not in PBRPanel.MATERIALS:
             Material(material_name)
-        elif PBR_Panel.MATERIALS['CURRENT'].name != material_name:
-            if material_name not in PBR_Panel.MATERIALS:
+        elif PBRPanel.MATERIALS['CURRENT'].name != material_name:
+            if material_name not in PBRPanel.MATERIALS:
                 Material(material_name)
             else:
-                PBR_Panel.MATERIALS['CURRENT'] = PBR_Panel.MATERIALS[material_name]
+                PBRPanel.MATERIALS['CURRENT'] = PBRPanel.MATERIALS[material_name]
 
-    def BadState(layout):
-        if bpy.context.selected_objects==[]:
+    @staticmethod
+    def is_bad_state(layout):
+        if not bpy.context.selected_objects:
             row = layout.row()
-            row.label(text = "No object")
+            row.label(text="No object")
             return True
-        if bpy.context.selected_objects[0].active_material == None:
+        if bpy.context.selected_objects[0].active_material is None:
             row = layout.row()
-            row.label(text = "No material")
-            PBR_Panel.MATERIALS['CURRENT'].finished = False
+            row.label(text="No material")
+            PBRPanel.MATERIALS['CURRENT'].finished = False
             return True
         return False
 
-    def AssignTextures(layout):
+    @staticmethod
+    def assign_textures(layout):
         row = layout.row()
-        text = "Reassign textures" if PBR_Panel.MATERIALS['CURRENT'].finished else "Assign textures"
+        text = "Reassign textures" if PBRPanel.MATERIALS['CURRENT'].finished else "Assign textures"
         row.operator(GetTextureOperator.bl_idname, text=text)
+
+
 ####################################################################################################
-#CLASSES LIST, REGISTER AND RUN
+# CLASSES LIST, REGISTER AND RUN
 ####################################################################################################
-modules = [PBR_Panel, UVMapProp, MaterialProps, GetTextureOperator, PipelineMenu,
+modules = [PBRPanel, UVMapProp, MaterialProps, GetTextureOperator, PipelineMenu,
            ORMTexturer, MetalSmoothnessTexturer, MetalRoughnessTexturer, ORMMSKTexturer,
-           FadeMode, OpaqueMode, CutoutMode, OpacityMenu, UVMapPanel, TextureListPanel, TextureModePanel, 
+           FadeMode, OpaqueMode, CutoutMode, OpacityMenu, UVMapPanel, TextureListPanel, TextureModePanel,
            TexturePropsPanel, DetailMaskMenu, DetailMaskSource, AlbedoAlphaSource, NoneSource,
            TextureCoordinatesPanel, DetailMapCoordinatesPanel, OpacityPanel]
+
 
 def register():
     for module in modules:
         bpy.utils.register_class(module)
 
+
 def unregister():
     for module in modules:
         bpy.utils.unregister_class(module)
+
 
 if __name__ == "__main__":
     register()
