@@ -1,6 +1,7 @@
 import bpy
 from .material_env.material_class import Material
 from .tools.texture_getter import GetTextureOperator
+from .menus.db_changer import DBChanger
 
 
 class PBRPanel(bpy.types.Panel):
@@ -12,17 +13,22 @@ class PBRPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-        if 'CURRENT' not in Material.MATERIALS:
-            Material(bpy.context.selected_objects[0].active_material.name)
-        return context.active_object.active_material is not None
+        if not context.active_object:
+            return False
+        elif context.active_object.active_material is None:
+            return False
+        else:
+            if 'CURRENT' not in Material.MATERIALS:
+                Material(bpy.context.selected_objects[0].active_material.name)
+            return True
 
     def draw(self, context):
-        material_prop = context.active_object.active_material.props
-        Material.MATERIALS['CURRENT'].current_path = material_prop.conf_path
-        Material.MATERIALS['CURRENT'].current_pattern = material_prop.texture_pattern
         layout = self.layout
         if PBRPanel.is_bad_state(layout):
             return
+        material_prop = context.active_object.active_material.props
+        Material.MATERIALS['CURRENT'].current_path = material_prop.conf_path
+        Material.MATERIALS['CURRENT'].current_pattern = material_prop.texture_pattern
         PBRPanel.update_material()
         row = layout.row()
         row.prop(material_prop, "conf_path")
@@ -30,6 +36,8 @@ class PBRPanel(bpy.types.Panel):
         row.prop(material_prop, "texture_pattern")
         row = layout.row()
         row.prop(material_prop, "UseMaterialNameAsKeyword")
+        row = layout.row()
+        row.operator(DBChanger.bl_idname, text='Update textures masks')
         PBRPanel.assign_textures(layout)
 
     @staticmethod
@@ -47,12 +55,13 @@ class PBRPanel(bpy.types.Panel):
     def is_bad_state(layout):
         if not bpy.context.selected_objects:
             row = layout.row()
-            row.label(text="No object")
+            row.label(text="No active object")
             return True
         if bpy.context.selected_objects[0].active_material is None:
             row = layout.row()
-            row.label(text="No material")
-            Material.MATERIALS['CURRENT'].finished = False
+            row.label(text="No active material")
+            if 'CURRENT' in Material.MATERIALS:
+                Material.MATERIALS['CURRENT'].finished = False
             return True
         return False
 

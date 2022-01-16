@@ -13,7 +13,7 @@ class NoneSource(bpy.types.Operator):
     def execute(self, context):
         Material.MATERIALS['CURRENT'].mask_source = "None"
         nodes = context.object.active_material.node_tree
-        if nodes.nodes['NormalMix'].inputs['Detail Mask'].links != ():
+        if nodes.nodes['NormalMix'].inputs['Detail Mask'].links:
             nodes.links.remove(nodes.nodes['NormalMix'].inputs['Detail Mask'].links[0])
         return {"FINISHED"}
 

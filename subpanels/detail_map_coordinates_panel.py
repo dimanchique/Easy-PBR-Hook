@@ -15,8 +15,6 @@ class DetailMapCoordinatesPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-        if not context.selected_objects:
-            return False
         return Material.MATERIALS['CURRENT'].finished and context.active_object.active_material is not None and \
             "Detail Mapping" in context.object.active_material.node_tree.nodes
 
