@@ -1,6 +1,7 @@
 import bpy
 from .create_nodes import *
 from ..material_env.material_class import Material, add_to_nodes_list
+from ..material_env.material_properties import reset_props, reset_colors
 from .update_tool import *
 
 __all__ = ['clear_material', 'clear_images', 'place_base', 'place_albedo', 'place_normal_map', 'place_emission',

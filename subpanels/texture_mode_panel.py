@@ -1,5 +1,6 @@
 import bpy
 from ..material_env.material_class import Material, get_mode
+from ..menus.pipeline_menu import PipelineMenu
 
 __all__ = ['TextureModePanel']
 
@@ -27,7 +28,7 @@ class TextureModePanel(bpy.types.Panel):
         else:
             row.label(text=get_mode())
         row = layout.row()
-        row.operator(Material.bl_idname)
+        row.operator(PipelineMenu.bl_idname)
 
 
 def register():

@@ -2,7 +2,7 @@ import bpy
 from ..tools.update_tool import *
 from ..uv_env.uv_map_properties import UVMapProp, uv_items
 
-__all__ = ['MaterialProps']
+__all__ = ['MaterialProps', 'reset_props', 'reset_colors']
 
 
 class MaterialProps(bpy.types.PropertyGroup):
@@ -74,6 +74,9 @@ class MaterialProps(bpy.types.PropertyGroup):
 
         cls.DetailMapInverterEnabled = bpy.props.BoolProperty(name="Invert Detail",
                                                               update=update_detail)
+
+        cls.UseMaterialNameAsKeyword = bpy.props.BoolProperty(name="Use Material name as Keyword",
+                                                              update=update_texture_pattern)
 ########################################################################################################################
 # FLOAT VECTOR PROPERTIES (COLORS)
 ########################################################################################################################
@@ -150,6 +153,9 @@ class MaterialProps(bpy.types.PropertyGroup):
                                                        description="Keyword to find specific texture pack. "
                                                                    "You can use '-' to describe skip keyword",
                                                        update=update_string)
+
+        cls.sub_pattern = bpy.props.StringProperty(name="sub_pattern",
+                                                   default="")
 ########################################################################################################################
 # ENUM PROPERTIES
 ########################################################################################################################
@@ -170,6 +176,43 @@ class MaterialProps(bpy.types.PropertyGroup):
     @classmethod
     def unregister(cls):
         del bpy.types.Material.props
+
+
+def reset_props():
+    prop = bpy.context.active_object.active_material.props
+    # Float Section
+    prop.RoughnessAdd = 1
+    prop.MetallicAdd = 1
+    prop.SpecularAdd = 1
+    prop.EmissionMult = 1
+    prop.NormaMapStrength = 1
+    prop.AO_Strength = 1
+    prop.AlphaThreshold = 0
+    prop.OpacityAdd = 0
+    # Boolean Section
+    prop.NormalMapInverterEnabled = False
+    prop.DetailMapInverterEnabled = False
+    # Colors Section (Float Vectors)
+    prop.MixR = (1, 1, 1, 1)
+    prop.MixG = (1, 1, 1, 1)
+    prop.MixB = (1, 1, 1, 1)
+    # Coordinates Section (Float Vectors)
+    prop.Location = (0, 0, 0)
+    prop.Rotation = (0, 0, 0)
+    prop.Scale = (1, 1, 1)
+    prop.DetailMapLocation = (0, 0, 0)
+    prop.DetailMapRotation = (0, 0, 0)
+    prop.DetailMapScale = (1, 1, 1)
+
+
+def reset_colors():
+    nodes = bpy.context.object.active_material.node_tree.nodes
+    if "RedColor" in nodes:
+        nodes["RedColor"].outputs["Color"].default_value = (1, 1, 1, 1)
+    if "GreenColor" in nodes:
+        nodes["GreenColor"].outputs["Color"].default_value = (1, 1, 1, 1)
+    if "BlueColor" in nodes:
+        nodes["BlueColor"].outputs["Color"].default_value = (1, 1, 1, 1)
 
 
 def register():

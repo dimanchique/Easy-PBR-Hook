@@ -3,9 +3,9 @@ from ..material_env.material_class import Material
 from .create_nodes import *
 from .create_nodegroups import *
 
-__all__ = ['update_float', 'update_normal', 'update_detail', 'place_normal_map_inverter',
-           'place_normal_mix', 'remove_normal_map_inverter', 'update_color', 'update_string',
-           'update_alpha', 'update_uv', 'update_opacity_add', 'reset_props', 'reset_colors']
+__all__ = ['update_float', 'update_normal', 'update_detail', 'update_color', 'update_string',
+           'place_normal_map_inverter', 'place_normal_mix', 'remove_normal_map_inverter',
+           'update_texture_pattern', 'update_alpha', 'update_uv', 'update_opacity_add']
 
 
 def update_float(self, context, origin=""):
@@ -60,6 +60,56 @@ def update_detail(self, context):
             place_normal_map_inverter("Detail")
         else:
             remove_normal_map_inverter("Detail")
+
+
+def update_color(self, context):
+    nodes = context.object.active_material.node_tree.nodes
+    material_prop = context.active_object.active_material.props
+    if "Albedo" in Material.MATERIALS['CURRENT'].nodes_list and nodes["Albedo"].type == "RGB":
+        nodes["Albedo"].outputs["Color"].default_value = material_prop.AlbedoColor
+    else:
+        nodes["Principled BSDF"].inputs["Base Color"].default_value = material_prop.AlbedoColor
+    if "Color Mask" in Material.MATERIALS['CURRENT'].nodes_list:
+        nodes["RedColor"].outputs["Color"].default_value = material_prop.MixR
+        nodes["GreenColor"].outputs["Color"].default_value = material_prop.MixG
+        nodes["BlueColor"].outputs["Color"].default_value = material_prop.MixB
+
+
+def update_string(self, context):
+    if context.active_object.active_material.props.conf_path != \
+            bpy.path.abspath(context.active_object.active_material.props.conf_path):
+        context.active_object.active_material.props.conf_path = \
+            bpy.path.abspath(context.active_object.active_material.props.conf_path)
+    if Material.MATERIALS['CURRENT'].current_path != \
+            context.active_object.active_material.props.conf_path or \
+            Material.MATERIALS['CURRENT'].current_pattern != \
+            context.active_object.active_material.props.texture_pattern:
+        Material.MATERIALS['CURRENT'].finished = False
+
+
+def update_texture_pattern(self, context):
+    if context.active_object.active_material.props.UseMaterialNameAsKeyword:
+        context.active_object.active_material.props.sub_pattern = \
+            context.active_object.active_material.props.texture_pattern
+        context.active_object.active_material.props.texture_pattern = \
+            context.active_object.active_material.name
+        Material.MATERIALS['CURRENT'].texture_pattern = \
+            context.active_object.active_material.name
+    else:
+        context.active_object.active_material.props.texture_pattern = \
+            context.active_object.active_material.props.sub_pattern
+        Material.MATERIALS['CURRENT'].texture_pattern = \
+            context.active_object.active_material.props.sub_pattern
+
+
+def update_alpha(self, context):
+    material_prop = context.active_object.active_material.props
+    bpy.data.images[Material.MATERIALS['CURRENT'].images['Albedo'].name].alpha_mode = material_prop.AlphaMode
+
+
+def update_uv(self, context):
+    nodes = context.object.active_material.node_tree.nodes
+    nodes["UVMap"].uv_map = context.scene.UVMap
 
 
 def place_normal_map_inverter(origin="Normal"):
@@ -121,41 +171,6 @@ def remove_normal_map_inverter(origin="Normal"):
             link_nodes(FROM("Normal Map", "Color"), TO("Normal Map Strength", "Color"))
 
 
-def update_color(self, context):
-    nodes = context.object.active_material.node_tree.nodes
-    material_prop = context.active_object.active_material.props
-    if "Albedo" in Material.MATERIALS['CURRENT'].nodes_list and nodes["Albedo"].type == "RGB":
-        nodes["Albedo"].outputs["Color"].default_value = material_prop.AlbedoColor
-    else:
-        nodes["Principled BSDF"].inputs["Base Color"].default_value = material_prop.AlbedoColor
-    if "Color Mask" in Material.MATERIALS['CURRENT'].nodes_list:
-        nodes["RedColor"].outputs["Color"].default_value = material_prop.MixR
-        nodes["GreenColor"].outputs["Color"].default_value = material_prop.MixG
-        nodes["BlueColor"].outputs["Color"].default_value = material_prop.MixB
-
-
-def update_string(self, context):
-    if context.active_object.active_material.props.conf_path != \
-            bpy.path.abspath(context.active_object.active_material.props.conf_path):
-        context.active_object.active_material.props.conf_path = \
-            bpy.path.abspath(context.active_object.active_material.props.conf_path)
-    if Material.MATERIALS['CURRENT'].current_path != \
-            context.active_object.active_material.props.conf_path or \
-            Material.MATERIALS['CURRENT'].current_pattern != \
-            context.active_object.active_material.props.texture_pattern:
-        Material.MATERIALS['CURRENT'].finished = False
-
-
-def update_alpha(self, context):
-    material_prop = context.active_object.active_material.props
-    bpy.data.images[Material.MATERIALS['CURRENT'].images['Albedo'].name].alpha_mode = material_prop.AlphaMode
-
-
-def update_uv(self, context):
-    nodes = context.object.active_material.node_tree.nodes
-    nodes["UVMap"].uv_map = context.scene.UVMap
-
-
 def update_opacity_add(mode):
     nodes = bpy.context.object.active_material.node_tree.nodes
     if mode == 'CLEAR':
@@ -188,40 +203,3 @@ def update_opacity_add(mode):
                             (FROM("Opacity Add", "Value"),
                              TO("Principled BSDF", "Alpha")))
     return
-
-
-def reset_props():
-    prop = bpy.context.active_object.active_material.props
-    # Float Section
-    prop.RoughnessAdd = 1
-    prop.MetallicAdd = 1
-    prop.SpecularAdd = 1
-    prop.EmissionMult = 1
-    prop.NormaMapStrength = 1
-    prop.AO_Strength = 1
-    prop.AlphaThreshold = 0
-    prop.OpacityAdd = 0
-    # Boolean Section
-    prop.NormalMapInverterEnabled = False
-    prop.DetailMapInverterEnabled = False
-    # Colors Section (Float Vectors)
-    prop.MixR = (1, 1, 1, 1)
-    prop.MixG = (1, 1, 1, 1)
-    prop.MixB = (1, 1, 1, 1)
-    # Coordinates Section (Float Vectors)
-    prop.Location = (0, 0, 0)
-    prop.Rotation = (0, 0, 0)
-    prop.Scale = (1, 1, 1)
-    prop.DetailMapLocation = (0, 0, 0)
-    prop.DetailMapRotation = (0, 0, 0)
-    prop.DetailMapScale = (1, 1, 1)
-
-
-def reset_colors():
-    nodes = bpy.context.object.active_material.node_tree.nodes
-    if "RedColor" in nodes:
-        nodes["RedColor"].outputs["Color"].default_value = (1, 1, 1, 1)
-    if "GreenColor" in nodes:
-        nodes["GreenColor"].outputs["Color"].default_value = (1, 1, 1, 1)
-    if "BlueColor" in nodes:
-        nodes["BlueColor"].outputs["Color"].default_value = (1, 1, 1, 1)

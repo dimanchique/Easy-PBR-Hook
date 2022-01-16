@@ -28,6 +28,8 @@ class PBRPanel(bpy.types.Panel):
         row.prop(material_prop, "conf_path")
         row = layout.row()
         row.prop(material_prop, "texture_pattern")
+        row = layout.row()
+        row.prop(material_prop, "UseMaterialNameAsKeyword")
         PBRPanel.assign_textures(layout)
 
     @staticmethod
