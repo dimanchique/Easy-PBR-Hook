@@ -7,9 +7,9 @@ __all__ = ['DataBaseProps']
 class DataBaseProps(bpy.types.PropertyGroup):
     @classmethod
     def register(cls):
-        bpy.types.Material.db_strings = bpy.props.PointerProperty(name="Custom properties",
-                                                                  description="Custom Properties for textures Database",
-                                                                  type=cls)
+        bpy.types.Scene.db_strings = bpy.props.PointerProperty(name="Custom properties",
+                                                               description="Custom Properties for textures Database",
+                                                               type=cls)
         cls.albedo = bpy.props.StringProperty(name="Albedo",
                                               description="Albedo keyword",
                                               default=', '.join(TEXTURES_MASK['Albedo']))
@@ -58,7 +58,7 @@ class DataBaseProps(bpy.types.PropertyGroup):
 
     @classmethod
     def unregister(cls):
-        del bpy.types.Material.db_strings
+        del bpy.types.Scene.db_strings
 
 
 def register():
