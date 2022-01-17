@@ -26,7 +26,7 @@ class OpacityMenu(bpy.types.Operator):
 class FadeMode(bpy.types.Operator):
     bl_idname = "pbr.fade"
     bl_label = "Fade"
-    bl_description = "fade mode"
+    bl_description = "Set fade mode"
 
     @staticmethod
     def execute(self, context):
@@ -41,7 +41,7 @@ class FadeMode(bpy.types.Operator):
 class OpaqueMode(bpy.types.Operator):
     bl_idname = "pbr.opaque"
     bl_label = "Opaque"
-    bl_description = "opaque mode"
+    bl_description = "Set opaque mode"
 
     @staticmethod
     def execute(self, context):
@@ -56,7 +56,7 @@ class OpaqueMode(bpy.types.Operator):
 class CutoutMode(bpy.types.Operator):
     bl_idname = "pbr.cutout"
     bl_label = "Cutout"
-    bl_description = "cutout mode"
+    bl_description = "Set cutout mode"
 
     @staticmethod
     def execute(self, context):
