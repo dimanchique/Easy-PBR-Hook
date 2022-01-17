@@ -4,7 +4,7 @@ import importlib
 bl_info = {
     "name": "Easy PBR Hook",
     "author": "Dmitry F.",
-    "version": (1, 5, 1),
+    "version": (1, 5, 2),
     "blender": (2, 80, 0),
     "location": "Properties > Material",
     "description": "Easy PBR Hook",
@@ -14,7 +14,14 @@ bl_info = {
     "category": "Material",
 }
 
-modulesNames = ['main_panel',
+modulesNames = ['main_panel',                                   # 1. Main Panel
+                'panels.texture_mode_panel',                    # 2. Mode Section
+                'panels.texture_list_panel',                    # 3. List of founded textures
+                'panels.texture_props_panel',                   # 4. Texture Properties
+                'panels.texture_coordinates_panel',             # 5. Texture Coordinates Section
+                'panels.uv_map_panel',                          # 6. UV Map Choose Sections
+                'panels.detail_map_coordinates_panel',          # 7. Detail Map Coordinates Section
+                'panels.opacity_panel',                         # 8. Opacity Mode Section
                 'properties.uv_map_properties',
                 'properties.material_properties',
                 'properties.db_properties',
@@ -22,14 +29,7 @@ modulesNames = ['main_panel',
                 'menus.db_update_menu',
                 'menus.opacity_menu',
                 'menus.detail_mask_menu',
-                'tools.texture_getter',
-                'panels.uv_map_panel',
-                'panels.texture_list_panel',
-                'panels.texture_mode_panel',
-                'panels.texture_props_panel',
-                'panels.texture_coordinates_panel',
-                'panels.detail_map_coordinates_panel',
-                'panels.opacity_panel']
+                'tools.texture_getter']
 
 modulesFullNames = {}
 for currentModuleName in modulesNames:
