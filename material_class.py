@@ -37,6 +37,16 @@ class Material:
         self.opacity_from_albedo = False
         self.mask_source = "Detail Mask"
 
+    @classmethod
+    def check_material(cls, material_name):
+        if 'CURRENT' not in cls.MATERIALS:
+            cls(material_name)
+        elif cls.MATERIALS['CURRENT'].name != material_name:
+            if material_name not in cls.MATERIALS:
+                cls(material_name)
+            else:
+                cls.MATERIALS['CURRENT'] = cls.MATERIALS[material_name]
+
 
 def get_mode():
     return f"Mode: {' + '.join(Material.MATERIALS['CURRENT'].nodes_list)} " \
