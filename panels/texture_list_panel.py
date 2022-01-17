@@ -15,9 +15,7 @@ class TextureListPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-        if not context.selected_objects:
-            return False
-        return Material.MATERIALS['CURRENT'].finished and context.active_object.active_material is not None
+        return Material.MATERIALS['CURRENT'].finished
 
     def draw(self, context):
         layout = self.layout

@@ -16,13 +16,9 @@ class OpacityPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-        if 'CURRENT' in Material.MATERIALS:
-            return (Material.MATERIALS['CURRENT'].opacity_from_albedo
-                    or Material.MATERIALS['CURRENT'].found["Opacity"]) \
-                   and Material.MATERIALS['CURRENT'].finished \
-                   and context.active_object.active_material is not None\
-                   and context.selected_objects != []
-        return False
+        return Material.MATERIALS['CURRENT'].finished and \
+            (Material.MATERIALS['CURRENT'].opacity_from_albedo or
+             Material.MATERIALS['CURRENT'].found["Opacity"])
 
     def draw(self, context):
         layout = self.layout
@@ -33,7 +29,7 @@ class OpacityPanel(bpy.types.Panel):
         if Material.MATERIALS['CURRENT'].opacity_mode == "Cutout":
             row = layout.row()
             row.prop(context.active_object.active_material.props, "AlphaThreshold")
-        if Material.MATERIALS['CURRENT'].opacity_mode == "Fade":
+        elif Material.MATERIALS['CURRENT'].opacity_mode == "Fade":
             row = layout.row()
             row.prop(material_prop, "AlphaMode")
             row = layout.row()

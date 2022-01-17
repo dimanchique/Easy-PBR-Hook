@@ -1,7 +1,7 @@
 import bpy
 import os
 from ..material_class import Material
-from .misc import TEXTURES, TEXTURES_MASK
+from .misc import *
 from .place_funcs import *
 
 __all__ = ['GetTextureOperator']
@@ -16,11 +16,17 @@ class GetTextureOperator(bpy.types.Operator):
     def execute(self, context):
         clear_images()
         Material.MATERIALS['CURRENT'].reset()
-        path = context.active_object.active_material.props.conf_path
+        path = context.active_object.active_material.props.textures_path
         filenames = next(os.walk(path), (None, None, []))[2]
-        [GetTextureOperator.get_texture(file)for file in filenames]
-        Material.MATERIALS['CURRENT'].finished = True
-        place_automatic()
+        [GetTextureOperator.get_texture(file) for file in filenames]
+        textures = Material.MATERIALS['CURRENT']
+        if any(textures.found[texture] for texture in textures.found):
+            Material.MATERIALS['CURRENT'].finished = True
+            place_automatic()
+            if 'UVMap' not in context.object.active_material.node_tree.nodes:
+                self.report({'WARNING'}, UV_MAP_WARNING_MESSAGE)
+        else:
+            self.report({'WARNING'}, TEXTURE_GETTER_WARNING_MESSAGE)
         return {"FINISHED"}
 
     @staticmethod
@@ -32,7 +38,7 @@ class GetTextureOperator(bpy.types.Operator):
             return False
 
         name = file.lower().split(".")[0]
-        pattern = bpy.context.active_object.active_material.props.texture_pattern.lower().split("-")
+        pattern = bpy.context.active_object.active_material.props.textures_pattern.lower().split("-")
 
         if len(pattern) > 1:
             pattern, skip = pattern[0].strip(), pattern[1].strip()
@@ -53,10 +59,9 @@ class GetTextureOperator(bpy.types.Operator):
             if file in bpy.data.images:
                 bpy.data.images.remove(bpy.data.images[file])
             image = bpy.data.images.load(
-                filepath=os.path.join(bpy.context.active_object.active_material.props.conf_path, file))
+                filepath=os.path.join(bpy.context.active_object.active_material.props.textures_path, file))
 
-            if not any(title == colored for colored in ["Albedo", "Emission", "Specular", "Occlusion"]):
-                image.colorspace_settings.name = "Non-Color"
+            image.colorspace_settings.name = TEXTURES_COLORS[title]
             Material.MATERIALS['CURRENT'].found[title] = True
             Material.MATERIALS['CURRENT'].images[title] = image
         return True

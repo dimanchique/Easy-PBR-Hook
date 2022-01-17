@@ -8,37 +8,37 @@ __all__ = ['PipelineMenu']
 class PipelineMenu(bpy.types.Operator):
     bl_idname = "pbr.pipeline_menu"
     bl_label = "Change Pipeline"
-    bl_description = "Set pipeline (ORM/MetalSmoothness/etc.)"
+    bl_description = "Set material pipeline"
 
     @staticmethod
     def execute(self, context):
-        wm = context.window_manager
-        wm.popup_menu(PipelineMenu.show_menu, title="Found pipelines")
+        context.window_manager.popup_menu(PipelineMenu.show_menu, title="Found pipelines")
         return {"FINISHED"}
 
     def show_menu(self, context):
         layout = self.layout
         text = ''
-        if Material.MATERIALS['CURRENT'].found["ORM"]:
-            layout.operator(ORMTexturer.bl_idname, text="ORM")
-            if Material.MATERIALS['CURRENT'].found["Color Mask"]:
-                layout.operator(ORMMSKTexturer.bl_idname, text="ORM+MSK")
-        if Material.MATERIALS['CURRENT'].found["Metal Smoothness"]:
-            layout.operator(MetalSmoothnessTexturer.bl_idname, text="Metal Smoothness")
-        if Material.MATERIALS['CURRENT'].found["Metal"] or Material.MATERIALS['CURRENT'].found["Roughness"]:
-            if Material.MATERIALS['CURRENT'].found["Metal"] and Material.MATERIALS['CURRENT'].found["Roughness"]:
-                text = "Metal+Roughness"
-            elif Material.MATERIALS['CURRENT'].found["Metal"]:
-                text = "Metal"
-            elif Material.MATERIALS['CURRENT'].found["Roughness"]:
-                text = "Roughness"
-            layout.operator(MetalRoughnessTexturer.bl_idname, text=text)
-        if not any(texture in Material.MATERIALS['CURRENT'].found for texture in
-                   ["ORM", "Metal Smoothness", "Metal", "Roughness"]):
+        textures = Material.MATERIALS['CURRENT']
+        if any(textures.found[texture] in textures.found for texture in ["ORM", "Metal Smoothness", "Metal", "Roughness"]):
+            if textures.found["ORM"]:
+                layout.operator(ORMPipeline.bl_idname, text="ORM")
+                if textures.found["Color Mask"]:
+                    layout.operator(ORMMSKPipeline.bl_idname, text="ORM+MSK")
+            if textures.found["Metal Smoothness"]:
+                layout.operator(MetalSmoothnessPipeline.bl_idname, text="Metal Smoothness")
+            if textures.found["Metal"] or textures.found["Roughness"]:
+                if textures.found["Metal"] and textures.found["Roughness"]:
+                    text = "Metal+Roughness"
+                elif textures.found["Metal"]:
+                    text = "Metal"
+                elif textures.found["Roughness"]:
+                    text = "Roughness"
+                layout.operator(MetalRoughnessPipeline.bl_idname, text=text)
+        else:
             layout.label(text="No options")
 
 
-class ORMTexturer(bpy.types.Operator):
+class ORMPipeline(bpy.types.Operator):
     bl_idname = "pbr.orm"
     bl_label = "ORM"
     bl_description = "Create ORM Pipeline"
@@ -49,7 +49,7 @@ class ORMTexturer(bpy.types.Operator):
         return {"FINISHED"}
 
 
-class ORMMSKTexturer(bpy.types.Operator):
+class ORMMSKPipeline(bpy.types.Operator):
     bl_idname = "pbr.orm_msk"
     bl_label = "ORM+MSK"
     bl_description = "Create ORM+MSK Pipeline"
@@ -60,7 +60,7 @@ class ORMMSKTexturer(bpy.types.Operator):
         return {"FINISHED"}
 
 
-class MetalRoughnessTexturer(bpy.types.Operator):
+class MetalRoughnessPipeline(bpy.types.Operator):
     bl_idname = "pbr.metal_roughness"
     bl_label = "MetalRoughness"
     bl_description = "Create Metal/Roughness Pipeline"
@@ -71,7 +71,7 @@ class MetalRoughnessTexturer(bpy.types.Operator):
         return {"FINISHED"}
 
 
-class MetalSmoothnessTexturer(bpy.types.Operator):
+class MetalSmoothnessPipeline(bpy.types.Operator):
     bl_idname = "pbr.met_sm"
     bl_label = "Metal Sm."
     bl_description = "Create Metal Smoothness Pipeline"
@@ -84,15 +84,15 @@ class MetalSmoothnessTexturer(bpy.types.Operator):
 
 def register():
     bpy.utils.register_class(PipelineMenu)
-    bpy.utils.register_class(ORMTexturer)
-    bpy.utils.register_class(ORMMSKTexturer)
-    bpy.utils.register_class(MetalRoughnessTexturer)
-    bpy.utils.register_class(MetalSmoothnessTexturer)
+    bpy.utils.register_class(ORMPipeline)
+    bpy.utils.register_class(ORMMSKPipeline)
+    bpy.utils.register_class(MetalRoughnessPipeline)
+    bpy.utils.register_class(MetalSmoothnessPipeline)
 
 
 def unregister():
     bpy.utils.unregister_class(PipelineMenu)
-    bpy.utils.unregister_class(ORMTexturer)
-    bpy.utils.unregister_class(ORMMSKTexturer)
-    bpy.utils.unregister_class(MetalRoughnessTexturer)
-    bpy.utils.unregister_class(MetalSmoothnessTexturer)
+    bpy.utils.unregister_class(ORMPipeline)
+    bpy.utils.unregister_class(ORMMSKPipeline)
+    bpy.utils.unregister_class(MetalRoughnessPipeline)
+    bpy.utils.unregister_class(MetalSmoothnessPipeline)

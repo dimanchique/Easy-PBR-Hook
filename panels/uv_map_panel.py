@@ -5,7 +5,7 @@ __all__ = ['UVMapPanel']
 
 
 class UVMapPanel(bpy.types.Panel):
-    bl_parent_id = "PBR_PT_Core"
+    bl_parent_id = "PBR_PT_Textures_Coordinates"
     bl_idname = "PBR_PT_UV"
     bl_space_type = "PROPERTIES"
     bl_label = "UV"
@@ -15,16 +15,13 @@ class UVMapPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-        if not context.selected_objects:
-            return False
         return Material.MATERIALS['CURRENT'].finished and \
-            context.active_object.active_material is not None and \
-            len(bpy.data.meshes[context.active_object.data.name].uv_layers.keys()) > 1
+            bpy.data.meshes[context.active_object.data.name].uv_layers
 
     def draw(self, context):
         layout = self.layout
         row = layout.row()
-        row.prop(context.scene, "UVMap", text="List of available UV Maps")
+        row.prop(context.scene, "UVMap", text="UV Maps")
 
 
 def register():
