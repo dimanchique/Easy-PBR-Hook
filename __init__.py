@@ -1,3 +1,6 @@
+import sys
+import importlib
+
 bl_info = {
     "name": "Easy PBR Hook",
     "author": "Dmitry F.",
@@ -12,34 +15,21 @@ bl_info = {
 }
 
 modulesNames = ['main_panel',
-                'uv_env.uv_map_properties',
-                'material_env.material_properties',
-                'tools.texture_getter',
+                'properties.uv_map_properties',
+                'properties.material_properties',
+                'properties.db_properties',
                 'menus.pipeline_menu',
-                'menus.db_editor.string_property',
-                'menus.db_changer',
-                'menus.texture_operators.orm',
-                'menus.texture_operators.metal_smoothness',
-                'menus.texture_operators.metal_roughness',
-                'menus.texture_operators.orm_msk',
-                'menus.opacity_modes.fade',
-                'menus.opacity_modes.opaque',
-                'menus.opacity_modes.cutout',
+                'menus.db_update_menu',
                 'menus.opacity_menu',
-                'subpanels.uv_map_panel',
-                'subpanels.texture_list_panel',
-                'subpanels.texture_mode_panel',
-                'subpanels.texture_props_panel',
                 'menus.detail_mask_menu',
-                'menus.detail_mask_sources.detail_mask',
-                'menus.detail_mask_sources.albedo_alpha',
-                'menus.detail_mask_sources.none',
-                'subpanels.texture_coordinates_panel',
-                'subpanels.detail_map_coordinates_panel',
-                'subpanels.opacity_panel']
-
-import sys
-import importlib
+                'tools.texture_getter',
+                'panels.uv_map_panel',
+                'panels.texture_list_panel',
+                'panels.texture_mode_panel',
+                'panels.texture_props_panel',
+                'panels.texture_coordinates_panel',
+                'panels.detail_map_coordinates_panel',
+                'panels.opacity_panel']
 
 modulesFullNames = {}
 for currentModuleName in modulesNames:
