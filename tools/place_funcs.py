@@ -426,20 +426,22 @@ def place_metal_roughness():
 
 def place_coordinates():
     nodes = bpy.context.object.active_material.node_tree.nodes
-    create_node(node_type="ShaderNodeUVMap",
-                loc=(-1900, 600),
-                node_name="UVMap")
-    create_node(node_type="ShaderNodeMapping",
-                loc=(-1700, 600),
-                node_name="Mapping")
-    nodes['UVMap'].uv_map = bpy.data.meshes[bpy.context.active_object.data.name].uv_layers.keys()[0]
-    link_nodes(FROM("UVMap", "UV"),
-               TO("Mapping", "Vector"))
-    for texture in Material.MATERIALS['CURRENT'].found:
-        if Material.MATERIALS['CURRENT'].found[texture] and texture in nodes:
-            if texture != "Detail Map":
-                link_nodes(FROM("Mapping", "Vector"),
-                           TO(texture, "Vector"))
+    uv_layers = bpy.data.meshes[bpy.context.active_object.data.name].uv_layers
+    if uv_layers:
+        create_node(node_type="ShaderNodeUVMap",
+                    loc=(-1900, 600),
+                    node_name="UVMap")
+        create_node(node_type="ShaderNodeMapping",
+                    loc=(-1700, 600),
+                    node_name="Mapping")
+        nodes['UVMap'].uv_map = uv_layers.keys()[0]
+        link_nodes(FROM("UVMap", "UV"),
+                   TO("Mapping", "Vector"))
+        for texture in Material.MATERIALS['CURRENT'].found:
+            if Material.MATERIALS['CURRENT'].found[texture] and texture in nodes:
+                if texture != "Detail Map":
+                    link_nodes(FROM("Mapping", "Vector"),
+                               TO(texture, "Vector"))
 
 
 def place_normal_map_coordinates():
