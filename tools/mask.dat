@@ -1,4 +1,4 @@
-Albedo: basecolor, base_color, bc, color, albedo, albedotransparency, albedo_transparency, diffuse,diffusemap, diffuse_map, alb
+Albedo: basecolor, base_color, bc, color, albedo, albedotransparency, albedo_transparency, diffuse, diffusemap, diffuse_map, alb
 Metal Smoothness: metsm, met_sm, metal_smoothness, metalic_smoothness, metalsmoothness, metallicsmoothness, metal_smooth, metalsmooth, metsmooth
 Metal: met, metal, _m, metall, metallic
 Roughness: _r, rough, roughness
