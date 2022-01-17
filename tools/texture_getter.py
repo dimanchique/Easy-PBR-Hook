@@ -1,6 +1,6 @@
 import bpy
 import os
-from ..material_env.material_class import Material
+from ..material_class import Material
 from .misc import TEXTURES, TEXTURES_MASK
 from .place_funcs import *
 
@@ -8,7 +8,7 @@ __all__ = ['GetTextureOperator']
 
 
 class GetTextureOperator(bpy.types.Operator):
-    bl_idname = "textures.get"
+    bl_idname = "pbr.get_textures_op"
     bl_label = "Assign Textures"
     bl_description = "Assign files with textures using chosen name pattern"
 
