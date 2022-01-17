@@ -18,28 +18,28 @@ class DBUpdateMenu(bpy.types.Operator):
 
     @staticmethod
     def execute(self, context):
-        if context.active_object.active_material.db_strings.Update == 'Local':
+        if context.scene.db_strings.Update == 'Local':
             local_update()
-        elif context.active_object.active_material.db_strings.Update == 'Global':
+        elif context.scene.db_strings.Update == 'Global':
             global_update()
         self.report({'INFO'}, "Database was updated!")
         return {'FINISHED'}
 
     def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self, width=400)
+        return context.window_manager.invoke_props_dialog(self, width=600)
 
     def draw(self, context):
         layout = self.layout
         for prop in DBUpdateMenu.properties_list:
             row = layout.row()
-            row.prop(context.active_object.active_material.db_strings, prop)
+            row.prop(context.scene.db_strings, prop)
         row = layout.row()
-        row.prop(context.active_object.active_material.db_strings, 'Update')
+        row.prop(context.scene.db_strings, 'Update')
 
 
 def local_update():
     matching = DBUpdateMenu.matching
-    data = dict(bpy.context.active_object.active_material.db_strings.items())
+    data = dict(bpy.context.scene.db_strings.items())
     for item in matching:
         if item in data:
             line = list(data[item].strip().replace(" ", "").split(','))
@@ -49,12 +49,10 @@ def local_update():
 
 def global_update():
     local_update()
-    data = []
-    for i in TEXTURES_MASK:
-        data.append(f'{i}: {", ".join(TEXTURES_MASK[i])}\n')
-    path = os.path.dirname(os.path.realpath(__file__))
-    path = '\\'.join(path.split('\\')[:-1])+'\\tools'
-    with open(path + '\\mask.dat', 'w') as file:
+    data = [f'{i}: {", ".join(TEXTURES_MASK[i])}\n' for i in TEXTURES_MASK]
+    # Step up to main dir and step into tools
+    path = '\\'.join(os.path.dirname(os.path.realpath(__file__)).split('\\')[:-1])+'\\tools\\mask.dat'
+    with open(path, 'w') as file:
         file.write(''.join(data))
 
 
