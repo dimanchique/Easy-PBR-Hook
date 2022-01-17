@@ -1,4 +1,3 @@
-import bpy
 import os
 
 __all__ = ['TEXTURES_MASK', 'TEXTURES']
