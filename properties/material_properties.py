@@ -142,17 +142,17 @@ class MaterialProps(bpy.types.PropertyGroup):
 ########################################################################################################################
 # STRING PROPERTIES
 ########################################################################################################################
-        cls.conf_path = bpy.props.StringProperty(name="Path to textures",
-                                                 default="",
-                                                 description="Sets the path to texture folder",
-                                                 subtype="DIR_PATH",
-                                                 update=update_string)
+        cls.textures_path = bpy.props.StringProperty(name="Path",
+                                                     default="",
+                                                     description="Sets the path to texture folder",
+                                                     subtype="DIR_PATH",
+                                                     update=update_string)
 
-        cls.texture_pattern = bpy.props.StringProperty(name="Keyword",
-                                                       default="",
-                                                       description="Keyword to find specific texture pack. "
-                                                                   "You can use '-' to describe skip keyword",
-                                                       update=update_string)
+        cls.textures_pattern = bpy.props.StringProperty(name="Keyword",
+                                                        default="",
+                                                        description="Keyword to find specific texture pack. "
+                                                                    "You can use '-' to describe skip keyword",
+                                                        update=update_string)
 
         cls.sub_pattern = bpy.props.StringProperty(name="sub_pattern",
                                                    default="")
