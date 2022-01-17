@@ -1,7 +1,7 @@
 import bpy
-from .material_env.material_class import Material
+from .material_class import Material
 from .tools.texture_getter import GetTextureOperator
-from .menus.db_changer import DBChanger
+from .menus.db_update_menu import DBUpdateMenu
 
 
 class PBRPanel(bpy.types.Panel):
@@ -19,7 +19,7 @@ class PBRPanel(bpy.types.Panel):
             return False
         else:
             if 'CURRENT' not in Material.MATERIALS:
-                Material(bpy.context.selected_objects[0].active_material.name)
+                Material(context.selected_objects[0].active_material.name)
             return True
 
     def draw(self, context):
@@ -37,7 +37,7 @@ class PBRPanel(bpy.types.Panel):
         row = layout.row()
         row.prop(material_prop, "UseMaterialNameAsKeyword")
         row = layout.row()
-        row.operator(DBChanger.bl_idname, text='Update textures masks')
+        row.operator(DBUpdateMenu.bl_idname, text='Update textures masks')
         PBRPanel.assign_textures(layout)
 
     @staticmethod
