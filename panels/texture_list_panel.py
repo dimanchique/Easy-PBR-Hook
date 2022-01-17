@@ -1,12 +1,12 @@
 import bpy
-from ..material_env.material_class import Material
+from ..material_class import Material
 
 __all__ = ['TextureListPanel']
 
 
 class TextureListPanel(bpy.types.Panel):
     bl_parent_id = "PBR_PT_Core"
-    bl_idname = "PBR_PT_Textures"
+    bl_idname = "PBR_PT_Textures_List"
     bl_space_type = "PROPERTIES"
     bl_label = "Found Textures"
     bl_region_type = "WINDOW"

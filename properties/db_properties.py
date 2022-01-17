@@ -1,10 +1,10 @@
 import bpy
-from ...tools.misc import TEXTURES_MASK
+from ..tools.misc import TEXTURES_MASK
 
-__all__ = ['DBStrings']
+__all__ = ['DataBaseProps']
 
 
-class DBStrings(bpy.types.PropertyGroup):
+class DataBaseProps(bpy.types.PropertyGroup):
     @classmethod
     def register(cls):
         bpy.types.Material.db_strings = bpy.props.PointerProperty(name="Custom properties",
@@ -62,8 +62,8 @@ class DBStrings(bpy.types.PropertyGroup):
 
 
 def register():
-    bpy.utils.register_class(DBStrings)
+    bpy.utils.register_class(DataBaseProps)
 
 
 def unregister():
-    bpy.utils.unregister_class(DBStrings)
+    bpy.utils.unregister_class(DataBaseProps)

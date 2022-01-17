@@ -2,11 +2,11 @@ import bpy
 import os
 from ..tools.misc import TEXTURES, TEXTURES_MASK
 
-__all__ = ['DBChanger']
+__all__ = ['DBUpdateMenu']
 
 
-class DBChanger(bpy.types.Operator):
-    bl_idname = "pbr.dbchanger"
+class DBUpdateMenu(bpy.types.Operator):
+    bl_idname = "pbr.db_update"
     bl_label = "Change texture masks database"
     bl_description = "Add specific endings of your textures for every type of textures"
 
@@ -30,7 +30,7 @@ class DBChanger(bpy.types.Operator):
 
     def draw(self, context):
         layout = self.layout
-        for prop in DBChanger.properties_list:
+        for prop in DBUpdateMenu.properties_list:
             row = layout.row()
             row.prop(context.active_object.active_material.db_strings, prop)
         row = layout.row()
@@ -38,17 +38,13 @@ class DBChanger(bpy.types.Operator):
 
 
 def local_update():
-    matching = DBChanger.matching
+    matching = DBUpdateMenu.matching
     data = dict(bpy.context.active_object.active_material.db_strings.items())
     for item in matching:
         if item in data:
             line = list(data[item].strip().replace(" ", "").split(','))
             line = [i for i in line if i != '']
             TEXTURES_MASK[matching[item]] = tuple(set(line))
-#    for item in bpy.context.active_object.active_material.db_strings.items():
-#        if item[0] in matching:
-#            TEXTURES_MASK[matching[item[0]]] = tuple(list(TEXTURES_MASK[matching[item[0]]]) +
-#                                                     list(item[1].strip().replace(" ", "").split(',')))
 
 
 def global_update():
@@ -63,8 +59,8 @@ def global_update():
 
 
 def register():
-    bpy.utils.register_class(DBChanger)
+    bpy.utils.register_class(DBUpdateMenu)
 
 
 def unregister():
-    bpy.utils.unregister_class(DBChanger)
+    bpy.utils.unregister_class(DBUpdateMenu)

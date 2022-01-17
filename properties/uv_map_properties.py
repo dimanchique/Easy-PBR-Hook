@@ -1,6 +1,6 @@
 import bpy
 
-__all__ = ['UVMapProp', 'uv_items', 'register', 'unregister']
+__all__ = ['UVMapProp', 'uv_items']
 
 
 class UVMapProp(bpy.types.PropertyGroup):

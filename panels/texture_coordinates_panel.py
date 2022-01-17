@@ -1,12 +1,12 @@
 import bpy
-from ..material_env.material_class import Material
+from ..material_class import Material
 
 __all__ = ['TextureCoordinatesPanel']
 
 
 class TextureCoordinatesPanel(bpy.types.Panel):
     bl_parent_id = "PBR_PT_Core"
-    bl_idname = "PBR_PT_TexturesCoordinates"
+    bl_idname = "PBR_PT_Textures_Coordinates"
     bl_space_type = "PROPERTIES"
     bl_label = "Texture Coordinates"
     bl_region_type = "WINDOW"
@@ -15,10 +15,11 @@ class TextureCoordinatesPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-        if not bpy.context.selected_objects:
+        if not context.selected_objects:
             return False
-        return Material.MATERIALS['CURRENT'].finished and bpy.context.active_object.active_material is not None and \
-               "Mapping" in context.object.active_material.node_tree.nodes
+        return Material.MATERIALS['CURRENT'].finished \
+            and context.active_object.active_material is not None \
+            and "Mapping" in context.object.active_material.node_tree.nodes
 
     def draw(self, context):
         material_prop = context.active_object.active_material.props

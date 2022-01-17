@@ -1,6 +1,6 @@
 import bpy
 from ..tools.update_tool import *
-from ..uv_env.uv_map_properties import UVMapProp, uv_items
+from .uv_map_properties import UVMapProp, uv_items
 
 __all__ = ['MaterialProps', 'reset_props', 'reset_colors']
 

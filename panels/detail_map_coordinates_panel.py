@@ -1,5 +1,5 @@
 import bpy
-from ..material_env.material_class import Material
+from ..material_class import Material
 
 __all__ = ['DetailMapCoordinatesPanel']
 

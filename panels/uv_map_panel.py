@@ -1,5 +1,5 @@
 import bpy
-from ..material_env.material_class import Material
+from ..material_class import Material
 
 __all__ = ['UVMapPanel']
 
@@ -15,11 +15,11 @@ class UVMapPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-        if not bpy.context.selected_objects:
+        if not context.selected_objects:
             return False
         return Material.MATERIALS['CURRENT'].finished and \
             context.active_object.active_material is not None and \
-            len(bpy.data.meshes[bpy.context.active_object.data.name].uv_layers.keys()) > 1
+            len(bpy.data.meshes[context.active_object.data.name].uv_layers.keys()) > 1
 
     def draw(self, context):
         layout = self.layout

@@ -1,5 +1,5 @@
 import bpy
-from ..material_env.material_class import Material
+from ..material_class import Material
 from ..menus.detail_mask_menu import DetailMaskMenu
 
 __all__ = ['TexturePropsPanel']
@@ -7,7 +7,7 @@ __all__ = ['TexturePropsPanel']
 
 class TexturePropsPanel(bpy.types.Panel):
     bl_parent_id = "PBR_PT_Core"
-    bl_idname = "PBR_PT_TexturesProps"
+    bl_idname = "PBR_PT_Textures_Props"
     bl_space_type = "PROPERTIES"
     bl_label = "Texture Properties"
     bl_region_type = "WINDOW"
@@ -21,7 +21,7 @@ class TexturePropsPanel(bpy.types.Panel):
         return Material.MATERIALS['CURRENT'].finished and context.active_object.active_material is not None
 
     def draw(self, context):
-        material_prop = bpy.context.active_object.active_material.props
+        material_prop = context.active_object.active_material.props
         layout = self.layout
         if not Material.MATERIALS['CURRENT'].found["Albedo"]:
             row = layout.row()
@@ -31,7 +31,7 @@ class TexturePropsPanel(bpy.types.Panel):
             row.prop(material_prop, "NormaMapStrength")
             row = layout.row()
             row.prop(material_prop, "NormalMapInverterEnabled")
-            if "NormalMix" in bpy.context.object.active_material.node_tree.nodes:
+            if "NormalMix" in context.object.active_material.node_tree.nodes:
                 row = layout.row()
                 row.prop(material_prop, "DetailMapInverterEnabled")
                 if "Detail Mask" not in Material.MATERIALS['CURRENT'].nodes_list and \

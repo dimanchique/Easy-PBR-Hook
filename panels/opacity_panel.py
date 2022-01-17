@@ -1,14 +1,13 @@
 import bpy
-from ..material_env.material_class import Material
+from ..material_class import Material
 from ..menus.opacity_menu import OpacityMenu
-from ..tools.misc import TEXTURES
 
 __all__ = ['OpacityPanel']
 
 
 class OpacityPanel(bpy.types.Panel):
     bl_parent_id = "PBR_PT_Core"
-    bl_idname = "PBR_PT_opacity_mode"
+    bl_idname = "PBR_PT_Opacity_Mode"
     bl_space_type = "PROPERTIES"
     bl_label = "Opacity Settings"
     bl_region_type = "WINDOW"

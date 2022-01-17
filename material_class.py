@@ -1,5 +1,5 @@
 import bpy
-from ..tools.misc import *
+from .tools.misc import *
 
 __all__ = ['Material', 'get_mode', 'add_to_nodes_list']
 
