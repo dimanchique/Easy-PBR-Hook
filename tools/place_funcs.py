@@ -200,7 +200,7 @@ def place_displacement():
                     node_name="Normal Displacement",
                     hide=True)
         link_nodes_in_a_row((FROM("Displacement", "Color"),
-                             TO("Normal Displacement", "Normal")),
+                             TO("Normal Displacement", "Height")),
                             (FROM("Normal Displacement", "Displacement"),
                              TO("Material Output", "Displacement")))
         add_to_nodes_list("Displacement")
