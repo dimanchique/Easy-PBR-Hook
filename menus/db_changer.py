@@ -45,10 +45,6 @@ def local_update():
             line = list(data[item].strip().replace(" ", "").split(','))
             line = [i for i in line if i != '']
             TEXTURES_MASK[matching[item]] = tuple(set(line))
-#    for item in bpy.context.active_object.active_material.db_strings.items():
-#        if item[0] in matching:
-#            TEXTURES_MASK[matching[item[0]]] = tuple(list(TEXTURES_MASK[matching[item[0]]]) +
-#                                                     list(item[1].strip().replace(" ", "").split(',')))
 
 
 def global_update():
