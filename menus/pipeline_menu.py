@@ -1,16 +1,12 @@
 import bpy
-from ..material_env.material_class import Material
-from .texture_operators.orm import ORMTexturer
-from .texture_operators.orm_msk import ORMMSKTexturer
-from .texture_operators.metal_roughness import MetalRoughnessTexturer
-from .texture_operators.metal_smoothness import MetalSmoothnessTexturer
-
+from ..material_class import Material
+from ..tools.place_funcs import place_manual
 
 __all__ = ['PipelineMenu']
 
 
 class PipelineMenu(bpy.types.Operator):
-    bl_idname = "pbr.pipelinemenu"
+    bl_idname = "pbr.pipeline_menu"
     bl_label = "Change Pipeline"
     bl_description = "Set pipeline (ORM/MetalSmoothness/etc.)"
 
@@ -42,9 +38,61 @@ class PipelineMenu(bpy.types.Operator):
             layout.label(text="No options")
 
 
+class ORMTexturer(bpy.types.Operator):
+    bl_idname = "pbr.orm"
+    bl_label = "ORM"
+    bl_description = "Create ORM Pipeline"
+
+    @staticmethod
+    def execute(self, context):
+        place_manual("ORM")
+        return {"FINISHED"}
+
+
+class ORMMSKTexturer(bpy.types.Operator):
+    bl_idname = "pbr.orm_msk"
+    bl_label = "ORM+MSK"
+    bl_description = "Create ORM+MSK Pipeline"
+
+    @staticmethod
+    def execute(self, context):
+        place_manual("ORM+MSK")
+        return {"FINISHED"}
+
+
+class MetalRoughnessTexturer(bpy.types.Operator):
+    bl_idname = "pbr.metal_roughness"
+    bl_label = "MetalRoughness"
+    bl_description = "Create Metal/Roughness Pipeline"
+
+    @staticmethod
+    def execute(self, context):
+        place_manual("MetalRoughness")
+        return {"FINISHED"}
+
+
+class MetalSmoothnessTexturer(bpy.types.Operator):
+    bl_idname = "pbr.met_sm"
+    bl_label = "Metal Sm."
+    bl_description = "Create Metal Smoothness Pipeline"
+
+    @staticmethod
+    def execute(self, context):
+        place_manual("MetalSmoothness")
+        return {"FINISHED"}
+
+
 def register():
     bpy.utils.register_class(PipelineMenu)
+    bpy.utils.register_class(ORMTexturer)
+    bpy.utils.register_class(ORMMSKTexturer)
+    bpy.utils.register_class(MetalRoughnessTexturer)
+    bpy.utils.register_class(MetalSmoothnessTexturer)
 
 
 def unregister():
     bpy.utils.unregister_class(PipelineMenu)
+    bpy.utils.unregister_class(ORMTexturer)
+    bpy.utils.unregister_class(ORMMSKTexturer)
+    bpy.utils.unregister_class(MetalRoughnessTexturer)
+    bpy.utils.unregister_class(MetalSmoothnessTexturer)
