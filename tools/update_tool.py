@@ -1,5 +1,5 @@
 import bpy
-from ..material_env.material_class import Material
+from ..material_class import Material
 from .create_nodes import *
 from .create_nodegroups import *
 
