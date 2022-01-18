@@ -20,9 +20,10 @@ class DBUpdateMenu(bpy.types.Operator):
     def execute(self, context):
         if context.scene.db_strings.Update == 'Local':
             local_update()
+            self.report({'INFO'}, "Database was locally updated!")
         elif context.scene.db_strings.Update == 'Global':
             global_update()
-        self.report({'INFO'}, "Database was updated!")
+            self.report({'INFO'}, "Database was globally updated!")
         return {'FINISHED'}
 
     def invoke(self, context, event):
@@ -40,8 +41,8 @@ class DBUpdateMenu(bpy.types.Operator):
 def local_update():
     matching = DBUpdateMenu.matching
     data = dict(bpy.context.scene.db_strings.items())
-    for item in matching:
-        if item in data:
+    for item in data:
+        if item in matching:
             line = list(data[item].strip().replace(" ", "").split(','))
             line = [i for i in line if i != '']
             TEXTURES_MASK[matching[item]] = tuple(set(line))
@@ -50,7 +51,7 @@ def local_update():
 def global_update():
     local_update()
     data = [f'{i}: {", ".join(TEXTURES_MASK[i])}\n' for i in TEXTURES_MASK]
-    # Step up to main dir and step into tools
+    # Go to .\tools
     path = '\\'.join(os.path.dirname(os.path.realpath(__file__)).split('\\')[:-1])+'\\tools\\mask.dat'
     with open(path, 'w') as file:
         file.write(''.join(data))
