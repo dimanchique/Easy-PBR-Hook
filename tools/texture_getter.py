@@ -33,19 +33,16 @@ class GetTextureOperator(bpy.types.Operator):
     def get_texture(file):
         threshold = 0
         title = ''
-
-        if file.split(".")[-1].lower() == 'meta':
-            return False
-
+        
         name = file.lower().split(".")[0]
         pattern = bpy.context.active_object.active_material.props.textures_pattern.lower().split("-")
-
+        skip = None
+        
         if len(pattern) > 1:
             pattern, skip = pattern[0].strip(), pattern[1].strip()
-        else:
-            pattern, skip = pattern[0].strip(), None
-        if skip is not None and skip in name:
-            return False
+        
+        if file.split(".")[-1].lower() == 'meta' or pattern[0] not in name or (skip is not None and skip in name):
+            return 
 
         for texture in TEXTURES:
             for mask in TEXTURES_MASK[texture]:
@@ -55,7 +52,7 @@ class GetTextureOperator(bpy.types.Operator):
                         title = texture
                         break
 
-        if threshold != 0 and pattern in name:
+        if threshold != 0:
             if file in bpy.data.images:
                 bpy.data.images.remove(bpy.data.images[file])
             image = bpy.data.images.load(
@@ -64,7 +61,7 @@ class GetTextureOperator(bpy.types.Operator):
             image.colorspace_settings.name = TEXTURES_COLORS[title]
             Material.MATERIALS['CURRENT'].found[title] = True
             Material.MATERIALS['CURRENT'].images[title] = image
-        return True
+        return
 
 
 def register():
