@@ -4,7 +4,7 @@ Metal: met, metal, _m, metall, metallic
 Roughness: _r, rough, roughness
 ORM: _orm, occlusionroughnessmetallic
 Color Mask: _m, msk, colormask, color_mask, _mask
-Normal Map: normal, nm, _n, normal_map, normalmap, normaldx, normal_dx, nrm
+Normal Map: normal, normal-ogl, nm, _n, normal_map, normalmap, normaldx, normal_dx, normal-dx, nrm
 Emission: _e, emis, emiss, emission
 Specular: _s, specular, spec
 Occlusion: occlusion, _ao, ambientocclusion
