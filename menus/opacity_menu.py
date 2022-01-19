@@ -2,13 +2,13 @@ import bpy
 from ..tools.update_tool import update_opacity_add
 from ..material_class import Material
 
-__all__ = ['OpacityMenu', 'FadeMode', 'OpaqueMode', 'CutoutMode']
+__all__ = ['OpacityMenu']
 
 
 class OpacityMenu(bpy.types.Operator):
     bl_idname = "pbr.show_opacity_menu"
     bl_label = "Opaque"
-    bl_description = "Set opacity mode"
+    bl_description = "Change opacity mode"
 
     @staticmethod
     def execute(self, context):
@@ -21,21 +21,6 @@ class OpacityMenu(bpy.types.Operator):
         layout.operator(OpaqueMode.bl_idname)
         layout.operator(CutoutMode.bl_idname)
         layout.operator(FadeMode.bl_idname)
-
-
-class FadeMode(bpy.types.Operator):
-    bl_idname = "pbr.fade"
-    bl_label = "Fade"
-    bl_description = "Set fade mode"
-
-    @staticmethod
-    def execute(self, context):
-        update_opacity_add('CREATE')
-        Material.MATERIALS['CURRENT'].opacity_mode = "Fade"
-        context.object.active_material.use_backface_culling = True
-        context.object.active_material.blend_method = "BLEND"
-        context.object.active_material.shadow_method = "HASHED"
-        return {"FINISHED"}
 
 
 class OpaqueMode(bpy.types.Operator):
@@ -65,6 +50,21 @@ class CutoutMode(bpy.types.Operator):
         context.object.active_material.use_backface_culling = True
         context.object.active_material.blend_method = "CLIP"
         context.object.active_material.shadow_method = "CLIP"
+        return {"FINISHED"}
+
+
+class FadeMode(bpy.types.Operator):
+    bl_idname = "pbr.fade"
+    bl_label = "Fade"
+    bl_description = "Set fade mode"
+
+    @staticmethod
+    def execute(self, context):
+        update_opacity_add('CREATE')
+        Material.MATERIALS['CURRENT'].opacity_mode = "Fade"
+        context.object.active_material.use_backface_culling = True
+        context.object.active_material.blend_method = "BLEND"
+        context.object.active_material.shadow_method = "HASHED"
         return {"FINISHED"}
 
 
