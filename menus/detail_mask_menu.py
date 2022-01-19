@@ -2,7 +2,7 @@ import bpy
 from ..material_class import Material
 from ..tools.create_nodes import *
 
-__all__ = ['DetailMaskMenu', 'DetailMaskSource', 'AlbedoAlphaSource', 'NoneSource']
+__all__ = ['DetailMaskMenu']
 
 
 class DetailMaskMenu(bpy.types.Operator):
