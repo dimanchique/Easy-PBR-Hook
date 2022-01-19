@@ -15,6 +15,7 @@ class GetTextureOperator(bpy.types.Operator):
     @staticmethod
     def execute(self, context):
         clear_images()
+        clear_material()
         Material.MATERIALS['CURRENT'].reset()
         path = context.active_object.active_material.props.textures_path
         filenames = next(os.walk(path), (None, None, []))[2]
