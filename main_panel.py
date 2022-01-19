@@ -1,6 +1,7 @@
 import bpy
 from .material_class import Material
 from .tools.texture_getter import GetTextureOperator
+from .tools.image_updater import UpdateImagesOperator
 from .menus.db_update_menu import DBUpdateMenu
 
 
@@ -44,8 +45,12 @@ class PBRPanel(bpy.types.Panel):
     @classmethod
     def assign_textures(cls, layout):
         row = layout.row()
-        text = "Reassign textures" if Material.MATERIALS['CURRENT'].finished else "Assign textures"
-        row.operator(GetTextureOperator.bl_idname, text=text)
+        if Material.MATERIALS['CURRENT'].finished:
+            row.operator(GetTextureOperator.bl_idname, text="Reload Material")
+            row = layout.row()
+            row.operator(UpdateImagesOperator.bl_idname)
+        else:
+            row.operator(GetTextureOperator.bl_idname)
 
 
 def register():
