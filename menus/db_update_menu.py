@@ -1,6 +1,6 @@
 import bpy
 import os
-from ..tools.misc import TEXTURES, TEXTURES_MASK
+from ..tools.misc import TEXTURES, TEXTURES_MASK, GLOBAL_UPDATE, LOCAL_UPDATE
 
 __all__ = ['DBUpdateMenu']
 
@@ -20,14 +20,14 @@ class DBUpdateMenu(bpy.types.Operator):
     def execute(self, context):
         if context.scene.db_strings.Update == 'Local':
             local_update()
-            self.report({'INFO'}, "Database was locally updated!")
+            self.report({'INFO'}, LOCAL_UPDATE)
         elif context.scene.db_strings.Update == 'Global':
             global_update()
-            self.report({'INFO'}, "Database was globally updated!")
+            self.report({'INFO'}, GLOBAL_UPDATE)
         return {'FINISHED'}
 
     def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self, width=600)
+        return context.window_manager.invoke_props_dialog(self, width=700)
 
     def draw(self, context):
         layout = self.layout
@@ -43,7 +43,7 @@ def local_update():
     data = dict(bpy.context.scene.db_strings.items())
     for item in data:
         if item in matching:
-            line = list(data[item].strip().replace(" ", "").split(','))
+            line = list(map(str.strip, data[item].split(',')))
             line = [i for i in line if i != '']
             TEXTURES_MASK[matching[item]] = tuple(set(line))
 
