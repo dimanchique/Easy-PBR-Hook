@@ -21,7 +21,7 @@ def update_float(self, context, origin=""):
         nodes["Emission Multiply"].inputs[1].default_value = material_prop.EmissionMult
     elif origin == "Normal Strength" and "Normal Map Strength" in nodes:
         nodes["Normal Map Strength"].inputs["Strength"].default_value = material_prop.NormaMapStrength
-    elif origin == "AO Strength" and all(AO in nodes for AO in ["AO_Mult_Albedo", "AO_Mult_Spec"]):
+    elif origin == "AO Strength" and ("AO_Mult_Albedo" in nodes and "AO_Mult_Spec" in nodes):
         nodes["AO_Mult_Albedo"].inputs[0].default_value = nodes["AO_Mult_Spec"].inputs[0].default_value = material_prop.AO_Strength
     elif origin == "Alpha Threshold":
         if context.object.active_material.blend_method != "OPAQUE":
