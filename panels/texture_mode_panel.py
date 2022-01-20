@@ -1,5 +1,5 @@
 import bpy
-from ..material_class import Material, get_mode
+from ..material_class import Material
 from ..menus.pipeline_menu import PipelineMenu
 
 __all__ = ['TextureModePanel']
@@ -21,10 +21,7 @@ class TextureModePanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         row = layout.row()
-        if not Material.MATERIALS['CURRENT'].nodes_list:
-            row.label(text="Mode: None")
-        else:
-            row.label(text=get_mode())
+        row.label(text=Material.get_material_mode())
         row = layout.row()
         row.operator(PipelineMenu.bl_idname)
 
