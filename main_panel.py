@@ -1,6 +1,6 @@
 import bpy
 from .material_class import Material
-from .tools.texture_getter import GetTextureOperator
+from .tools.texture_loader import GetTextureOperator
 from .tools.image_updater import UpdateImagesOperator
 from .menus.db_update_menu import DBUpdateMenu
 
