@@ -29,7 +29,7 @@ modulesNames = ['main_panel',                                   # 1. Main Panel
                 'menus.db_update_menu',
                 'menus.opacity_menu',
                 'menus.detail_mask_menu',
-                'tools.texture_getter',
+                'tools.texture_loader',
                 'tools.image_updater']
 
 modulesFullNames = {}
