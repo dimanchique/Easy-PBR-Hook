@@ -1,7 +1,7 @@
 import bpy
 from .tools.misc import *
 
-__all__ = ['Material', 'get_mode', 'add_to_nodes_list']
+__all__ = ['Material']
 
 
 class Material:
@@ -28,14 +28,14 @@ class Material:
         self.finished = False
         self.automatic = True
         self.soft_reset()
-        bpy.context.object.active_material.blend_method = "OPAQUE"
-        bpy.context.object.active_material.shadow_method = "OPAQUE"
 
     def soft_reset(self):
         self.nodes_list = []
         self.opacity_mode = "Opaque"
-        self.opacity_from_albedo = False
+        bpy.context.object.active_material.blend_method = "OPAQUE"
+        bpy.context.object.active_material.shadow_method = "OPAQUE"
         self.mask_source = "Detail Mask"
+        self.opacity_from_albedo = False
 
     @classmethod
     def check_material(cls, material_name):
@@ -47,12 +47,23 @@ class Material:
             else:
                 cls.MATERIALS['CURRENT'] = cls.MATERIALS[material_name]
 
+    @classmethod
+    def get_material_mode(cls):
+        text = 'Mode: '
+        if not cls.MATERIALS['CURRENT'].nodes_list:
+            return text + "None"
+        else:
+            return text + f"{' + '.join(cls.MATERIALS['CURRENT'].nodes_list)} " \
+                   f"({'Automatic' if cls.MATERIALS['CURRENT'].automatic else 'Manual'})"
 
-def get_mode():
-    return f"Mode: {' + '.join(Material.MATERIALS['CURRENT'].nodes_list)} " \
-           f"({'Automatic' if Material.MATERIALS['CURRENT'].automatic else 'Manual'})"
+    @classmethod
+    def add_to_nodes_list(cls, node):
+        if node not in cls.MATERIALS['CURRENT'].nodes_list:
+            cls.MATERIALS['CURRENT'].nodes_list.append(node)
 
-
-def add_to_nodes_list(mode):
-    if mode not in Material.MATERIALS['CURRENT'].nodes_list:
-        Material.MATERIALS['CURRENT'].nodes_list.append(mode)
+    @classmethod
+    def pipelines_found(cls):
+        return cls.MATERIALS['CURRENT'].found["ORM"] \
+                or cls.MATERIALS['CURRENT'].found["Metal Smoothness"] \
+                or cls.MATERIALS['CURRENT'].found["Metal"] \
+                or cls.MATERIALS['CURRENT'].found["Roughness"]
