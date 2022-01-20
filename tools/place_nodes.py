@@ -1,6 +1,6 @@
 import bpy
 from .create_nodes import *
-from ..material_class import Material, add_to_nodes_list
+from ..material_class import Material
 from ..properties.material_properties import reset_props, reset_colors
 from .update_tool import *
 
@@ -64,7 +64,7 @@ def place_albedo():
         create_node("ShaderNodeRGB", (-700, 300), node_name="Albedo")
     else:
         return
-    add_to_nodes_list("Albedo")
+    Material.add_to_nodes_list("Albedo")
 
 
 def place_normal_map():
@@ -91,20 +91,20 @@ def place_normal_map():
                             image=Material.MATERIALS['CURRENT'].images["Detail Mask"])
                 link_nodes_in_a_row((FROM("Detail Mask", "Color"),
                                      TO("NormalMix", "Detail Mask")))
-                add_to_nodes_list("Detail Mask")
+                Material.add_to_nodes_list("Detail Mask")
             link_nodes_in_a_row((FROM("Normal Map", "Color"),
                                  TO("NormalMix", "Main")),
                                 (FROM("Detail Map", "Color"),
                                  TO("NormalMix", "Detail")),
                                 (FROM("NormalMix", "Color"),
                                  TO("Normal Map Strength", "Color")))
-            add_to_nodes_list("Detail Map")
+            Material.add_to_nodes_list("Detail Map")
         else:
             link_nodes_in_a_row((FROM("Normal Map", "Color"),
                                  TO("Normal Map Strength", "Color")))
         link_nodes_in_a_row((FROM("Normal Map Strength", "Normal"),
                              TO("Principled BSDF", "Normal")))
-        add_to_nodes_list("Normal Map")
+        Material.add_to_nodes_list("Normal Map")
 
 
 def place_emission():
@@ -121,7 +121,7 @@ def place_emission():
                              TO("Emission Multiply", "Value")),
                             (FROM("Emission Multiply", "Value"),
                              TO("Principled BSDF", "Emission")))
-        add_to_nodes_list("Emission")
+        Material.add_to_nodes_list("Emission")
 
 
 def place_specular():
@@ -139,7 +139,7 @@ def place_specular():
                              TO("Specular Add", "Value")),
                             (FROM("Specular Add", "Value"),
                              TO("Principled BSDF", "Specular")))
-        add_to_nodes_list("Specular")
+        Material.add_to_nodes_list("Specular")
 
 
 def place_occlusion():
@@ -186,7 +186,7 @@ def place_occlusion():
                              TO("Principled BSDF", "Base Color")),
                             (FROM("AO_Mult_Spec", "Color"),
                              TO("Principled BSDF", "Specular")))
-        add_to_nodes_list("Occlusion")
+        Material.add_to_nodes_list("Occlusion")
 
 
 def place_displacement():
@@ -203,7 +203,7 @@ def place_displacement():
                              TO("Normal Displacement", "Height")),
                             (FROM("Normal Displacement", "Displacement"),
                              TO("Material Output", "Displacement")))
-        add_to_nodes_list("Displacement")
+        Material.add_to_nodes_list("Displacement")
 
 
 def place_opacity():
@@ -214,7 +214,7 @@ def place_opacity():
                     image=Material.MATERIALS['CURRENT'].images["Opacity"])
         link_nodes(FROM("Opacity", "Color"),
                    TO("Principled BSDF", "Alpha"))
-        add_to_nodes_list("Opacity")
+        Material.add_to_nodes_list("Opacity")
 
 
 def place_orm_msk():
@@ -290,7 +290,7 @@ def place_orm():
                          TO("Principled BSDF", "Base Color")),
                         (FROM("AO_Mult_Spec", "Color"),
                          TO("Principled BSDF", "Specular")))
-    add_to_nodes_list("ORM")
+    Material.add_to_nodes_list("ORM")
 
 
 def place_color_mask():
@@ -354,7 +354,7 @@ def place_color_mask():
                         (FROM("MixBlue", "Color"),
                          TO("AO_Mult_Albedo", "Color1")))
     reset_colors()
-    add_to_nodes_list("Color Mask")
+    Material.add_to_nodes_list("Color Mask")
 
 
 def place_metal_smoothness():
@@ -387,7 +387,7 @@ def place_metal_smoothness():
                          TO("Metallic Add", "Value")),
                         (FROM("Metallic Add", "Value"),
                          TO("Principled BSDF", "Metallic")))
-    add_to_nodes_list("Metal Smoothness")
+    Material.add_to_nodes_list("Metal Smoothness")
 
 
 def place_metal_roughness():
@@ -406,7 +406,7 @@ def place_metal_roughness():
                              TO("Metallic Add", "Value")),
                             (FROM("Metallic Add", "Value"),
                              TO("Principled BSDF", "Metallic")))
-        add_to_nodes_list("Metal")
+        Material.add_to_nodes_list("Metal")
     if Material.MATERIALS['CURRENT'].found["Roughness"]:
         create_node(node_type="ShaderNodeTexImage",
                     loc=(-1000, -300),
@@ -421,7 +421,7 @@ def place_metal_roughness():
                              TO("Roughness Add", "Value")),
                             (FROM("Roughness Add", "Value"),
                              TO("Principled BSDF", "Roughness")))
-        add_to_nodes_list("Roughness")
+        Material.add_to_nodes_list("Roughness")
 
 
 def place_coordinates():
