@@ -1,6 +1,6 @@
 import bpy
 from ..material_class import Material
-from ..tools.place_funcs import place_manual
+from ..tools.place_nodes import place_manual
 
 __all__ = ['PipelineMenu']
 
@@ -18,11 +18,7 @@ class PipelineMenu(bpy.types.Operator):
     def show_menu(self, context):
         layout = self.layout
         textures = Material.MATERIALS['CURRENT']
-        # Detect pipelines
-        if textures.found["ORM"] \
-                or textures.found["Metal Smoothness"] \
-                or textures.found["Metal"] \
-                or textures.found["Roughness"]:
+        if Material.pipelines_found():
             # Work with current pipelines
             if textures.found["ORM"]:
                 layout.operator(ORMPipeline.bl_idname, text="ORM")
