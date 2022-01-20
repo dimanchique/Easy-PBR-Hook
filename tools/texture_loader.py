@@ -2,7 +2,7 @@ import bpy
 import os
 from ..material_class import Material
 from .misc import *
-from .place_funcs import *
+from .place_nodes import *
 
 __all__ = ['GetTextureOperator']
 
@@ -19,7 +19,7 @@ class GetTextureOperator(bpy.types.Operator):
         Material.MATERIALS['CURRENT'].reset()
         path = context.active_object.active_material.props.textures_path
         filenames = next(os.walk(path), (None, None, []))[2]
-        [GetTextureOperator.get_texture(file) for file in filenames]
+        [GetTextureOperator.get_texture(context, file) for file in filenames]
         textures = Material.MATERIALS['CURRENT']
         if any(textures.found[texture] for texture in textures.found):
             Material.MATERIALS['CURRENT'].finished = True
@@ -31,18 +31,23 @@ class GetTextureOperator(bpy.types.Operator):
         return {"FINISHED"}
 
     @staticmethod
-    def get_texture(file):
+    def get_texture(context, file):
         threshold = 0
         title = ''
         
         name = file.lower().split(".")[0]
-        pattern = bpy.context.active_object.active_material.props.textures_pattern.lower().split("-")
-        skip = None
+        pattern = context.active_object.active_material.props.textures_pattern.lower().split("-")
+        skip_names = None
         
         if len(pattern) > 1:
-            pattern, skip = pattern[0].strip(), pattern[1].strip()
-        
-        if file.split(".")[-1].lower() == 'meta' or pattern[0] not in name or (skip is not None and skip in name):
+            pattern, skip_names = pattern[0].strip(), list(map(str.strip, pattern[1:]))
+        else:
+            pattern = pattern[0].strip()
+
+        if file.split(".")[-1].lower() == 'meta' or \
+                pattern not in name or \
+                (skip_names is not None and
+                 any(stop_word in name for stop_word in skip_names)):
             return 
 
         for texture in TEXTURES:
