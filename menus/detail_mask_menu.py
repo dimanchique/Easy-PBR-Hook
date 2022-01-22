@@ -1,13 +1,15 @@
 import bpy
 from ..material_class import Material
 from ..tools.create_nodes import *
+from ..tools.place_nodes import *
+from ..tools.misc import DETAIL_MASK_PLACED, DETAIL_MASK_REMOVED
 
 __all__ = ['DetailMaskMenu']
 
 
 class DetailMaskMenu(bpy.types.Operator):
     bl_idname = "pbr.detail_mask_menu"
-    bl_label = "Change Detail Map Source"
+    bl_label = "Change Detail Mask Source"
     bl_description = "Set source to put in Normal Mix node"
 
     @staticmethod
@@ -32,8 +34,12 @@ class AlbedoAlphaSource(bpy.types.Operator):
 
     @staticmethod
     def execute(self, context):
+        nodes = bpy.context.object.active_material.node_tree.nodes
         link_nodes(FROM("Albedo", "Alpha"), TO("NormalMix", "Detail Mask"))
         Material.MATERIALS['CURRENT'].mask_source = "Albedo Alpha"
+        if "Detail Mask" in nodes:
+            remove_detail_mask()
+            self.report({'INFO'}, DETAIL_MASK_REMOVED)
         return {"FINISHED"}
 
 
@@ -44,8 +50,13 @@ class DetailMaskSource(bpy.types.Operator):
 
     @staticmethod
     def execute(self, context):
+        nodes = bpy.context.object.active_material.node_tree.nodes
+        if "Detail Mask" not in nodes:
+            place_detail_mask(new=True)
+            self.report({'INFO'}, DETAIL_MASK_PLACED)
         link_nodes(FROM("Detail Mask", "Color"), TO("NormalMix", "Detail Mask"))
         Material.MATERIALS['CURRENT'].mask_source = "Detail Mask"
+
         return {"FINISHED"}
 
 
@@ -60,6 +71,9 @@ class NoneSource(bpy.types.Operator):
         nodes = context.object.active_material.node_tree
         if nodes.nodes['NormalMix'].inputs['Detail Mask'].links:
             nodes.links.remove(nodes.nodes['NormalMix'].inputs['Detail Mask'].links[0])
+        if "Detail Mask" in nodes.nodes:
+            remove_detail_mask()
+            self.report({'INFO'}, DETAIL_MASK_REMOVED)
         return {"FINISHED"}
 
 
