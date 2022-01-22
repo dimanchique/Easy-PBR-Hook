@@ -76,30 +76,23 @@ def update_color(self, context):
 
 
 def update_string(self, context):
-    if context.active_object.active_material.props.textures_path != \
-            bpy.path.abspath(context.active_object.active_material.props.textures_path):
-        context.active_object.active_material.props.textures_path = \
-            bpy.path.abspath(context.active_object.active_material.props.textures_path)
-    if Material.MATERIALS['CURRENT'].current_path != \
-            context.active_object.active_material.props.textures_path or \
-            Material.MATERIALS['CURRENT'].current_pattern != \
-            context.active_object.active_material.props.textures_pattern:
+    material = context.active_object.active_material
+    if material.props.textures_path != bpy.path.abspath(material.props.textures_path):
+        material.props.textures_path = bpy.path.abspath(material.props.textures_path)
+    if Material.MATERIALS['CURRENT'].current_path != material.props.textures_path or \
+            Material.MATERIALS['CURRENT'].current_pattern != material.props.textures_pattern:
         Material.MATERIALS['CURRENT'].finished = False
 
 
 def update_texture_pattern(self, context):
-    if context.active_object.active_material.props.UseMaterialNameAsKeyword:
-        context.active_object.active_material.props.sub_pattern = \
-            context.active_object.active_material.props.textures_pattern
-        context.active_object.active_material.props.textures_pattern = \
-            context.active_object.active_material.name
-        Material.MATERIALS['CURRENT'].texture_pattern = \
-            context.active_object.active_material.name
+    material = context.active_object.active_material
+    if material.props.UseMaterialNameAsKeyword:
+        material.props.sub_pattern = material.props.textures_pattern
+        material.props.textures_pattern = material.name
+        Material.MATERIALS['CURRENT'].texture_pattern = material.name
     else:
-        context.active_object.active_material.props.textures_pattern = \
-            context.active_object.active_material.props.sub_pattern
-        Material.MATERIALS['CURRENT'].texture_pattern = \
-            context.active_object.active_material.props.sub_pattern
+        material.props.textures_pattern = material.props.sub_pattern
+        Material.MATERIALS['CURRENT'].texture_pattern = material.props.sub_pattern
 
 
 def update_alpha(self, context):
