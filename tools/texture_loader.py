@@ -51,6 +51,8 @@ class GetTextureOperator(bpy.types.Operator):
             return
 
         for texture in TEXTURES:
+            if Material.MATERIALS['CURRENT'].found[texture]:
+                continue
             for mask in TEXTURES_MASK[texture]:
                 if name.endswith(mask.lower()):
                     if len(mask.lower()) > threshold:
