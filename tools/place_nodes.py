@@ -7,7 +7,7 @@ from .update_tool import *
 __all__ = ['clear_material', 'clear_images', 'place_base', 'place_albedo', 'place_normal_map', 'place_emission',
            'place_specular', 'place_occlusion', 'place_displacement', 'place_opacity', 'place_orm_msk', 'place_orm',
            'place_color_mask', 'place_metal_smoothness', 'place_metal_roughness', 'place_coordinates',
-           'place_normal_map_coordinates', 'place_automatic', 'place_manual']
+           'place_normal_map_coordinates', 'place_automatic', 'place_manual', 'place_detail_mask', 'remove_detail_mask']
 
 
 def clear_material():
@@ -85,13 +85,7 @@ def place_normal_map():
             place_normal_map_coordinates()
             place_normal_mix()
             if Material.MATERIALS['CURRENT'].found["Detail Mask"]:
-                create_node(node_type="ShaderNodeTexImage",
-                            loc=(-700, -1200),
-                            node_name="Detail Mask",
-                            image=Material.MATERIALS['CURRENT'].images["Detail Mask"])
-                link_nodes_in_a_row((FROM("Detail Mask", "Color"),
-                                     TO("NormalMix", "Detail Mask")))
-                Material.add_to_nodes_list("Detail Mask")
+                place_detail_mask()
             link_nodes_in_a_row((FROM("Normal Map", "Color"),
                                  TO("NormalMix", "Main")),
                                 (FROM("Detail Map", "Color"),
@@ -105,6 +99,26 @@ def place_normal_map():
         link_nodes_in_a_row((FROM("Normal Map Strength", "Normal"),
                              TO("Principled BSDF", "Normal")))
         Material.add_to_nodes_list("Normal Map")
+
+
+def place_detail_mask(new = False):
+    create_node(node_type="ShaderNodeTexImage",
+                loc=(-700, -1200),
+                node_name="Detail Mask",
+                image=Material.MATERIALS['CURRENT'].images["Detail Mask"])
+    link_nodes_in_a_row((FROM("Detail Mask", "Color"),
+                         TO("NormalMix", "Detail Mask")))
+    if new:
+        if "Mapping" in bpy.context.object.active_material.node_tree.nodes:
+            link_nodes(FROM("Mapping", "Vector"),
+                       TO("Detail Mask", "Vector"))
+    Material.add_to_nodes_list("Detail Mask")
+
+
+def remove_detail_mask():
+    nodes = bpy.context.object.active_material.node_tree.nodes
+    nodes.remove(nodes["Detail Mask"])
+    Material.remove_from_nodes_list("Detail Mask")
 
 
 def place_emission():
