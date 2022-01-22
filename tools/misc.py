@@ -1,7 +1,8 @@
 import os
 
 __all__ = ['TEXTURES_MASK', 'TEXTURES', 'TEXTURES_COLORS', 'UV_MAP_WARNING_MESSAGE',
-           'TEXTURE_GETTER_WARNING_MESSAGE', 'GLOBAL_UPDATE', 'LOCAL_UPDATE', 'IMAGE_UPDATE']
+           'TEXTURE_GETTER_WARNING_MESSAGE', 'GLOBAL_UPDATE', 'LOCAL_UPDATE', 'IMAGE_UPDATE',
+           'DETAIL_MASK_PLACED','DETAIL_MASK_REMOVED']
 
 
 def read_texture_masks():
@@ -26,6 +27,8 @@ TEXTURE_GETTER_WARNING_MESSAGE = 'No textures found! Check path and keyword.'
 GLOBAL_UPDATE = "Database was globally updated!"
 LOCAL_UPDATE = "Database was locally updated!"
 IMAGE_UPDATE = "Images were updated!"
+DETAIL_MASK_PLACED = 'Detail Mask node was created'
+DETAIL_MASK_REMOVED = 'Detail Mask node was removed'
 
 
 TEXTURES_COLORS = {'Albedo': 'sRGB',
