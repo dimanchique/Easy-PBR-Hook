@@ -62,6 +62,11 @@ class Material:
             cls.MATERIALS['CURRENT'].nodes_list.append(node)
 
     @classmethod
+    def remove_from_nodes_list(cls, node):
+        if node in cls.MATERIALS['CURRENT'].nodes_list:
+            cls.MATERIALS['CURRENT'].nodes_list.remove(node)
+
+    @classmethod
     def pipelines_found(cls):
         return cls.MATERIALS['CURRENT'].found["ORM"] \
                 or cls.MATERIALS['CURRENT'].found["Metal Smoothness"] \
