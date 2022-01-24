@@ -12,6 +12,7 @@ def create_node(node_type,
                 image=None,
                 hide=False,
                 default_input=None,
+                default_output=None,
                 nodetree="default"):
     nodes = bpy.context.object.active_material.node_tree.nodes if nodetree == "default" else nodetree.nodes
     new_node = nodes.new(node_type)
@@ -28,6 +29,8 @@ def create_node(node_type,
         new_node.image = image
     if default_input:
         new_node.inputs[default_input[0]].default_value = default_input[1]
+    if default_output:
+        new_node.outputs[default_output[0]].default_value = default_output[1]
     new_node.hide = hide
 
 
