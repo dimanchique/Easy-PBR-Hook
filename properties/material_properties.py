@@ -34,7 +34,6 @@ class MaterialProps(bpy.types.PropertyGroup):
 
         cls.EmissionMult = bpy.props.FloatProperty(name="Emission",
                                                    min=0,
-                                                   max=1,
                                                    update=lambda a, b:
                                                    update_float(a, b, "Emission"))
 
