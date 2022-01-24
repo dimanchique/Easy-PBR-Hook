@@ -189,6 +189,7 @@ def place_occlusion():
                         hide=True)
             link_nodes(FROM("Specular Value", "Value"),
                        TO("AO_Mult_Spec", "Color1"))
+            nodes['Specular Value'].outputs['Value'].default_value = 0.5
 
         link_nodes_in_a_row((FROM("Occlusion", "Color"),
                              TO("AO_Mult_Albedo", "Color2")),
@@ -238,6 +239,7 @@ def place_orm_msk():
 
 def place_orm():
     place_base()
+    nodes = bpy.context.object.active_material.node_tree.nodes
     create_node(node_type="ShaderNodeTexImage",
                 loc=(-1000, 0),
                 node_name="ORM",
@@ -268,13 +270,11 @@ def place_orm():
                 node_name="Roughness Add",
                 operation="ADD",
                 hide=True)
-
     if Material.MATERIALS['CURRENT'].found["Specular"]:
         link_nodes(FROM("Specular", "Color"),
                    TO("Specular Add", "Value"))
         link_nodes(FROM("Specular Add", "Value"),
                    TO("AO_Mult_Spec", "Color1"))
-        nodes = bpy.context.object.active_material.node_tree.nodes
         nodes["Specular Add"].location = (-700, 350)
         nodes["Specular"].location = (-1000, 300)
     else:
@@ -284,6 +284,7 @@ def place_orm():
                     hide=True)
         link_nodes(FROM("Specular Value", "Value"),
                    TO("AO_Mult_Spec", "Color1"))
+        nodes['Specular Value'].outputs['Value'].default_value = 0.5
     link_nodes_in_a_row((FROM("ORM", "Color"),
                          TO("SeparateORM", "Image")),
                         (FROM("SeparateORM", "G"),
