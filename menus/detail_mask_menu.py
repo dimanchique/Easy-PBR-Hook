@@ -56,7 +56,6 @@ class DetailMaskSource(bpy.types.Operator):
             self.report({'INFO'}, DETAIL_MASK_PLACED)
         link_nodes(FROM("Detail Mask", "Color"), TO("NormalMix", "Detail Mask"))
         Material.MATERIALS['CURRENT'].mask_source = "Detail Mask"
-
         return {"FINISHED"}
 
 

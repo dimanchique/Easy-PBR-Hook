@@ -2,7 +2,7 @@ import os
 import json
 
 __all__ = ['TEXTURES_MASK', 'TEXTURES', 'TEXTURES_COLORS', 'PROP_TO_TEXTURE', 'UV_MAP_WARNING_MESSAGE',
-           'TEXTURE_GETTER_WARNING_MESSAGE', 'GLOBAL_UPDATE', 'LOCAL_UPDATE', 'IMAGE_UPDATE',
+           'TEXTURE_GETTER_WARNING_MESSAGE', 'UPDATE_DATABASE', 'IMAGE_UPDATE',
            'DETAIL_MASK_PLACED', 'DETAIL_MASK_REMOVED']
 
 with open(os.path.dirname(os.path.realpath(__file__)) + '\\texture_mask.json', 'r') as file:
@@ -18,8 +18,8 @@ with open(os.path.dirname(os.path.realpath(__file__)) + '\\prop_to_texture_match
 # MESSAGES
 UV_MAP_WARNING_MESSAGE = 'UV Map not found. Please, fix this problem to use Texture coordinates section!'
 TEXTURE_GETTER_WARNING_MESSAGE = 'No textures found! Check path and keyword'
-GLOBAL_UPDATE = "Database was globally updated!"
-LOCAL_UPDATE = "Database was locally updated!"
+UPDATE_DATABASE = {'Local': "Database was locally updated!",
+                   'Global': "Database was globally updated!"}
 IMAGE_UPDATE = "Images were updated!"
 DETAIL_MASK_PLACED = 'Detail Mask node was created'
 DETAIL_MASK_REMOVED = 'Detail Mask node was removed'

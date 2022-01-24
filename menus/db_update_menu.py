@@ -1,7 +1,7 @@
 import bpy
 import os
 import json
-from ..tools.misc import TEXTURES_MASK, PROP_TO_TEXTURE, GLOBAL_UPDATE, LOCAL_UPDATE
+from ..tools.misc import TEXTURES_MASK, PROP_TO_TEXTURE, UPDATE_DATABASE
 
 __all__ = ['DBUpdateMenu']
 
@@ -15,10 +15,9 @@ class DBUpdateMenu(bpy.types.Operator):
     def execute(self, context):
         if context.scene.db_strings.Update == 'Local':
             local_update()
-            self.report({'INFO'}, LOCAL_UPDATE)
         elif context.scene.db_strings.Update == 'Global':
             global_update()
-            self.report({'INFO'}, GLOBAL_UPDATE)
+        self.report({'INFO'}, UPDATE_DATABASE[context.scene.db_strings.Update])
         return {'FINISHED'}
 
     def invoke(self, context, event):
