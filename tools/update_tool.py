@@ -17,8 +17,8 @@ def update_float(self, context, origin=""):
         nodes["Metallic Add"].inputs[1].default_value = material_prop.MetallicAdd - 1
     elif origin == "Specular" and "Specular Add" in nodes:
         nodes["Specular Add"].inputs[1].default_value = material_prop.SpecularAdd
-    elif origin == "Emission" and "Emission Multiply" in nodes:
-        nodes["Emission Multiply"].inputs[1].default_value = material_prop.EmissionMult
+    elif origin == "Emission" and "Emission Strength" in nodes:
+        nodes["Emission Strength"].outputs[0].default_value = material_prop.EmissionMult
     elif origin == "Normal Strength" and "Normal Map Strength" in nodes:
         nodes["Normal Map Strength"].inputs["Strength"].default_value = material_prop.NormaMapStrength
     elif origin == "AO Strength" and ("AO_Mult_Albedo" in nodes and "AO_Mult_Spec" in nodes):
