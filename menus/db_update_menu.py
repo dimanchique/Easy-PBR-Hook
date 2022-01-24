@@ -1,6 +1,7 @@
 import bpy
 import os
-from ..tools.misc import TEXTURES, TEXTURES_MASK, GLOBAL_UPDATE, LOCAL_UPDATE
+import json
+from ..tools.misc import TEXTURES_MASK, PROP_TO_TEXTURE, GLOBAL_UPDATE, LOCAL_UPDATE
 
 __all__ = ['DBUpdateMenu']
 
@@ -9,12 +10,6 @@ class DBUpdateMenu(bpy.types.Operator):
     bl_idname = "pbr.db_update"
     bl_label = "Change texture masks database"
     bl_description = "Add specific endings of your textures for every type of textures"
-
-    properties_list = ['albedo', 'met_sm', 'metal', 'rough', 'orm', 'color_mask',
-                       'normal_map', 'emission', 'specular', 'occlusion',
-                       'displacement', 'opacity', 'detail_map', 'detail_mask']
-
-    matching = dict(zip(properties_list, TEXTURES))
 
     @staticmethod
     def execute(self, context):
@@ -39,22 +34,19 @@ class DBUpdateMenu(bpy.types.Operator):
 
 
 def local_update():
-    matching = DBUpdateMenu.matching
     data = dict(bpy.context.scene.db_strings.items())
     for item in data:
-        if item in matching:
+        if item in PROP_TO_TEXTURE:
             line = list(map(str.strip, data[item].split(',')))
             line = [i for i in line if i != '']
-            TEXTURES_MASK[matching[item]] = tuple(set(line))
+            TEXTURES_MASK[PROP_TO_TEXTURE[item]] = list(set(line))
 
 
 def global_update():
     local_update()
-    data = [f'{i}: {", ".join(TEXTURES_MASK[i])}\n' for i in TEXTURES_MASK]
-    # Go to .\tools
-    path = '\\'.join(os.path.dirname(os.path.realpath(__file__)).split('\\')[:-1])+'\\tools\\mask.dat'
+    path = '\\'.join(os.path.dirname(os.path.realpath(__file__)).split('\\')[:-1])+'\\tools\\texture_mask.json'
     with open(path, 'w') as file:
-        file.write(''.join(data))
+        json.dump(TEXTURES_MASK, file)
 
 
 def register():
