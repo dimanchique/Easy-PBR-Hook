@@ -127,13 +127,21 @@ def place_emission():
                     loc=(-700, -300),
                     node_name="Emission",
                     image=Material.MATERIALS['CURRENT'].images["Emission"])
-        create_node(node_type="ShaderNodeMath",
+        create_node(node_type="ShaderNodeMixRGB",
                     loc=(-360, -300),
                     node_name="Emission Multiply",
-                    operation="MULTIPLY", hide=True)
+                    blend_type="MULTIPLY",
+                    default_input=("Fac", 1),
+                    hide=True)
+        create_node(node_type="ShaderNodeValue",
+                    loc=(-360, -350),
+                    node_name="Emission Strength",
+                    hide=True)
         link_nodes_in_a_row((FROM("Emission", "Color"),
-                             TO("Emission Multiply", "Value")),
-                            (FROM("Emission Multiply", "Value"),
+                             TO("Emission Multiply", "Color1")),
+                            (FROM("Emission Strength", "Value"),
+                             TO("Emission Multiply", "Color2")),
+                            (FROM("Emission Multiply", "Color"),
                              TO("Principled BSDF", "Emission")))
         Material.add_to_nodes_list("Emission")
 
@@ -186,10 +194,10 @@ def place_occlusion():
             create_node(node_type="ShaderNodeValue",
                         loc=(-360, 120),
                         node_name="Specular Value",
+                        default_output=(0, 0.5),
                         hide=True)
             link_nodes(FROM("Specular Value", "Value"),
                        TO("AO_Mult_Spec", "Color1"))
-            nodes['Specular Value'].outputs['Value'].default_value = 0.5
 
         link_nodes_in_a_row((FROM("Occlusion", "Color"),
                              TO("AO_Mult_Albedo", "Color2")),
@@ -281,10 +289,10 @@ def place_orm():
         create_node(node_type="ShaderNodeValue",
                     loc=(-360, 120),
                     node_name="Specular Value",
+                    default_output=(0, 0.5),
                     hide=True)
         link_nodes(FROM("Specular Value", "Value"),
                    TO("AO_Mult_Spec", "Color1"))
-        nodes['Specular Value'].outputs['Value'].default_value = 0.5
     link_nodes_in_a_row((FROM("ORM", "Color"),
                          TO("SeparateORM", "Image")),
                         (FROM("SeparateORM", "G"),
