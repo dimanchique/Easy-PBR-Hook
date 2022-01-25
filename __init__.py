@@ -14,7 +14,8 @@ bl_info = {
     "category": "Material",
 }
 
-modulesNames = ['main_panel',                                   # 1. Main Panel
+modulesNames = ['tools.global_tools',
+                'main_panel',                                   # 1. Main Panel
                 'panels.texture_mode_panel',                    # 2. Mode Section
                 'panels.texture_list_panel',                    # 3. List of founded textures
                 'panels.texture_props_panel',                   # 4. Texture Properties
@@ -23,8 +24,8 @@ modulesNames = ['main_panel',                                   # 1. Main Panel
                 'panels.detail_map_coordinates_panel',          # 7. Detail Map Coordinates Section
                 'panels.opacity_panel',                         # 8. Opacity Mode Section
                 'properties.uv_map_properties',
-                'properties.material_properties',
                 'properties.db_properties',
+                'properties.material_properties',
                 'menus.pipeline_menu',
                 'menus.db_update_menu',
                 'menus.opacity_menu',
