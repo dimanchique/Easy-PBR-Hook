@@ -22,7 +22,8 @@ def update_float(self, context, origin=""):
     elif origin == "Normal Strength" and "Normal Map Strength" in nodes:
         nodes["Normal Map Strength"].inputs["Strength"].default_value = material_prop.NormaMapStrength
     elif origin == "AO Strength" and ("AO_Mult_Albedo" in nodes and "AO_Mult_Spec" in nodes):
-        nodes["AO_Mult_Albedo"].inputs[0].default_value = nodes["AO_Mult_Spec"].inputs[0].default_value = material_prop.AO_Strength
+        nodes["AO_Mult_Albedo"].inputs[0].default_value = nodes["AO_Mult_Spec"].inputs[0].default_value = \
+            material_prop.AO_Strength
     elif origin == "Alpha Threshold":
         if context.object.active_material.blend_method != "OPAQUE":
             context.object.active_material.alpha_threshold = material_prop.AlphaThreshold
@@ -195,4 +196,3 @@ def update_opacity_add(mode):
                              TO("Opacity Add", "Value")),
                             (FROM("Opacity Add", "Value"),
                              TO("Principled BSDF", "Alpha")))
-    return
