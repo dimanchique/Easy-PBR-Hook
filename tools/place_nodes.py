@@ -101,7 +101,7 @@ def place_normal_map():
         Material.add_to_nodes_list("Normal Map")
 
 
-def place_detail_mask(new = False):
+def place_detail_mask(new=False):
     create_node(node_type="ShaderNodeTexImage",
                 loc=(-700, -1200),
                 node_name="Detail Mask",
