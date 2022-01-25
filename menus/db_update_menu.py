@@ -1,7 +1,5 @@
 import bpy
-import os
-import json
-from ..tools.misc import TEXTURES_MASK, PROP_TO_TEXTURE, UPDATE_DATABASE
+from ..tools.global_tools import Tools, DataExporter, DataImporter
 
 __all__ = ['DBUpdateMenu']
 
@@ -14,10 +12,10 @@ class DBUpdateMenu(bpy.types.Operator):
     @staticmethod
     def execute(self, context):
         if context.scene.db_strings.Update == 'Local':
-            local_update()
+            Tools.local_update()
         elif context.scene.db_strings.Update == 'Global':
-            global_update()
-        self.report({'INFO'}, UPDATE_DATABASE[context.scene.db_strings.Update])
+            Tools.global_update()
+        self.report({'INFO'}, Tools.UPDATE_DATABASE[context.scene.db_strings.Update])
         return {'FINISHED'}
 
     def invoke(self, context, event):
@@ -25,27 +23,15 @@ class DBUpdateMenu(bpy.types.Operator):
 
     def draw(self, context):
         layout = self.layout
-        for prop in PROP_TO_TEXTURE:
+        for prop in Tools.PROP_TO_TEXTURE:
             row = layout.row()
             row.prop(context.scene.db_strings, prop)
         row = layout.row()
+        row.operator(DataExporter.bl_idname)
+        sub = row.row()
+        sub.operator(DataImporter.bl_idname)
+        row = layout.row()
         row.prop(context.scene.db_strings, 'Update')
-
-
-def local_update():
-    data = dict(bpy.context.scene.db_strings.items())
-    for item in data:
-        if item in PROP_TO_TEXTURE:
-            line = list(map(str.strip, data[item].split(',')))
-            line = [i for i in line if i != '']
-            TEXTURES_MASK[PROP_TO_TEXTURE[item]] = list(set(line))
-
-
-def global_update():
-    local_update()
-    path = '\\'.join(os.path.dirname(os.path.realpath(__file__)).split('\\')[:-1])+'\\tools\\texture_mask.json'
-    with open(path, 'w') as file:
-        json.dump(TEXTURES_MASK, file)
 
 
 def register():
