@@ -170,7 +170,7 @@ class MaterialProps(bpy.types.PropertyGroup):
 ########################################################################################################################
         bpy.types.Scene.UVMap = bpy.props.EnumProperty(items=uv_items,
                                                        update=update_uv)
-        bpy.types.Scene.test_collection = bpy.props.CollectionProperty(type=UVMapProp)
+        bpy.types.Scene.uv_collection = bpy.props.CollectionProperty(type=UVMapProp)
 
     @classmethod
     def unregister(cls):

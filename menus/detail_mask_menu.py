@@ -2,7 +2,7 @@ import bpy
 from ..material_class import Material
 from ..tools.create_nodes import *
 from ..tools.place_nodes import *
-from ..tools.misc import DETAIL_MASK_PLACED, DETAIL_MASK_REMOVED
+from ..tools.global_tools import Tools
 
 __all__ = ['DetailMaskMenu']
 
@@ -39,7 +39,7 @@ class AlbedoAlphaSource(bpy.types.Operator):
         Material.MATERIALS['CURRENT'].mask_source = "Albedo Alpha"
         if "Detail Mask" in nodes:
             remove_detail_mask()
-            self.report({'INFO'}, DETAIL_MASK_REMOVED)
+            self.report({'INFO'}, Tools.DETAIL_MASK_REMOVED)
         return {"FINISHED"}
 
 
@@ -53,7 +53,7 @@ class DetailMaskSource(bpy.types.Operator):
         nodes = bpy.context.object.active_material.node_tree.nodes
         if "Detail Mask" not in nodes:
             place_detail_mask(new=True)
-            self.report({'INFO'}, DETAIL_MASK_PLACED)
+            self.report({'INFO'}, Tools.DETAIL_MASK_PLACED)
         link_nodes(FROM("Detail Mask", "Color"), TO("NormalMix", "Detail Mask"))
         Material.MATERIALS['CURRENT'].mask_source = "Detail Mask"
         return {"FINISHED"}
@@ -72,7 +72,7 @@ class NoneSource(bpy.types.Operator):
             nodes.links.remove(nodes.nodes['NormalMix'].inputs['Detail Mask'].links[0])
         if "Detail Mask" in nodes.nodes:
             remove_detail_mask()
-            self.report({'INFO'}, DETAIL_MASK_REMOVED)
+            self.report({'INFO'}, Tools.DETAIL_MASK_REMOVED)
         return {"FINISHED"}
 
 

@@ -1,7 +1,7 @@
 import bpy
 import os
 from ..material_class import Material
-from .misc import *
+from .global_tools import Tools
 from .place_nodes import *
 
 __all__ = ['GetTextureOperator']
@@ -25,9 +25,11 @@ class GetTextureOperator(bpy.types.Operator):
             Material.MATERIALS['CURRENT'].finished = True
             place_automatic()
             if 'UVMap' not in context.object.active_material.node_tree.nodes:
-                self.report({'WARNING'}, UV_MAP_WARNING_MESSAGE)
+                self.report({'WARNING'}, Tools.UV_MAP_WARNING_MESSAGE)
+            else:
+                self.report({'INFO'}, Tools.SUCCESS_LOADING)
         else:
-            self.report({'WARNING'}, TEXTURE_GETTER_WARNING_MESSAGE)
+            self.report({'WARNING'}, Tools.TEXTURE_GETTER_WARNING_MESSAGE)
         return {"FINISHED"}
 
     @staticmethod
@@ -50,10 +52,10 @@ class GetTextureOperator(bpy.types.Operator):
                  any(stop_word in name for stop_word in skip_names)):
             return
 
-        for texture in TEXTURES:
+        for texture in Tools.TEXTURES:
             if Material.MATERIALS['CURRENT'].found[texture]:
                 continue
-            for mask in TEXTURES_MASK[texture]:
+            for mask in Tools.TEXTURES_MASK[texture]:
                 if name.endswith(mask.lower()):
                     if len(mask.lower()) > threshold:
                         threshold = len(mask.lower())
@@ -66,10 +68,9 @@ class GetTextureOperator(bpy.types.Operator):
             image = bpy.data.images.load(
                 filepath=os.path.join(bpy.context.active_object.active_material.props.textures_path, file))
 
-            image.colorspace_settings.name = TEXTURES_COLORS[title]
+            image.colorspace_settings.name = Tools.TEXTURES_COLORS[title]
             Material.MATERIALS['CURRENT'].found[title] = True
             Material.MATERIALS['CURRENT'].images[title] = image
-        return
 
 
 def register():

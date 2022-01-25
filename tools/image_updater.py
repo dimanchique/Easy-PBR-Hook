@@ -1,7 +1,6 @@
 import bpy
 import os
-from ..material_class import Material
-from .misc import *
+from .global_tools import Tools
 
 __all__ = ['UpdateImagesOperator']
 
@@ -32,17 +31,16 @@ class UpdateImagesOperator(bpy.types.Operator):
                 else:
                     image_warnings += 1
 
-        get_report(self, image_warnings, file_warnings)
+        self.get_report(image_warnings, file_warnings)
         return {"FINISHED"}
 
-
-def get_report(context, image_warnings, file_warnings):
-    if any([image_warnings, file_warnings]):
-        file_warnings = '' if file_warnings == 0 else f'Missing files ({file_warnings})'
-        image_warnings = '' if image_warnings == 0 else f'Missing image in nodes ({image_warnings})'
-        context.report({'WARNING'}, 'Image update finished with errors. ' + file_warnings + ' ' + image_warnings)
-    else:
-        context.report({'INFO'}, IMAGE_UPDATE)
+    def get_report(self, image_warnings, file_warnings):
+        if any([image_warnings, file_warnings]):
+            file_warnings = '' if file_warnings == 0 else f'Missing files ({file_warnings})'
+            image_warnings = '' if image_warnings == 0 else f'Missing image in nodes ({image_warnings})'
+            self.report({'WARNING'}, 'Image update finished with errors. ' + file_warnings + ' ' + image_warnings)
+        else:
+            self.report({'INFO'}, Tools.IMAGE_UPDATE)
 
 
 def register():
