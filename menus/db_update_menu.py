@@ -25,7 +25,7 @@ class DBUpdateMenu(bpy.types.Operator):
 
     def draw(self, context):
         layout = self.layout
-        for prop in DBUpdateMenu.properties_list:
+        for prop in PROP_TO_TEXTURE:
             row = layout.row()
             row.prop(context.scene.db_strings, prop)
         row = layout.row()
