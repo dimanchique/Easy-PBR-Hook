@@ -19,7 +19,7 @@ class DBUpdateMenu(bpy.types.Operator):
         return {'FINISHED'}
 
     def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self, width=700)
+        return context.window_manager.invoke_props_dialog(self, width=500)
 
     def draw(self, context):
         layout = self.layout
@@ -27,11 +27,10 @@ class DBUpdateMenu(bpy.types.Operator):
             row = layout.row()
             row.prop(context.scene.db_strings, prop)
         row = layout.row()
-        row.operator(DataExporter.bl_idname)
-        sub = row.row()
-        sub.operator(DataImporter.bl_idname)
-        row = layout.row()
         row.prop(context.scene.db_strings, 'Update')
+        row = layout.row()
+        row.operator(DataExporter.bl_idname)
+        row.operator(DataImporter.bl_idname)
 
 
 def register():
