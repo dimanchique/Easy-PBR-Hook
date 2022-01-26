@@ -30,8 +30,8 @@ class PBRPanel(bpy.types.Panel):
         row.prop(material_prop, "textures_pattern")
         row = layout.row()
         row.prop(material_prop, "UseMaterialNameAsKeyword")
-        row = layout.row()
-        row.operator(DBUpdateMenu.bl_idname, text='Update textures masks')
+        sub = row.row()
+        sub.operator(DBUpdateMenu.bl_idname, text='Update textures masks')
         if context.active_object.active_material.props.textures_path != "":
             PBRPanel.assign_textures(layout)
 
