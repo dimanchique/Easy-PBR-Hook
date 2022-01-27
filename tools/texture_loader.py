@@ -17,7 +17,6 @@ class GetTextureOperator(bpy.types.Operator):
     @staticmethod
     def execute(self, context):
         GetTextureOperator.reloaded_images = 0
-        clear_images()
         clear_material()
         Material.MATERIALS['CURRENT'].reset()
         path = context.active_object.active_material.props.textures_path
@@ -39,6 +38,7 @@ class GetTextureOperator(bpy.types.Operator):
                     self.report({'INFO'}, Tools.SUCCESS_LOADING)
         else:
             self.report({'WARNING'}, Tools.TEXTURE_GETTER_WARNING_MESSAGE)
+        [bpy.data.images.remove(image) for image in bpy.data.images if image.users == 0 and image.name != 'Viewer Node']
         return {"FINISHED"}
 
     @staticmethod
