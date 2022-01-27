@@ -64,9 +64,11 @@ class GetTextureOperator(bpy.types.Operator):
 
         if threshold != 0:
             if file in bpy.data.images:
-                bpy.data.images.remove(bpy.data.images[file])
-            image = bpy.data.images.load(
-                filepath=os.path.join(bpy.context.active_object.active_material.props.textures_path, file))
+                bpy.data.images[file].reload()
+                image = bpy.data.images[file]
+            else:
+                image = bpy.data.images.load(
+                    filepath=os.path.join(bpy.context.active_object.active_material.props.textures_path, file))
 
             image.colorspace_settings.name = Tools.TEXTURES_COLORS[title]
             Material.MATERIALS['CURRENT'].found[title] = True

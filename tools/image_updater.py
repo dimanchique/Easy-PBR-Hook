@@ -21,11 +21,7 @@ class UpdateImagesOperator(bpy.types.Operator):
                     image_name = nodes[node.name].image.name
                     path = os.path.join(bpy.context.active_object.active_material.props.textures_path, image_name)
                     if os.path.isfile(path):
-                        bpy.data.images.remove(nodes[node.name].image)
-                        bpy.data.images.load(
-                            filepath=os.path.join(bpy.context.active_object.active_material.props.textures_path,
-                                                  image_name))
-                        nodes[node.name].image = bpy.data.images[image_name]
+                        bpy.data.images[image_name].reload()
                     else:
                         file_warnings += 1
                 else:
