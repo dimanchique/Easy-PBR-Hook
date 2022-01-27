@@ -4,7 +4,7 @@ from ..material_class import Material
 from ..properties.material_properties import reset_props, reset_colors
 from .update_tool import *
 
-__all__ = ['clear_material', 'clear_images', 'place_base', 'place_albedo', 'place_normal_map', 'place_emission',
+__all__ = ['clear_material', 'place_base', 'place_albedo', 'place_normal_map', 'place_emission',
            'place_specular', 'place_occlusion', 'place_displacement', 'place_opacity', 'place_orm_msk', 'place_orm',
            'place_color_mask', 'place_metal_smoothness', 'place_metal_roughness', 'place_coordinates',
            'place_normal_map_coordinates', 'place_automatic', 'place_manual', 'place_detail_mask', 'remove_detail_mask']
@@ -20,15 +20,6 @@ def clear_material():
                 loc=(300, 0))
     link_nodes(FROM("Principled BSDF", "BSDF"),
                TO("Material Output", "Surface"))
-
-
-def clear_images():
-    if len(bpy.data.materials) <= 2:
-        nodes = bpy.context.object.active_material.node_tree.nodes
-        for node in nodes.keys():
-            if hasattr(nodes[node], "image"):
-                if nodes[node].image is not None:
-                    bpy.data.images.remove(nodes[node].image)
 
 
 def place_base():
