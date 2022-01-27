@@ -4,7 +4,7 @@ import importlib
 bl_info = {
     "name": "Easy PBR Hook",
     "author": "Dmitry F.",
-    "version": (1, 5, 9),
+    "version": (1, 6, 1),
     "blender": (2, 80, 0),
     "location": "Properties > Material",
     "description": "Easy PBR Hook",
