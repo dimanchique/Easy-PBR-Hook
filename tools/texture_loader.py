@@ -12,8 +12,11 @@ class GetTextureOperator(bpy.types.Operator):
     bl_label = "Assign Textures"
     bl_description = "Assign files with textures using chosen name pattern"
 
+    reloaded_images = 0
+
     @staticmethod
     def execute(self, context):
+        GetTextureOperator.reloaded_images = 0
         clear_images()
         clear_material()
         Material.MATERIALS['CURRENT'].reset()
@@ -27,7 +30,13 @@ class GetTextureOperator(bpy.types.Operator):
             if 'UVMap' not in context.object.active_material.node_tree.nodes:
                 self.report({'WARNING'}, Tools.UV_MAP_WARNING_MESSAGE)
             else:
-                self.report({'INFO'}, Tools.SUCCESS_LOADING)
+                if GetTextureOperator.reloaded_images:
+                    ending = 'image' if GetTextureOperator.reloaded_images == 1 else 'images'
+                    message = f'Loading finished with {GetTextureOperator.reloaded_images} ' \
+                              f'{ending} reloaded from blendfile'
+                    self.report({'INFO'}, message)
+                else:
+                    self.report({'INFO'}, Tools.SUCCESS_LOADING)
         else:
             self.report({'WARNING'}, Tools.TEXTURE_GETTER_WARNING_MESSAGE)
         return {"FINISHED"}
@@ -63,9 +72,10 @@ class GetTextureOperator(bpy.types.Operator):
                         break
 
         if threshold != 0:
-            if file in bpy.data.images:
+            if file in bpy.data.images.keys():
                 bpy.data.images[file].reload()
                 image = bpy.data.images[file]
+                GetTextureOperator.reloaded_images += 1
             else:
                 image = bpy.data.images.load(
                     filepath=os.path.join(bpy.context.active_object.active_material.props.textures_path, file))
