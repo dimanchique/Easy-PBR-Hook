@@ -25,21 +25,7 @@ class Tools(bpy.types.PropertyGroup):
             cls.PROP_TO_TEXTURE = json.load(file)
 
     @staticmethod
-    def write_textures(path=None):
-        if not path:
-            path = os.path.dirname(os.path.realpath(__file__)) + '\\texture_mask.json'
-        with open(path, 'w') as file:
-            json.dump(Tools.TEXTURES_MASK, file)
-
-    @staticmethod
-    def read_textures(path=None):
-        if not path:
-            path = os.path.dirname(os.path.realpath(__file__)) + '\\texture_mask.json'
-        with open(path, 'r') as file:
-            Tools.TEXTURES_MASK = json.load(file)
-            Tools.TEXTURES = list(Tools.TEXTURES_MASK.keys())
-        Tools.write_textures()
-
+    def update_panel_masks():
         if hasattr(bpy.context, 'scene') and hasattr(bpy.context.scene, 'db_strings'):
             bpy.context.scene.db_strings.albedo = ', '.join(Tools.TEXTURES_MASK['Albedo'])
             bpy.context.scene.db_strings.met_sm = ', '.join(Tools.TEXTURES_MASK['Metal Smoothness'])
@@ -55,6 +41,24 @@ class Tools(bpy.types.PropertyGroup):
             bpy.context.scene.db_strings.opacity = ', '.join(Tools.TEXTURES_MASK['Opacity'])
             bpy.context.scene.db_strings.detail_map = ', '.join(Tools.TEXTURES_MASK['Detail Map'])
             bpy.context.scene.db_strings.detail_mask = ', '.join(Tools.TEXTURES_MASK['Detail Mask'])
+
+    @staticmethod
+    def write_textures(path=None):
+        if not path:
+            path = os.path.dirname(os.path.realpath(__file__)) + '\\texture_mask.json'
+        with open(path, 'w') as file:
+            json.dump(Tools.TEXTURES_MASK, file)
+
+    @staticmethod
+    def read_textures(path=None):
+        if not path:
+            path = os.path.dirname(os.path.realpath(__file__)) + '\\texture_mask.json'
+        with open(path, 'r') as file:
+            Tools.TEXTURES_MASK = json.load(file)
+            Tools.TEXTURES = list(Tools.TEXTURES_MASK.keys())
+        Tools.write_textures()
+        Tools.update_panel_masks()
+
     ###################################################################################################################
     # DB UPDATING
     ###################################################################################################################
@@ -63,9 +67,10 @@ class Tools(bpy.types.PropertyGroup):
         data = dict(bpy.context.scene.db_strings.items())
         for item in data:
             if item in Tools.PROP_TO_TEXTURE:
-                line = list(map(str.strip, data[item].split(',')))
+                line = list(map(str.strip, data[item].lower().split(',')))
                 line = [i for i in line if i != '']
                 Tools.TEXTURES_MASK[Tools.PROP_TO_TEXTURE[item]] = list(set(line))
+        Tools.update_panel_masks()
 
     @staticmethod
     def global_update():
