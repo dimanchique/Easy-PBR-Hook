@@ -21,7 +21,7 @@ class GetTextureOperator(bpy.types.Operator):
         Material.MATERIALS['CURRENT'].reset()
         path = context.active_object.active_material.props.textures_path
         filenames = next(os.walk(path), (None, None, []))[2]
-        [GetTextureOperator.get_texture(context, file) for file in filenames]
+        [GetTextureOperator.get_texture(file) for file in filenames]
         textures = Material.MATERIALS['CURRENT']
         if any(textures.found[texture] for texture in textures.found):
             Material.MATERIALS['CURRENT'].finished = True
@@ -42,12 +42,22 @@ class GetTextureOperator(bpy.types.Operator):
         return {"FINISHED"}
 
     @staticmethod
-    def get_texture(context, file):
+    def get_texture(file):
+        is_tile = False
+        tile_number = 0
         threshold = 0
         title = ''
 
         name = file.lower().split(".")[0]
-        pattern = context.active_object.active_material.props.textures_pattern.lower().split("-")
+        if name.split('_')[-1].isnumeric():
+            is_tile = True
+            tile_number = int(name.split('_')[-1])
+            if file.replace(str(tile_number), '1001') in bpy.data.images.keys():
+                bpy.data.images[file.replace(str(tile_number), '1001')].tiles.new(tile_number)
+                return
+            name = name.replace(f'_{tile_number}', '')
+        print(name)
+        pattern = bpy.context.active_object.active_material.props.textures_pattern.lower().split("-")
         skip_names = None
 
         if len(pattern) > 1:
@@ -79,7 +89,8 @@ class GetTextureOperator(bpy.types.Operator):
             else:
                 image = bpy.data.images.load(
                     filepath=os.path.join(bpy.context.active_object.active_material.props.textures_path, file))
-
+            if is_tile:
+                image.source = 'TILED'
             image.colorspace_settings.name = Tools.TEXTURES_COLORS[title]
             Material.MATERIALS['CURRENT'].found[title] = True
             Material.MATERIALS['CURRENT'].images[title] = image
