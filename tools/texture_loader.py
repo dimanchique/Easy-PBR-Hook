@@ -53,10 +53,10 @@ class GetTextureOperator(bpy.types.Operator):
             is_tile = True
             tile_number = int(name.split('_')[-1])
             if file.replace(str(tile_number), '1001') in bpy.data.images.keys():
-                bpy.data.images[file.replace(str(tile_number), '1001')].tiles.new(tile_number)
-                return
+                if tile_number != 1001:
+                    bpy.data.images[file.replace(str(tile_number), '1001')].tiles.new(tile_number)
+                    return
             name = name.replace(f'_{tile_number}', '')
-        print(name)
         pattern = bpy.context.active_object.active_material.props.textures_pattern.lower().split("-")
         skip_names = None
 
