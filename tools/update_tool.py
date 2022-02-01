@@ -3,9 +3,9 @@ from ..material_class import Material
 from .create_nodes import *
 from .create_nodegroups import *
 
-__all__ = ['update_float', 'update_normal', 'update_detail', 'update_color', 'update_string',
+__all__ = ['update_float', 'update_normal', 'update_detail', 'update_color', 'update_path',
            'place_normal_map_inverter', 'place_normal_mix', 'remove_normal_map_inverter',
-           'update_texture_pattern', 'update_alpha', 'update_uv', 'update_opacity_add']
+           'update_texture_pattern', 'switch_pattern_to_material_name', 'update_alpha', 'update_uv', 'update_opacity_add']
 
 
 def update_float(self, context, origin=""):
@@ -76,24 +76,32 @@ def update_color(self, context):
         nodes["BlueColor"].outputs["Color"].default_value = material_prop.MixB
 
 
-def update_string(self, context):
+def update_path(self, context):
     material = context.active_object.active_material
     if material.props.textures_path != bpy.path.abspath(material.props.textures_path):
         material.props.textures_path = bpy.path.abspath(material.props.textures_path)
-    if Material.MATERIALS['CURRENT'].current_path != material.props.textures_path or \
-            Material.MATERIALS['CURRENT'].current_pattern != material.props.textures_pattern:
+    if Material.MATERIALS['CURRENT'].current_path != material.props.textures_path:
         Material.MATERIALS['CURRENT'].finished = False
 
 
 def update_texture_pattern(self, context):
     material = context.active_object.active_material
+    if Material.MATERIALS['CURRENT'].current_pattern != material.props.textures_pattern:
+        Material.MATERIALS['CURRENT'].finished = False
+    if material.props.UseMaterialNameAsKeyword:
+        if material.props.textures_pattern != material.name:
+            material.props.sub_pattern = material.props.textures_pattern
+            material.props.UseMaterialNameAsKeyword = False
+    Material.MATERIALS['CURRENT'].texture_pattern = material.props.textures_pattern
+
+
+def switch_pattern_to_material_name(self, context):
+    material = context.active_object.active_material
     if material.props.UseMaterialNameAsKeyword:
         material.props.sub_pattern = material.props.textures_pattern
-        material.props.textures_pattern = material.name
-        Material.MATERIALS['CURRENT'].texture_pattern = material.name
+        material.props.textures_pattern = Material.MATERIALS['CURRENT'].texture_pattern = material.name
     else:
-        material.props.textures_pattern = material.props.sub_pattern
-        Material.MATERIALS['CURRENT'].texture_pattern = material.props.sub_pattern
+        material.props.textures_pattern = Material.MATERIALS['CURRENT'].texture_pattern = material.props.sub_pattern
 
 
 def update_alpha(self, context):

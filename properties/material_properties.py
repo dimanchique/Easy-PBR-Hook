@@ -75,7 +75,7 @@ class MaterialProps(bpy.types.PropertyGroup):
                                                               update=update_detail)
 
         cls.UseMaterialNameAsKeyword = bpy.props.BoolProperty(name="Use Material name as Keyword",
-                                                              update=update_texture_pattern)
+                                                              update=switch_pattern_to_material_name)
 ########################################################################################################################
 # FLOAT VECTOR PROPERTIES (COLORS)
 ########################################################################################################################
@@ -145,13 +145,13 @@ class MaterialProps(bpy.types.PropertyGroup):
                                                      default="",
                                                      description="Sets the path to texture folder",
                                                      subtype="DIR_PATH",
-                                                     update=update_string)
+                                                     update=update_path)
 
         cls.textures_pattern = bpy.props.StringProperty(name="Keyword",
                                                         default="",
                                                         description="Keyword to find specific texture pack. "
                                                                     "You can use '-' to describe skip keyword",
-                                                        update=update_string)
+                                                        update=update_texture_pattern)
 
         cls.sub_pattern = bpy.props.StringProperty(name="sub_pattern",
                                                    default="")
