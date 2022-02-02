@@ -38,7 +38,11 @@ class GetTextureOperator(bpy.types.Operator):
                     self.report({'INFO'}, Tools.SUCCESS_LOADING)
         else:
             self.report({'WARNING'}, Tools.TEXTURE_GETTER_WARNING_MESSAGE)
-        [bpy.data.images.remove(image) for image in bpy.data.images if image.users == 0 and image.name != 'Viewer Node']
+        [bpy.data.images.remove(image) for image in bpy.data.images
+         if image.users == 0
+         and image.name != 'Viewer Node'
+         and image not in list(Material.MATERIALS['CURRENT'].images.values())]
+
         return {"FINISHED"}
 
     @staticmethod

@@ -1,0 +1,47 @@
+{
+    "Group Input":
+    {
+        "name": "Group Input",
+        "node_type": "NodeGroupInput",
+        "loc": [-300, 0],
+        "hide": false,
+        "operation": null,
+        "blend_type": null
+    },
+    "Group Output":
+    {
+        "name": "Group Output",
+        "node_type": "NodeGroupOutput",
+        "loc": [340, 0],
+        "hide": false,
+        "operation": null,
+        "blend_type": null
+    },
+    "Separate RGB":
+    {
+        "name": "Separate RGB",
+        "node_type": "ShaderNodeSeparateRGB",
+        "loc": [-140, 0],
+        "hide": false,
+        "operation": null,
+        "blend_type": null
+    },
+    "Combine RGB":
+    {
+        "name": "Combine RGB",
+        "node_type": "ShaderNodeCombineRGB",
+        "loc": [180, 0],
+        "hide": false,
+        "operation": null,
+        "blend_type": null
+    },
+    "Invert":
+    {
+        "name": "Invert",
+        "node_type": "ShaderNodeInvert",
+        "loc": [20, 0],
+        "hide": false,
+        "operation": null,
+        "blend_type": null
+    }
+}

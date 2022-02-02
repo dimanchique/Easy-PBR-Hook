@@ -1,0 +1,92 @@
+{
+    "Link 0":
+    {
+        "From": ["Group Input","Main"],
+        "To": ["Separate RGB (1)","Image"]
+    },
+    "Link 1": 
+    {
+        "From": ["Group Input","Detail"],
+        "To": ["Separate RGB (2)","Image"]
+    },
+    "Link 2": 
+    {
+        "From": ["Separate RGB (1)","R"],
+        "To": ["Combine RGB (1)","R"]
+    },
+    "Link 3": 
+    {
+        "From": ["Separate RGB (1)","G"],
+        "To": ["Combine RGB (1)","G"]
+    },
+    "Link 4": 
+    {
+        "From": ["Separate RGB (2)","R"],
+        "To": ["Combine RGB (2)","R"]
+    },
+    "Link 5": 
+    {
+        "From": ["Separate RGB (2)","G"],
+        "To": ["Combine RGB (2)","G"]
+    },
+    "Link 6": 
+    {
+        "From": ["Separate RGB (1)","B"],
+        "To": ["Multiply",0]
+    },
+    "Link 7": 
+    {
+        "From": ["Separate RGB (2)","B"],
+        "To": ["Multiply",1]
+    },
+    "Link 8": 
+    {
+        "From": ["Combine RGB (1)","Image"],
+        "To": ["Add","Color1"]
+    },
+    "Link 9":
+    {
+        "From": ["Combine RGB (2)","Image"],
+        "To": ["Add","Color2"]
+    },
+    "Link 10":
+    {
+        "From": ["Group Input","Detail Mask"],
+        "To": ["Add","Fac"]
+    },
+    "Link 11":
+    {
+        "From": ["Group Input","Detail Mask"],
+        "To": ["Subtract","Fac"]
+    },
+    "Link 12":
+    {
+        "From": ["Add","Color"],
+        "To": ["Subtract","Color1"]
+    },
+    "Link 13":
+    {
+        "From": ["Subtract","Color"],
+        "To": ["Separate RGB (3)","Image"]
+    },
+    "Link 14":
+    {
+        "From": ["Multiply","Value"],
+        "To": ["Combine RGB (3)","B"]
+    },
+    "Link 15":
+    {
+        "From": ["Separate RGB (3)","R"],
+        "To": ["Combine RGB (3)","R"]
+    },
+    "Link 16":
+    {
+        "From": ["Separate RGB (3)","G"],
+        "To": ["Combine RGB (3)","G"]
+    },
+    "Link 17":
+    {
+        "From": ["Combine RGB (3)","Image"],
+        "To": ["Group Output","Color"]
+    }
+}
