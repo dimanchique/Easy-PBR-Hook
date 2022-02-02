@@ -49,7 +49,6 @@ class GetTextureOperator(bpy.types.Operator):
     @staticmethod
     def get_texture(file):
         is_tile = False
-        tile_number = 0
         threshold = 0
         title = ''
 
