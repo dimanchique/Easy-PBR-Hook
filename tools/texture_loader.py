@@ -21,7 +21,6 @@ class GetTextureOperator(bpy.types.Operator):
         Material.MATERIALS['CURRENT'].reset()
         path = context.active_object.active_material.props.textures_path
         filenames = next(os.walk(path), (None, None, []))[2]
-
         [GetTextureOperator.get_texture(file) for file in filenames]
         textures = Material.MATERIALS['CURRENT']
         if any(textures.found[texture] for texture in textures.found):
@@ -39,12 +38,18 @@ class GetTextureOperator(bpy.types.Operator):
                     self.report({'INFO'}, Tools.SUCCESS_LOADING)
         else:
             self.report({'WARNING'}, Tools.TEXTURE_GETTER_WARNING_MESSAGE)
-        [bpy.data.images.remove(image) for image in bpy.data.images if image.users == 0 and image.name != 'Viewer Node' and image not in list(Material.MATERIALS['CURRENT'].images.values())]
+
+        [bpy.data.images.remove(image) for image in bpy.data.images
+         if image.users == 0
+         and image.name != 'Viewer Node'
+         and image not in list(Material.MATERIALS['CURRENT'].images.values())]
+
         return {"FINISHED"}
 
     @staticmethod
     def get_texture(file):
         is_tile = False
+        tile_number = 0
         threshold = 0
         title = ''
 
