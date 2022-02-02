@@ -3,7 +3,7 @@
         "name": "Group Input",
         "node_type": "NodeGroupInput",
         "loc": [0,-40],
-        "hide": false,
+        "hide": true,
         "operation": null,
         "blend_type": null
     },
@@ -11,7 +11,7 @@
         "name": "Group Output",
         "node_type": "NodeGroupOutput",
         "loc": [1400,-36],
-        "hide": false,
+        "hide": true,
         "operation": null,
         "blend_type": null
     },
@@ -19,7 +19,7 @@
         "name": "Separate RGB (1)",
         "node_type": "ShaderNodeSeparateRGB",
         "loc": [200,0],
-        "hide": false,
+        "hide": true,
         "operation": null,
         "blend_type": null
     },
@@ -27,7 +27,7 @@
         "name": "Separate RGB (2)",
         "node_type": "ShaderNodeSeparateRGB",
         "loc": [200,-75],
-        "hide": false,
+        "hide": true,
         "operation": null,
         "blend_type": null
     },
@@ -35,7 +35,7 @@
         "name": "Separate RGB (3)",
         "node_type": "ShaderNodeSeparateRGB",
         "loc": [1000,-36],
-        "hide": false,
+        "hide": true,
         "operation": null,
         "blend_type": null
     },
@@ -43,7 +43,7 @@
         "name": "Combine RGB (1)",
         "node_type": "ShaderNodeCombineRGB",
         "loc": [400,0],
-        "hide": false,
+        "hide": true,
         "operation": null,
         "blend_type": null
     },
@@ -51,7 +51,7 @@
         "name": "Combine RGB (2)",
         "node_type": "ShaderNodeCombineRGB",
         "loc": [400,-75],
-        "hide": false,
+        "hide": true,
         "operation": null,
         "blend_type": null
     },
@@ -59,7 +59,7 @@
         "name": "Combine RGB (3)",
         "node_type": "ShaderNodeCombineRGB",
         "loc": [1200,-36],
-        "hide": false,
+        "hide": true,
         "operation": null,
         "blend_type": null
     },
@@ -67,7 +67,7 @@
         "name": "Subtract",
         "node_type": "ShaderNodeMixRGB",
         "loc": [800,-36],
-        "hide": false,
+        "hide": true,
         "operation": null,
         "blend_type": "SUBTRACT"
     },
@@ -75,7 +75,7 @@
         "name": "Add",
         "node_type": "ShaderNodeMixRGB",
         "loc": [600,-36],
-        "hide": false,
+        "hide": true,
         "operation": null,
         "blend_type": "ADD"
     },
@@ -83,7 +83,7 @@
         "name": "Multiply",
         "node_type": "ShaderNodeMath",
         "loc": [400,-36],
-        "hide": false,
+        "hide": true,
         "operation": "MULTIPLY",
         "blend_type": null
     }

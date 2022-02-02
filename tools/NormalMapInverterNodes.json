@@ -4,7 +4,7 @@
         "name": "Group Input",
         "node_type": "NodeGroupInput",
         "loc": [-300, 0],
-        "hide": false,
+        "hide": true,
         "operation": null,
         "blend_type": null
     },
@@ -13,7 +13,7 @@
         "name": "Group Output",
         "node_type": "NodeGroupOutput",
         "loc": [340, 0],
-        "hide": false,
+        "hide": true,
         "operation": null,
         "blend_type": null
     },
@@ -22,7 +22,7 @@
         "name": "Separate RGB",
         "node_type": "ShaderNodeSeparateRGB",
         "loc": [-140, 0],
-        "hide": false,
+        "hide": true,
         "operation": null,
         "blend_type": null
     },
@@ -31,7 +31,7 @@
         "name": "Combine RGB",
         "node_type": "ShaderNodeCombineRGB",
         "loc": [180, 0],
-        "hide": false,
+        "hide": true,
         "operation": null,
         "blend_type": null
     },
@@ -40,7 +40,7 @@
         "name": "Invert",
         "node_type": "ShaderNodeInvert",
         "loc": [20, 0],
-        "hide": false,
+        "hide": true,
         "operation": null,
         "blend_type": null
     }
