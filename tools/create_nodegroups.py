@@ -1,6 +1,5 @@
 import bpy
-import json
-import os
+from .global_tools import Tools
 from .create_nodes import *
 
 __all__ = ['create_normal_map_inverter', 'create_normal_mix']
@@ -11,18 +10,11 @@ def create_normal_map_inverter():
     NormalMapInvert.name = "NormalMapInverter"
     create_sockets(NormalMapInvert, ("NodeSocketImage", "NM Input"), socket="INPUT")
     create_sockets(NormalMapInvert, ("NodeSocketImage", "NM Output"), socket="OUTPUT")
-    nodes_config = load_json_config('NormalMapInverterNodes')
-    for node in nodes_config:
-        create_node(node_type=nodes_config[node]['node_type'],
-                    loc=nodes_config[node]['loc'],
-                    node_name=nodes_config[node]['name'],
-                    hide=nodes_config[node]['hide'],
-                    operation=nodes_config[node]['operation'],
-                    blend_type=nodes_config[node]['blend_type'],
-                    nodetree=NormalMapInvert)
-    links = load_json_config('NormalMapInverterNodesLinks')
-    for link in links:
-        link_nodes(links[link]['From'], links[link]['To'], nodetree=NormalMapInvert)
+
+    nodes_config = Tools.read_json_data('NormalMapInverterNodes')
+    links = Tools.read_json_data('NormalMapInverterNodesLinks')
+
+    __create_and_link_nodes_using_config(nodes_config, links, NormalMapInvert)
 
 
 def create_normal_mix():
@@ -36,7 +28,14 @@ def create_normal_mix():
     create_sockets(NormalMix,
                    ("NodeSocketImage", "Color"),
                    socket="OUTPUT")
-    nodes_config = load_json_config('NormalMixNodes')
+
+    nodes_config = Tools.read_json_data('NormalMixNodes')
+    links = Tools.read_json_data('NormalMixNodesLinks')
+
+    __create_and_link_nodes_using_config(nodes_config, links, NormalMix)
+
+
+def __create_and_link_nodes_using_config(nodes_config, links, nodetree):
     for node in nodes_config:
         create_node(node_type=nodes_config[node]['node_type'],
                     loc=nodes_config[node]['loc'],
@@ -44,13 +43,6 @@ def create_normal_mix():
                     hide=nodes_config[node]['hide'],
                     operation=nodes_config[node]['operation'],
                     blend_type=nodes_config[node]['blend_type'],
-                    nodetree=NormalMix)
-    links = load_json_config('NormalMixNodesLinks')
+                    nodetree=nodetree)
     for link in links:
-        link_nodes(links[link]['From'], links[link]['To'], nodetree=NormalMix)
-
-
-def load_json_config(filename):
-    path = os.path.join(os.path.dirname(os.path.realpath(__file__)), filename)+'.json'
-    with open(path, 'r') as file:
-        return json.load(file)
+        link_nodes(links[link]['From'], links[link]['To'], nodetree=nodetree)
