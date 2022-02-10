@@ -11,11 +11,15 @@ class DBUpdateMenu(bpy.types.Operator):
 
     @staticmethod
     def execute(self, context):
-        if context.scene.db_strings.Update == 'Local':
-            Tools.local_update()
-        elif context.scene.db_strings.Update == 'Global':
-            Tools.global_update()
-        self.report({'INFO'}, Tools.UPDATE_DATABASE[context.scene.db_strings.Update])
+        update_type = context.scene.db_strings.Update
+        if update_type == 'Local' or update_type == 'Global':
+            if update_type == 'Local':
+                Tools.local_update()
+            else:
+                Tools.global_update()
+            self.report({'INFO'}, Tools.MESSAGES["Database_Update_Success"][update_type])
+        else:
+            self.report({'INFO'}, Tools.MESSAGES["Database_Update_Error"])
         return {'FINISHED'}
 
     def invoke(self, context, event):

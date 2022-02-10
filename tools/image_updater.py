@@ -36,7 +36,7 @@ class UpdateImagesOperator(bpy.types.Operator):
             image_warnings = '' if image_warnings == 0 else f'Missing image in nodes ({image_warnings})'
             self.report({'WARNING'}, 'Image update finished with errors. ' + file_warnings + ' ' + image_warnings)
         else:
-            self.report({'INFO'}, Tools.IMAGE_UPDATE)
+            self.report({'INFO'}, Tools.MESSAGES["Images_Update"])
 
 
 def register():

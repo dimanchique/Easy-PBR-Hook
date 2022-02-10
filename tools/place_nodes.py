@@ -40,18 +40,19 @@ def place_base():
 
 
 def place_albedo():
-    if Material.MATERIALS['CURRENT'].found["Albedo"]:
+    current_material = Material.MATERIALS['CURRENT']
+    if current_material.found_textures["Albedo"]:
         create_node(node_type="ShaderNodeTexImage",
                     loc=(-700, 300),
                     node_name="Albedo",
-                    image=Material.MATERIALS['CURRENT'].images["Albedo"])
+                    image=current_material.images["Albedo"])
         link_nodes(FROM("Albedo", "Color"),
                    TO("Principled BSDF", "Base Color"))
-        if Material.MATERIALS['CURRENT'].images["Albedo"].name.lower().split(".")[0].endswith("transparency"):
+        if current_material.images["Albedo"].name.lower().split(".")[0].endswith("transparency"):
             link_nodes(FROM("Albedo", "Alpha"),
                        TO("Principled BSDF", "Alpha"))
-            Material.MATERIALS['CURRENT'].opacity_from_albedo = True
-    elif Material.MATERIALS['CURRENT'].found["ORM"] or Material.MATERIALS['CURRENT'].found["Occlusion"]:
+            current_material.opacity_from_albedo = True
+    elif current_material.found_textures["ORM"] or current_material.found_textures["Occlusion"]:
         create_node("ShaderNodeRGB", (-700, 300), node_name="Albedo")
     else:
         return
@@ -59,23 +60,24 @@ def place_albedo():
 
 
 def place_normal_map():
-    if Material.MATERIALS['CURRENT'].found["Normal Map"]:
+    current_material = Material.MATERIALS['CURRENT']
+    if current_material.found_textures["Normal Map"]:
         create_node(node_type="ShaderNodeTexImage",
                     loc=(-700, -600),
                     node_name="Normal Map",
-                    image=Material.MATERIALS['CURRENT'].images["Normal Map"])
+                    image=current_material.images["Normal Map"])
         create_node(node_type="ShaderNodeNormalMap",
                     loc=(-360, -600),
                     node_name="Normal Map Strength",
                     hide=True)
-        if Material.MATERIALS['CURRENT'].found["Detail Map"]:
+        if current_material.found_textures["Detail Map"]:
             create_node(node_type="ShaderNodeTexImage",
                         loc=(-700, -900),
                         node_name="Detail Map",
-                        image=Material.MATERIALS['CURRENT'].images["Detail Map"])
+                        image=current_material.images["Detail Map"])
             place_normal_map_coordinates()
             place_normal_mix()
-            if Material.MATERIALS['CURRENT'].found["Detail Mask"]:
+            if current_material.found_textures["Detail Mask"]:
                 place_detail_mask()
             link_nodes_in_a_row((FROM("Normal Map", "Color"),
                                  TO("NormalMix", "Main")),
@@ -93,10 +95,11 @@ def place_normal_map():
 
 
 def place_detail_mask(new=False):
+    current_material = Material.MATERIALS['CURRENT']
     create_node(node_type="ShaderNodeTexImage",
                 loc=(-700, -1200),
                 node_name="Detail Mask",
-                image=Material.MATERIALS['CURRENT'].images["Detail Mask"])
+                image=current_material.images["Detail Mask"])
     link_nodes_in_a_row((FROM("Detail Mask", "Color"),
                          TO("NormalMix", "Detail Mask")))
     if new:
@@ -113,11 +116,12 @@ def remove_detail_mask():
 
 
 def place_emission():
-    if Material.MATERIALS['CURRENT'].found["Emission"]:
+    current_material = Material.MATERIALS['CURRENT']
+    if current_material.found_textures["Emission"]:
         create_node(node_type="ShaderNodeTexImage",
                     loc=(-700, -300),
                     node_name="Emission",
-                    image=Material.MATERIALS['CURRENT'].images["Emission"])
+                    image=current_material.images["Emission"])
         create_node(node_type="ShaderNodeMixRGB",
                     loc=(-360, -300),
                     node_name="Emission Multiply",
@@ -138,11 +142,12 @@ def place_emission():
 
 
 def place_specular():
-    if Material.MATERIALS['CURRENT'].found["Specular"]:
+    current_material = Material.MATERIALS['CURRENT']
+    if current_material.found_textures["Specular"]:
         create_node(node_type="ShaderNodeTexImage",
                     loc=(-700, -1200),
                     node_name="Specular",
-                    image=Material.MATERIALS['CURRENT'].images["Specular"])
+                    image=current_material.images["Specular"])
         create_node(node_type="ShaderNodeMath",
                     loc=(-360, -1200),
                     node_name="Specular Add",
@@ -156,12 +161,13 @@ def place_specular():
 
 
 def place_occlusion():
-    if Material.MATERIALS['CURRENT'].found["Occlusion"]:
+    current_material = Material.MATERIALS['CURRENT']
+    if current_material.found_textures["Occlusion"]:
         nodes = bpy.context.object.active_material.node_tree.nodes
         create_node(node_type="ShaderNodeTexImage",
                     loc=(-1000, 300),
                     node_name="Occlusion",
-                    image=Material.MATERIALS['CURRENT'].images["Occlusion"])
+                    image=current_material.images["Occlusion"])
         create_node(node_type="ShaderNodeMixRGB",
                     loc=(-360, 220),
                     node_name="AO_Mult_Albedo",
@@ -174,7 +180,7 @@ def place_occlusion():
                     blend_type="MULTIPLY",
                     default_input=("Fac", 1),
                     hide=True)
-        if Material.MATERIALS['CURRENT'].found["Specular"]:
+        if current_material.found_textures["Specular"]:
             link_nodes_in_a_row((FROM("Specular", "Color"),
                                  TO("Specular Add", "Value")),
                                 (FROM("Specular Add", "Value"),
@@ -204,11 +210,12 @@ def place_occlusion():
 
 
 def place_displacement():
-    if Material.MATERIALS['CURRENT'].found["Displacement"]:
+    current_material = Material.MATERIALS['CURRENT']
+    if current_material.found_textures["Displacement"]:
         create_node(node_type="ShaderNodeTexImage",
                     loc=(-1000, -900),
                     node_name="Displacement",
-                    image=Material.MATERIALS['CURRENT'].images["Displacement"])
+                    image=current_material.images["Displacement"])
         create_node(node_type="ShaderNodeDisplacement",
                     loc=(-360, -950),
                     node_name="Normal Displacement",
@@ -221,11 +228,12 @@ def place_displacement():
 
 
 def place_opacity():
-    if Material.MATERIALS['CURRENT'].found["Opacity"]:
+    current_material = Material.MATERIALS['CURRENT']
+    if current_material.found_textures["Opacity"]:
         create_node(node_type="ShaderNodeTexImage",
                     loc=(-1000, -600),
                     node_name="Opacity",
-                    image=Material.MATERIALS['CURRENT'].images["Opacity"])
+                    image=current_material.images["Opacity"])
         link_nodes(FROM("Opacity", "Color"),
                    TO("Principled BSDF", "Alpha"))
         Material.add_to_nodes_list("Opacity")
@@ -237,12 +245,13 @@ def place_orm_msk():
 
 
 def place_orm():
+    current_material = Material.MATERIALS['CURRENT']
     place_base()
     nodes = bpy.context.object.active_material.node_tree.nodes
     create_node(node_type="ShaderNodeTexImage",
                 loc=(-1000, 0),
                 node_name="ORM",
-                image=Material.MATERIALS['CURRENT'].images["ORM"])
+                image=current_material.images["ORM"])
     create_node(node_type="ShaderNodeSeparateRGB",
                 loc=(-700, 0),
                 node_name="SeparateORM",
@@ -269,7 +278,7 @@ def place_orm():
                 node_name="Roughness Add",
                 operation="ADD",
                 hide=True)
-    if Material.MATERIALS['CURRENT'].found["Specular"]:
+    if current_material.found_textures["Specular"]:
         link_nodes(FROM("Specular", "Color"),
                    TO("Specular Add", "Value"))
         link_nodes(FROM("Specular Add", "Value"),
@@ -308,11 +317,12 @@ def place_orm():
 
 
 def place_color_mask():
+    current_material = Material.MATERIALS['CURRENT']
     nodes = bpy.context.object.active_material.node_tree.nodes
     create_node(node_type="ShaderNodeTexImage",
                 loc=(-1300, 300),
                 node_name="Color Mask",
-                image=Material.MATERIALS['CURRENT'].images["Color Mask"])
+                image=current_material.images["Color Mask"])
     create_node(node_type="ShaderNodeSeparateRGB",
                 loc=(-1200, 333),
                 node_name="SeparateMSK",
@@ -372,11 +382,12 @@ def place_color_mask():
 
 
 def place_metal_smoothness():
+    current_material = Material.MATERIALS['CURRENT']
     place_base()
     create_node(node_type="ShaderNodeTexImage",
                 loc=(-700, 0),
                 node_name="Metal Smoothness",
-                image=Material.MATERIALS['CURRENT'].images["Metal Smoothness"])
+                image=current_material.images["Metal Smoothness"])
     create_node(node_type="ShaderNodeMath",
                 loc=(-360, 0),
                 node_name="Metallic Add",
@@ -405,12 +416,13 @@ def place_metal_smoothness():
 
 
 def place_metal_roughness():
+    current_material = Material.MATERIALS['CURRENT']
     place_base()
-    if Material.MATERIALS['CURRENT'].found["Metal"]:
+    if current_material.found_textures["Metal"]:
         create_node(node_type="ShaderNodeTexImage",
                     loc=(-700, 0),
                     node_name="Metal",
-                    image=Material.MATERIALS['CURRENT'].images["Metal"])
+                    image=current_material.images["Metal"])
         create_node(node_type="ShaderNodeMath",
                     loc=(-360, 0),
                     node_name="Metallic Add",
@@ -421,11 +433,11 @@ def place_metal_roughness():
                             (FROM("Metallic Add", "Value"),
                              TO("Principled BSDF", "Metallic")))
         Material.add_to_nodes_list("Metal")
-    if Material.MATERIALS['CURRENT'].found["Roughness"]:
+    if current_material.found_textures["Roughness"]:
         create_node(node_type="ShaderNodeTexImage",
                     loc=(-1000, -300),
                     node_name="Roughness",
-                    image=Material.MATERIALS['CURRENT'].images["Roughness"])
+                    image=current_material.images["Roughness"])
         create_node(node_type="ShaderNodeMath",
                     loc=(-360, -250),
                     node_name="Roughness Add",
@@ -439,6 +451,7 @@ def place_metal_roughness():
 
 
 def place_coordinates():
+    current_material = Material.MATERIALS['CURRENT']
     nodes = bpy.context.object.active_material.node_tree.nodes
     uv_layers = bpy.data.meshes[bpy.context.active_object.data.name].uv_layers
     if uv_layers:
@@ -451,8 +464,8 @@ def place_coordinates():
         nodes['UVMap'].uv_map = uv_layers.keys()[0]
         link_nodes(FROM("UVMap", "UV"),
                    TO("Mapping", "Vector"))
-        for texture in Material.MATERIALS['CURRENT'].found:
-            if Material.MATERIALS['CURRENT'].found[texture] and texture in nodes:
+        for texture in current_material.found_textures:
+            if current_material.found_textures[texture] and texture in nodes:
                 if texture != "Detail Map":
                     link_nodes(FROM("Mapping", "Vector"),
                                TO(texture, "Vector"))
@@ -467,23 +480,25 @@ def place_normal_map_coordinates():
 
 
 def place_automatic():
+    current_material = Material.MATERIALS['CURRENT']
     place_base()
-    if Material.MATERIALS['CURRENT'].found["ORM"]:
-        place_orm_msk() if Material.MATERIALS['CURRENT'].found["Color Mask"] else place_orm()
+    if current_material.found_textures["ORM"]:
+        place_orm_msk() if current_material.found_textures["Color Mask"] else place_orm()
     else:
-        if Material.MATERIALS['CURRENT'].found["Metal Smoothness"]:
+        if current_material.found_textures["Metal Smoothness"]:
             place_metal_smoothness()
-        elif any(texture in Material.MATERIALS['CURRENT'].found for texture in ["Metal", "Roughness"]):
+        elif any(texture in current_material.found_textures for texture in ["Metal", "Roughness"]):
             place_metal_roughness()
         place_occlusion()
-    if any(Material.MATERIALS['CURRENT'].found[texture] for texture in Material.MATERIALS['CURRENT'].found):
+    if any(current_material.found_textures[texture] for texture in current_material.found_textures):
         place_coordinates()
     reset_props()
 
 
 def place_manual(pipeline_type):
-    Material.MATERIALS['CURRENT'].soft_reset()
-    Material.MATERIALS['CURRENT'].automatic = False
+    current_material = Material.MATERIALS['CURRENT']
+    current_material.soft_reset()
+    current_material.automatic_mode = False
     if pipeline_type == "MetalRoughness":
         place_metal_roughness()
     elif pipeline_type == "MetalSmoothness":

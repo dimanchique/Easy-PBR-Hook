@@ -19,8 +19,8 @@ class TextureListPanel(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        for texture in Material.MATERIALS['CURRENT'].found:
-            if Material.MATERIALS['CURRENT'].found[texture]:
+        for texture in Material.MATERIALS['CURRENT'].found_textures:
+            if Material.MATERIALS['CURRENT'].found_textures[texture]:
                 row = layout.row()
                 row.label(text=f"{texture}:")
                 sub = row.row()

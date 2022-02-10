@@ -19,17 +19,16 @@ class PipelineMenu(bpy.types.Operator):
         layout = self.layout
         textures = Material.MATERIALS['CURRENT']
         if Material.pipelines_found():
-            # Work with current pipelines
-            if textures.found["ORM"]:
+            if textures.found_textures["ORM"]:
                 layout.operator(ORMPipeline.bl_idname, text="ORM")
-                if textures.found["Color Mask"]:
+                if textures.found_textures["Color Mask"]:
                     layout.operator(ORMMSKPipeline.bl_idname, text="ORM+MSK")
-            if textures.found["Metal Smoothness"]:
+            if textures.found_textures["Metal Smoothness"]:
                 layout.operator(MetalSmoothnessPipeline.bl_idname, text="Metal Smoothness")
-            if textures.found["Metal"] or textures.found["Roughness"]:
-                if textures.found["Metal"] and textures.found["Roughness"]:
+            if textures.found_textures["Metal"] or textures.found_textures["Roughness"]:
+                if textures.found_textures["Metal"] and textures.found_textures["Roughness"]:
                     text = "Metal+Roughness"
-                elif textures.found["Metal"]:
+                elif textures.found_textures["Metal"]:
                     text = "Metal"
                 else:
                     text = "Roughness"

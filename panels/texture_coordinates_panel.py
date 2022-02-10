@@ -15,8 +15,8 @@ class TextureCoordinatesPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-        return Material.MATERIALS['CURRENT'].finished \
-            and "Mapping" in context.object.active_material.node_tree.nodes
+        return Material.MATERIALS['CURRENT'].finished and \
+               "Mapping" in context.object.active_material.node_tree.nodes
 
     def draw(self, context):
         material_prop = context.active_object.active_material.props

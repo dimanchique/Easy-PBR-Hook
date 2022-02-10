@@ -17,8 +17,8 @@ class OpacityPanel(bpy.types.Panel):
     @classmethod
     def poll(cls, context):
         return Material.MATERIALS['CURRENT'].finished and \
-            (Material.MATERIALS['CURRENT'].opacity_from_albedo or
-             Material.MATERIALS['CURRENT'].found["Opacity"])
+               (Material.MATERIALS['CURRENT'].opacity_from_albedo or
+                Material.MATERIALS['CURRENT'].found_textures["Opacity"])
 
     def draw(self, context):
         layout = self.layout

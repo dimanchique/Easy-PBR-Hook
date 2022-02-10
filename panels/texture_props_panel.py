@@ -21,7 +21,7 @@ class TexturePropsPanel(bpy.types.Panel):
     def draw(self, context):
         material_prop = context.active_object.active_material.props
         layout = self.layout
-        if not Material.MATERIALS['CURRENT'].found["Albedo"]:
+        if not Material.MATERIALS['CURRENT'].found_textures["Albedo"]:
             row = layout.row()
             row.prop(material_prop, "AlbedoColor")
         if "Normal Map" in Material.MATERIALS['CURRENT'].nodes_list:
