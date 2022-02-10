@@ -1,1 +1,16 @@
-{"Albedo": "sRGB", "Metal Smoothness": "Non-Color", "Metal": "Non-Color", "Roughness": "Non-Color", "ORM": "Non-Color", "Color Mask": "Non-Color", "Normal Map": "Non-Color", "Emission": "sRGB", "Specular": "sRGB", "Occlusion": "sRGB", "Displacement": "Non-Color", "Opacity": "Non-Color", "Detail Map": "Non-Color", "Detail Mask": "Non-Color"}
+{
+  "Albedo":"sRGB",
+  "Metal Smoothness":"Non-Color",
+  "Metal":"Non-Color",
+  "Roughness":"Non-Color",
+  "ORM":"Non-Color",
+  "Color Mask":"Non-Color",
+  "Normal Map":"Non-Color",
+  "Emission":"sRGB",
+  "Specular":"sRGB",
+  "Occlusion":"sRGB",
+  "Displacement":"Non-Color",
+  "Opacity":"Non-Color",
+  "Detail Map":"Non-Color",
+  "Detail Mask":"Non-Color"
+}
