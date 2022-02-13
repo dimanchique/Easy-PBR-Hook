@@ -16,28 +16,29 @@ class GetTextureOperator(bpy.types.Operator):
 
     @staticmethod
     def execute(self, context):
-        GetTextureOperator.reloaded_images = 0
-        clear_material()
-        Material.MATERIALS['CURRENT'].reset()
         path = context.active_object.active_material.props.textures_path
         filenames = next(os.walk(path), (None, None, []))[2]
+        GetTextureOperator.reloaded_images = 0
+
+        clear_material()
+        Material.MATERIALS['CURRENT'].reset()
         [GetTextureOperator.get_texture(file) for file in filenames]
         textures = Material.MATERIALS['CURRENT']
-        if any(textures.found[texture] for texture in textures.found):
+        if any(textures.found_textures.values()):
             Material.MATERIALS['CURRENT'].finished = True
             place_automatic()
             if 'UVMap' not in context.object.active_material.node_tree.nodes:
-                self.report({'WARNING'}, Tools.UV_MAP_WARNING_MESSAGE)
+                self.report({'WARNING'}, Tools.MESSAGES["UV_Warning"])
             else:
                 if GetTextureOperator.reloaded_images:
-                    ending = 'image' if GetTextureOperator.reloaded_images == 1 else 'images'
                     message = f'Loading finished with {GetTextureOperator.reloaded_images} ' \
-                              f'{ending} reloaded from blendfile'
+                              f'{"image" if GetTextureOperator.reloaded_images == 1 else "images"} ' \
+                              'reloaded from blendfile'
                     self.report({'INFO'}, message)
                 else:
-                    self.report({'INFO'}, Tools.SUCCESS_LOADING)
+                    self.report({'INFO'}, Tools.MESSAGES["Texture_Getter_Success"])
         else:
-            self.report({'WARNING'}, Tools.TEXTURE_GETTER_WARNING_MESSAGE)
+            self.report({'WARNING'}, Tools.MESSAGES["Texture_Getter_Warning"])
 
         [bpy.data.images.remove(image) for image in bpy.data.images
          if image.users == 0
@@ -53,14 +54,6 @@ class GetTextureOperator(bpy.types.Operator):
         title = ''
 
         name = file.lower().split(".")[0]
-        if name.split('_')[-1].isnumeric():
-            is_tile = True
-            tile_number = int(name.split('_')[-1])
-            if file.replace(str(tile_number), '1001') in bpy.data.images.keys():
-                if tile_number != 1001:
-                    bpy.data.images[file.replace(str(tile_number), '1001')].tiles.new(tile_number)
-                    return
-            name = name.replace(f'_{tile_number}', '')
         pattern = bpy.context.active_object.active_material.props.textures_pattern.lower().split("-")
         skip_names = None
 
@@ -75,15 +68,24 @@ class GetTextureOperator(bpy.types.Operator):
                  any(stop_word in name for stop_word in skip_names)):
             return
 
-        for texture in Tools.TEXTURES:
-            if Material.MATERIALS['CURRENT'].found[texture]:
+        if name.split('_')[-1].isnumeric():
+            is_tile = True
+            tile_number = int(name.split('_')[-1])
+            if file.replace(str(tile_number), '1001') in bpy.data.images.keys():
+                if tile_number != 1001:
+                    bpy.data.images[file.replace(str(tile_number), '1001')].tiles.new(tile_number)
+                    return
+            name = name.replace(f'_{tile_number}', '')
+
+        for texture in Tools.TEXTURE_TYPES:
+            if Material.MATERIALS['CURRENT'].found_textures[texture]:
                 continue
-            for mask in Tools.TEXTURES_MASK[texture]:
-                if name.endswith(mask.lower()):
-                    if len(mask.lower()) > threshold:
-                        threshold = len(mask.lower())
+            for mask in Tools.TEXTURES_KEYWORDS_DICT[texture]:
+                if name.endswith(mask):
+                    if len(mask) > threshold:
+                        threshold = len(mask)
                         title = texture
-                        break
+                        continue
 
         if threshold != 0:
             if file in bpy.data.images.keys():
@@ -95,8 +97,8 @@ class GetTextureOperator(bpy.types.Operator):
                     filepath=os.path.join(bpy.context.active_object.active_material.props.textures_path, file))
             if is_tile:
                 image.source = 'TILED'
-            image.colorspace_settings.name = Tools.TEXTURES_COLORS[title]
-            Material.MATERIALS['CURRENT'].found[title] = True
+            image.colorspace_settings.name = Tools.TEXTURES_COLORING[title]
+            Material.MATERIALS['CURRENT'].found_textures[title] = True
             Material.MATERIALS['CURRENT'].images[title] = image
 
 
