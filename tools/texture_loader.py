@@ -49,25 +49,30 @@ class GetTextureOperator(bpy.types.Operator):
 
     @staticmethod
     def get_texture(file):
-        is_tile = False
-        threshold = 0
-        title = ''
-
-        name = file.lower().split(".")[0]
+        name = file.lower().split(".")
+        if name[-1]=='meta':
+            return
+        else:
+            name = name[0]
+            
         pattern = bpy.context.active_object.active_material.props.textures_pattern.lower().split("-")
         skip_names = None
 
         if len(pattern) > 1:
-            pattern, skip_names = pattern[0].strip(), list(map(str.strip, pattern[1:]))
+            pattern = pattern[0].strip()
+            skip_names = list(map(str.strip, pattern[1:]))
+            if any(stop_word in name for stop_word in skip_names):
+                return
         else:
             pattern = pattern[0].strip()
 
-        if file.split(".")[-1].lower() == 'meta' or \
-                pattern not in name or \
-                (skip_names is not None and
-                 any(stop_word in name for stop_word in skip_names)):
+        if pattern not in name:
             return
-
+        
+        is_tile = False
+        threshold = 0
+        title = ''
+        
         if name.split('_')[-1].isnumeric():
             is_tile = True
             tile_number = int(name.split('_')[-1])
