@@ -1,0 +1,18 @@
+{
+  "Database_Update_Success":
+  {
+    "Local":"Database was locally updated!",
+    "Global": "Database was globally updated!"
+  },
+  "Database_Update_Error":"Unexpected error while updating database!",
+  "UV_Warning":"UV Map not found. Please, fix this problem to use Texture coordinates section!",
+  "Images_Update":"Images were updated!",
+  "Detail_Mask_Placed":"Detail Mask node was created",
+  "Detail_Mask_Removed":"Detail Mask node was removed",
+  "Database_Export_Success":"Masks exported successfully!",
+  "Database_Export_Error":"Unexpected error while writing!",
+  "Database_Import_Success":"Masks imported successfully!",
+  "Database_Import_Error":"Unsupported file!",
+  "Texture_Getter_Success":"Textures loaded successfully!",
+  "Texture_Getter_Warning":"No textures found! Check path and keyword"
+}
