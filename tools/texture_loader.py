@@ -49,11 +49,14 @@ class GetTextureOperator(bpy.types.Operator):
 
     @staticmethod
     def get_texture(file):
-        name = file.lower().split(".")
-        if name[-1]=='meta':
+        if file.lower().split(".")[-1] == 'meta':
             return
         else:
-            name = name[0]
+            splitter = file.lower().split(".")
+            if len(splitter) > 2:
+                name = '.'.join(splitter[:-1])
+            else:
+                name = splitter[0]
             
         pattern = bpy.context.active_object.active_material.props.textures_pattern.lower().split("-")
         skip_names = None
@@ -72,15 +75,16 @@ class GetTextureOperator(bpy.types.Operator):
         is_tile = False
         threshold = 0
         title = ''
-        
-        if name.split('_')[-1].isnumeric():
+
+        if name[-4:].isnumeric():
             is_tile = True
-            tile_number = int(name.split('_')[-1])
+            tile_number = int(name[-4:])
             if file.replace(str(tile_number), '1001') in bpy.data.images.keys():
                 if tile_number != 1001:
                     bpy.data.images[file.replace(str(tile_number), '1001')].tiles.new(tile_number)
                     return
-            name = name.replace(f'_{tile_number}', '')
+            else:
+                name = name[:name.index(str(tile_number))-1]
 
         for texture in Tools.TEXTURE_TYPES:
             if Material.MATERIALS['CURRENT'].found_textures[texture]:
