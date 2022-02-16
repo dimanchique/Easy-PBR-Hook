@@ -6,7 +6,7 @@ __all__ = ['DBUpdateMenu']
 
 class DBUpdateMenu(bpy.types.Operator):
     bl_idname = "pbr.db_update"
-    bl_label = "Change texture masks database"
+    bl_label = "Change texture naming conventions"
     bl_description = "Add specific endings of your textures for every type of textures"
 
     @staticmethod
