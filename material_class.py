@@ -22,6 +22,9 @@ class Material:
         self.mask_source = "Detail Mask"
         self.finished = False
 
+    def get_images_list(self):
+        return list(self.images.values())
+
     def reset(self):
         self.found_textures = dict.fromkeys(Tools.TEXTURE_TYPES, False)
         self.images = dict.fromkeys(Tools.TEXTURE_TYPES, None)
@@ -72,3 +75,10 @@ class Material:
             or cls.MATERIALS['CURRENT'].found_textures["Metal Smoothness"] \
             or cls.MATERIALS['CURRENT'].found_textures["Metal"] \
             or cls.MATERIALS['CURRENT'].found_textures["Roughness"]
+
+    @classmethod
+    def used_images(cls):
+        images = []
+        for i in Material.MATERIALS:
+            images.extend(Material.MATERIALS[i].images.values())
+        return images
