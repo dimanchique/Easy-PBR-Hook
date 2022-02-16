@@ -3,7 +3,7 @@ from bpy_extras.io_utils import ExportHelper, ImportHelper
 import os
 import json
 
-__all__ = ['Tools']
+__all__ = ['Tools', 'DataExporter', 'DataImporter', 'RestoreDefaults']
 
 
 class Tools(bpy.types.PropertyGroup):
@@ -125,13 +125,26 @@ class DataImporter(bpy.types.Operator, ImportHelper):
         return {"FINISHED"}
 
 
+class RestoreDefaults(bpy.types.Operator):
+    bl_idname = "pbr.restore_defaults"
+    bl_label = "Restore Default Masks"
+
+    def execute(self, context):
+        Tools.TEXTURES_KEYWORDS_DICT = Tools.read_json_data('default_texture_mask')
+        Tools.update_panel_masks()
+        self.report({'INFO'}, Tools.MESSAGES["RestoreDefaults"])
+        return {"FINISHED"}
+
+
 def register():
     bpy.utils.register_class(Tools)
     bpy.utils.register_class(DataExporter)
     bpy.utils.register_class(DataImporter)
+    bpy.utils.register_class(RestoreDefaults)
 
 
 def unregister():
     bpy.utils.unregister_class(Tools)
     bpy.utils.unregister_class(DataExporter)
     bpy.utils.unregister_class(DataImporter)
+    bpy.utils.unregister_class(RestoreDefaults)

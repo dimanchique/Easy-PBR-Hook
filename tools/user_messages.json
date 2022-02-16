@@ -14,5 +14,6 @@
   "Database_Import_Success":"Masks imported successfully!",
   "Database_Import_Error":"Unsupported file!",
   "Texture_Getter_Success":"Textures loaded successfully!",
-  "Texture_Getter_Warning":"No textures found! Check path and keyword"
+  "Texture_Getter_Warning":"No textures found! Check path and keyword",
+  "RestoreDefaults":"Default masks restored!"
 }

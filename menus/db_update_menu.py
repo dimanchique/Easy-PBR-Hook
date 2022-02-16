@@ -1,5 +1,5 @@
 import bpy
-from ..tools.global_tools import Tools, DataExporter, DataImporter
+from ..tools.global_tools import Tools, DataExporter, DataImporter, RestoreDefaults
 
 __all__ = ['DBUpdateMenu']
 
@@ -35,6 +35,7 @@ class DBUpdateMenu(bpy.types.Operator):
         row = layout.row()
         row.operator(DataExporter.bl_idname)
         row.operator(DataImporter.bl_idname)
+        row.operator(RestoreDefaults.bl_idname)
 
 
 def register():
