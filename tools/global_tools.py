@@ -76,9 +76,12 @@ class Tools(bpy.types.PropertyGroup):
         data = dict(bpy.context.scene.db_strings.items())
         for item in data:
             if item in Tools.PROP_TO_TEXTURE:
+                texture_string = Tools.TEXTURES_KEYWORDS_DICT[Tools.PROP_TO_TEXTURE[item]]
                 line = list(map(str.strip, data[item].lower().split(',')))
                 line = [i for i in line if i != '']
-                Tools.TEXTURES_KEYWORDS_DICT[Tools.PROP_TO_TEXTURE[item]] = list(set(line))
+                texture_string = []
+                texture_string = [i for i in line if i not in texture_string]
+                Tools.TEXTURES_KEYWORDS_DICT[Tools.PROP_TO_TEXTURE[item]] = texture_string
         Tools.update_panel_masks()
 
     @staticmethod
