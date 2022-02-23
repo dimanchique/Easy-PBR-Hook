@@ -16,13 +16,13 @@ class MaterialProps(bpy.types.PropertyGroup):
 ########################################################################################################################
         cls.RoughnessAdd = bpy.props.FloatProperty(name="Roughness",
                                                    min=0,
-                                                   max=1,
+                                                   max=2,
                                                    update=lambda a, b:
                                                    update_float(a, b, "Roughness"))
 
         cls.MetallicAdd = bpy.props.FloatProperty(name="Metallic",
                                                   min=0,
-                                                  max=1,
+                                                  max=2,
                                                   update=lambda a, b:
                                                   update_float(a, b, "Metallic"))
 
