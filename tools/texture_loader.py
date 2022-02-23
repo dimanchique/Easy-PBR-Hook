@@ -58,16 +58,16 @@ class GetTextureOperator(bpy.types.Operator):
             else:
                 name = splitter[0]
             
-        pattern = bpy.context.active_object.active_material.props.textures_pattern.lower().split("-")
+        names = bpy.context.active_object.active_material.props.textures_pattern.lower().split("-")
         skip_names = None
 
-        if len(pattern) > 1:
-            pattern = pattern[0].strip()
-            skip_names = list(map(str.strip, pattern[1:]))
+        if len(names) > 1:
+            pattern = names[0].strip()
+            skip_names = list(map(str.strip, names[1:]))
             if any(stop_word in name for stop_word in skip_names):
                 return
         else:
-            pattern = pattern[0].strip()
+            pattern = names[0].strip()
 
         if pattern not in name:
             return
