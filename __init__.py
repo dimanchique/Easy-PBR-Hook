@@ -7,10 +7,12 @@ bl_info = {
     "version": (1, 6, 7),
     "blender": (2, 80, 0),
     "location": "Properties > Material",
-    "description": "Easy PBR Hook",
+    "description": "Easy PBR Hook is an add-on to set up your PBR materials in Blender in 1 click. "
+                   "It looks for textures within a specified folder using user-defined keywords and "
+                   "connects found textures to the Principled BSDF shader appropriately. ",
     "warning": "",
     "doc_url": "",
-    "tracker_url": "",
+    "tracker_url": "https://blendermarket.com/creator/products/easy-pbr-hook",
     "category": "Material",
 }
 
