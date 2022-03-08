@@ -3,6 +3,7 @@ from .material_class import Material
 from .tools.texture_loader import GetTextureOperator
 from .tools.image_updater import UpdateImagesOperator
 from .menus.db_update_menu import DBUpdateMenu
+from .properties.material_properties import SharedPath
 
 
 class PBRPanel(bpy.types.Panel):
@@ -26,6 +27,8 @@ class PBRPanel(bpy.types.Panel):
         PBRPanel.update_material(context)
         row = layout.row()
         row.prop(material_prop, "textures_path")
+        row.scale_x = 0.5
+        row.operator(SharedPath.bl_idname, text="Set Shared Path")
         row = layout.row()
         row.prop(material_prop, "textures_pattern")
         row = layout.row()

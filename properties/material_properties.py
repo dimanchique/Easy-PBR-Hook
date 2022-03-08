@@ -1,8 +1,24 @@
 import bpy
 from ..tools.update_tool import *
 from .uv_map_properties import UVMapProp, uv_items
+from ..material_class import Material
 
-__all__ = ['MaterialProps', 'reset_props', 'reset_colors']
+__all__ = ['SharedPath', 'MaterialProps', 'reset_props', 'reset_colors']
+
+
+class SharedPath(bpy.types.Operator):
+    bl_idname = "pbr.set_path_shared"
+    bl_label = "Set Shared Path"
+    bl_description = "Copy this path for all materials of this mesh"
+
+    @staticmethod
+    def execute(self, context):
+        path = context.active_object.active_material.props.textures_path
+        materials = context.active_object.data.materials
+        for material in materials:
+            material.props.textures_path = path
+            Material.MATERIALS[material.name].current_path = path
+        return {"FINISHED"}
 
 
 class MaterialProps(bpy.types.PropertyGroup):
@@ -216,7 +232,9 @@ def reset_colors():
 
 def register():
     bpy.utils.register_class(MaterialProps)
+    bpy.utils.register_class(SharedPath)
 
 
 def unregister():
     bpy.utils.unregister_class(MaterialProps)
+    bpy.utils.unregister_class(SharedPath)
