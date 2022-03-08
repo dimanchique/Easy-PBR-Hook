@@ -13,11 +13,17 @@ __all__ = ['clear_material', 'place_base', 'place_albedo', 'place_normal_map', '
 def clear_material():
     nodes = bpy.context.object.active_material.node_tree.nodes
     bpy.context.object.active_material.use_backface_culling = False
-    [nodes.remove(nodes[node]) for node in nodes.keys()]
-    create_node(node_type="ShaderNodeBsdfPrincipled",
-                loc=(0, 0))
-    create_node(node_type="ShaderNodeOutputMaterial",
-                loc=(300, 0))
+    [nodes.remove(nodes[node]) for node in nodes.keys() if node != "Principled BSDF" or node != "Material Output"]
+    if "Principled BSDF" not in nodes:
+        create_node(node_type="ShaderNodeBsdfPrincipled",
+                    loc=(0, 0))
+    else:
+        nodes["Principled BSDF"].location = (0, 0)
+    if "Material Output" not in nodes:
+        create_node(node_type="ShaderNodeOutputMaterial",
+                    loc=(300, 0))
+    else:
+        nodes["Material Output"].location = (300, 0)
     link_nodes(FROM("Principled BSDF", "BSDF"),
                TO("Material Output", "Surface"))
 
