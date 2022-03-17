@@ -21,6 +21,7 @@ class Material:
         self.automatic_mode = True
         self.mask_source = "Detail Mask"
         self.finished = False
+        self.simplified_connection = False
 
     def get_images_list(self):
         return list(self.images.values())
