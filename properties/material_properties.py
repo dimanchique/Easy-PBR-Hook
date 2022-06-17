@@ -92,6 +92,8 @@ class MaterialProps(bpy.types.PropertyGroup):
 
         cls.UseMaterialNameAsKeyword = bpy.props.BoolProperty(name="Use Material name as Keyword",
                                                               update=switch_pattern_to_material_name)
+        cls.Simplify = bpy.props.BoolProperty(name="Simplify",
+                                              update=use_simplified_material)
 ########################################################################################################################
 # FLOAT VECTOR PROPERTIES (COLORS)
 ########################################################################################################################

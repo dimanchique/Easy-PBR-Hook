@@ -88,15 +88,21 @@ def place_normal_map():
             link_nodes_in_a_row((FROM("Normal Map", "Color"),
                                  TO("NormalMix", "Main")),
                                 (FROM("Detail Map", "Color"),
-                                 TO("NormalMix", "Detail")),
-                                (FROM("NormalMix", "Color"),
-                                 TO("Normal Map Strength", "Color")))
+                                 TO("NormalMix", "Detail")))
+            if current_material.simplified_connection:
+                link_nodes_in_a_row((FROM("NormalMix", "Color"),
+                                     TO("Principled BSDF", "Normal")))
+            else:
+                link_nodes_in_a_row((FROM("NormalMix", "Color"),
+                                     TO("Normal Map Strength", "Color")),
+                                    (FROM("Normal Map Strength", "Normal"),
+                                     TO("Principled BSDF", "Normal")))
             Material.add_to_nodes_list("Detail Map")
         else:
             link_nodes_in_a_row((FROM("Normal Map", "Color"),
-                                 TO("Normal Map Strength", "Color")))
-        link_nodes_in_a_row((FROM("Normal Map Strength", "Normal"),
-                             TO("Principled BSDF", "Normal")))
+                                    TO("Normal Map Strength", "Color")),
+                                (FROM("Normal Map Strength", "Normal"),
+                                    TO("Principled BSDF", "Normal")))
         Material.add_to_nodes_list("Normal Map")
 
 
@@ -128,22 +134,26 @@ def place_emission():
                     loc=(-700, -300),
                     node_name="Emission",
                     image=current_material.images["Emission"])
-        create_node(node_type="ShaderNodeMixRGB",
-                    loc=(-360, -300),
-                    node_name="Emission Multiply",
-                    blend_type="MULTIPLY",
-                    default_input=("Fac", 1),
-                    hide=True)
-        create_node(node_type="ShaderNodeValue",
-                    loc=(-360, -350),
-                    node_name="Emission Strength",
-                    hide=True)
-        link_nodes_in_a_row((FROM("Emission", "Color"),
-                             TO("Emission Multiply", "Color1")),
-                            (FROM("Emission Strength", "Value"),
-                             TO("Emission Multiply", "Color2")),
-                            (FROM("Emission Multiply", "Color"),
-                             TO("Principled BSDF", "Emission")))
+        if current_material.simplified_connection:
+            link_nodes_in_a_row((FROM("Emission", "Color"),
+                                 TO("Principled BSDF", "Emission")))
+        else:
+            create_node(node_type="ShaderNodeMixRGB",
+                        loc=(-360, -300),
+                        node_name="Emission Multiply",
+                        blend_type="MULTIPLY",
+                        default_input=("Fac", 1),
+                        hide=True)
+            create_node(node_type="ShaderNodeValue",
+                        loc=(-360, -350),
+                        node_name="Emission Strength",
+                        hide=True)
+            link_nodes_in_a_row((FROM("Emission", "Color"),
+                                 TO("Emission Multiply", "Color1")),
+                                (FROM("Emission Strength", "Value"),
+                                 TO("Emission Multiply", "Color2")),
+                                (FROM("Emission Multiply", "Color"),
+                                 TO("Principled BSDF", "Emission")))
         Material.add_to_nodes_list("Emission")
 
 
@@ -154,15 +164,19 @@ def place_specular():
                     loc=(-700, -1200),
                     node_name="Specular",
                     image=current_material.images["Specular"])
-        create_node(node_type="ShaderNodeMath",
-                    loc=(-360, -1200),
-                    node_name="Specular Add",
-                    operation="ADD",
-                    hide=True)
-        link_nodes_in_a_row((FROM("Specular", "Color"),
-                             TO("Specular Add", "Value")),
-                            (FROM("Specular Add", "Value"),
-                             TO("Principled BSDF", "Specular")))
+        if current_material.simplified_connection:
+            link_nodes_in_a_row((FROM("Specular", "Color"),
+                                 TO("Principled BSDF", "Specular")))
+        else:
+            create_node(node_type="ShaderNodeMath",
+                        loc=(-360, -1200),
+                        node_name="Specular Add",
+                        operation="ADD",
+                        hide=True)
+            link_nodes_in_a_row((FROM("Specular", "Color"),
+                                 TO("Specular Add", "Value")),
+                                (FROM("Specular Add", "Value"),
+                                 TO("Principled BSDF", "Specular")))
         Material.add_to_nodes_list("Specular")
 
 
@@ -187,12 +201,16 @@ def place_occlusion():
                     default_input=("Fac", 1),
                     hide=True)
         if current_material.found_textures["Specular"]:
-            link_nodes_in_a_row((FROM("Specular", "Color"),
-                                 TO("Specular Add", "Value")),
-                                (FROM("Specular Add", "Value"),
-                                 TO("AO_Mult_Spec", "Color1")))
-            nodes["Specular Add"].location = (-360, 50)
             nodes["Specular"].location = (-1000, 0)
+            if current_material.simplified_connection:
+                link_nodes_in_a_row((FROM("Specular", "Color"),
+                                     TO("AO_Mult_Spec", "Color1")))
+            else:
+                link_nodes_in_a_row((FROM("Specular", "Color"),
+                                     TO("Specular Add", "Value")),
+                                    (FROM("Specular Add", "Value"),
+                                     TO("AO_Mult_Spec", "Color1")))
+                nodes["Specular Add"].location = (-360, 50)
         else:
             create_node(node_type="ShaderNodeValue",
                         loc=(-360, 120),
@@ -274,23 +292,28 @@ def place_orm():
                 blend_type="MULTIPLY",
                 default_input=("Fac", 1),
                 hide=True)
-    create_node(node_type="ShaderNodeMath",
-                loc=(-360, 0),
-                node_name="Metallic Add",
-                operation="ADD",
-                hide=True)
-    create_node(node_type="ShaderNodeMath",
-                loc=(-360, -50),
-                node_name="Roughness Add",
-                operation="ADD",
-                hide=True)
-    if current_material.found_textures["Specular"]:
-        link_nodes(FROM("Specular", "Color"),
-                   TO("Specular Add", "Value"))
-        link_nodes(FROM("Specular Add", "Value"),
-                   TO("AO_Mult_Spec", "Color1"))
-        nodes["Specular Add"].location = (-700, 350)
+    if not current_material.simplified_connection:
+        create_node(node_type="ShaderNodeMath",
+                    loc=(-360, 0),
+                    node_name="Metallic Add",
+                    operation="ADD",
+                    hide=True)
+        create_node(node_type="ShaderNodeMath",
+                    loc=(-360, -50),
+                    node_name="Roughness Add",
+                    operation="ADD",
+                    hide=True)
+    if "Specular" in nodes:
         nodes["Specular"].location = (-1000, 300)
+        if current_material.simplified_connection:
+            link_nodes(FROM("Specular", "Color"),
+                       TO("AO_Mult_Spec", "Color1"))
+        else:
+            nodes["Specular Add"].location = (-700, 350)
+            link_nodes(FROM("Specular", "Color"),
+                       TO("Specular Add", "Value"))
+            link_nodes(FROM("Specular Add", "Value"),
+                       TO("AO_Mult_Spec", "Color1"))
     else:
         create_node(node_type="ShaderNodeValue",
                     loc=(-360, 120),
@@ -301,14 +324,6 @@ def place_orm():
                    TO("AO_Mult_Spec", "Color1"))
     link_nodes_in_a_row((FROM("ORM", "Color"),
                          TO("SeparateORM", "Image")),
-                        (FROM("SeparateORM", "G"),
-                         TO("Roughness Add", "Value")),
-                        (FROM("Roughness Add", "Value"),
-                         TO("Principled BSDF", "Roughness")),
-                        (FROM("SeparateORM", "B"),
-                         TO("Metallic Add", "Value")),
-                        (FROM("Metallic Add", "Value"),
-                         TO("Principled BSDF", "Metallic")),
                         (FROM("SeparateORM", "R"),
                          TO("AO_Mult_Spec", "Color2")),
                         (FROM("SeparateORM", "R"),
@@ -319,6 +334,20 @@ def place_orm():
                          TO("Principled BSDF", "Base Color")),
                         (FROM("AO_Mult_Spec", "Color"),
                          TO("Principled BSDF", "Specular")))
+    if current_material.simplified_connection:
+        link_nodes_in_a_row((FROM("SeparateORM", "G"),
+                             TO("Principled BSDF", "Roughness")),
+                            (FROM("SeparateORM", "B"),
+                             TO("Principled BSDF", "Metallic")))
+    else:
+        link_nodes_in_a_row((FROM("SeparateORM", "G"),
+                             TO("Roughness Add", "Value")),
+                            (FROM("Roughness Add", "Value"),
+                             TO("Principled BSDF", "Roughness")),
+                            (FROM("SeparateORM", "B"),
+                             TO("Metallic Add", "Value")),
+                            (FROM("Metallic Add", "Value"),
+                             TO("Principled BSDF", "Metallic")))
     Material.add_to_nodes_list("ORM")
 
 
@@ -358,7 +387,7 @@ def place_color_mask():
                 loc=(-900, 800),
                 node_name="BlueColor")
     nodes["Albedo"].location = (-1300, 600)
-    if "Specular" in nodes:
+    if "Specular Add" in nodes:
         nodes["Specular Add"].location = (-700, 300)
 
     link_nodes_in_a_row((FROM("Albedo", "Color"),
@@ -394,30 +423,38 @@ def place_metal_smoothness():
                 loc=(-700, 0),
                 node_name="Metal Smoothness",
                 image=current_material.images["Metal Smoothness"])
-    create_node(node_type="ShaderNodeMath",
-                loc=(-360, 0),
-                node_name="Metallic Add",
-                operation="ADD",
-                hide=True)
     create_node(node_type="ShaderNodeInvert",
                 loc=(-360, -50),
                 node_name="Invert",
                 hide=True)
-    create_node(node_type="ShaderNodeMath",
-                loc=(-360, -100),
-                node_name="Roughness Add",
-                operation="ADD",
-                hide=True)
-    link_nodes_in_a_row((FROM("Metal Smoothness", "Alpha"),
-                         TO("Invert", "Color")),
-                        (FROM("Invert", "Color"),
-                         TO("Roughness Add", "Value")),
-                        (FROM("Roughness Add", "Value"),
-                         TO("Principled BSDF", "Roughness")),
-                        (FROM("Metal Smoothness", "Color"),
-                         TO("Metallic Add", "Value")),
-                        (FROM("Metallic Add", "Value"),
-                         TO("Principled BSDF", "Metallic")))
+    if current_material.simplified_connection:
+        link_nodes_in_a_row((FROM("Metal Smoothness", "Alpha"),
+                             TO("Invert", "Color")),
+                            (FROM("Invert", "Color"),
+                             TO("Principled BSDF", "Roughness")),
+                            (FROM("Metal Smoothness", "Color"),
+                             TO("Principled BSDF", "Metallic")))
+    else:
+        create_node(node_type="ShaderNodeMath",
+                    loc=(-360, 0),
+                    node_name="Metallic Add",
+                    operation="ADD",
+                    hide=True)
+        create_node(node_type="ShaderNodeMath",
+                    loc=(-360, -100),
+                    node_name="Roughness Add",
+                    operation="ADD",
+                    hide=True)
+        link_nodes_in_a_row((FROM("Metal Smoothness", "Alpha"),
+                             TO("Invert", "Color")),
+                            (FROM("Invert", "Color"),
+                             TO("Roughness Add", "Value")),
+                            (FROM("Roughness Add", "Value"),
+                             TO("Principled BSDF", "Roughness")),
+                            (FROM("Metal Smoothness", "Color"),
+                             TO("Metallic Add", "Value")),
+                            (FROM("Metallic Add", "Value"),
+                             TO("Principled BSDF", "Metallic")))
     Material.add_to_nodes_list("Metal Smoothness")
 
 
@@ -429,30 +466,38 @@ def place_metal_roughness():
                     loc=(-700, 0),
                     node_name="Metal",
                     image=current_material.images["Metal"])
-        create_node(node_type="ShaderNodeMath",
-                    loc=(-360, 0),
-                    node_name="Metallic Add",
-                    operation="ADD",
-                    hide=True)
-        link_nodes_in_a_row((FROM("Metal", "Color"),
-                             TO("Metallic Add", "Value")),
-                            (FROM("Metallic Add", "Value"),
-                             TO("Principled BSDF", "Metallic")))
+        if current_material.simplified_connection:
+            link_nodes_in_a_row((FROM("Metal", "Color"),
+                                 TO("Principled BSDF", "Metallic")))
+        else:
+            create_node(node_type="ShaderNodeMath",
+                        loc=(-360, 0),
+                        node_name="Metallic Add",
+                        operation="ADD",
+                        hide=True)
+            link_nodes_in_a_row((FROM("Metal", "Color"),
+                                 TO("Metallic Add", "Value")),
+                                (FROM("Metallic Add", "Value"),
+                                 TO("Principled BSDF", "Metallic")))
         Material.add_to_nodes_list("Metal")
     if current_material.found_textures["Roughness"]:
         create_node(node_type="ShaderNodeTexImage",
                     loc=(-1000, -300),
                     node_name="Roughness",
                     image=current_material.images["Roughness"])
-        create_node(node_type="ShaderNodeMath",
-                    loc=(-360, -250),
-                    node_name="Roughness Add",
-                    operation="ADD",
-                    hide=True)
-        link_nodes_in_a_row((FROM("Roughness", "Color"),
-                             TO("Roughness Add", "Value")),
-                            (FROM("Roughness Add", "Value"),
-                             TO("Principled BSDF", "Roughness")))
+        if current_material.simplified_connection:
+            link_nodes_in_a_row((FROM("Roughness", "Color"),
+                                 TO("Principled BSDF", "Roughness")))
+        else:
+            create_node(node_type="ShaderNodeMath",
+                        loc=(-360, -250),
+                        node_name="Roughness Add",
+                        operation="ADD",
+                        hide=True)
+            link_nodes_in_a_row((FROM("Roughness", "Color"),
+                                 TO("Roughness Add", "Value")),
+                                (FROM("Roughness Add", "Value"),
+                                 TO("Principled BSDF", "Roughness")))
         Material.add_to_nodes_list("Roughness")
 
 

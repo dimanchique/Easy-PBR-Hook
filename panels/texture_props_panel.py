@@ -20,13 +20,15 @@ class TexturePropsPanel(bpy.types.Panel):
 
     def draw(self, context):
         material_prop = context.active_object.active_material.props
+        nodes = bpy.context.object.active_material.node_tree.nodes
         layout = self.layout
         if not Material.MATERIALS['CURRENT'].found_textures["Albedo"]:
             row = layout.row()
             row.prop(material_prop, "AlbedoColor")
         if "Normal Map" in Material.MATERIALS['CURRENT'].nodes_list:
-            row = layout.row()
-            row.prop(material_prop, "NormaMapStrength")
+            if "Normal Map Strength" in nodes:
+                row = layout.row()
+                row.prop(material_prop, "NormaMapStrength")
             row = layout.row()
             row.prop(material_prop, "NormalMapInverterEnabled")
             if "NormalMix" in context.object.active_material.node_tree.nodes:
@@ -39,21 +41,25 @@ class TexturePropsPanel(bpy.types.Panel):
                 row = layout.row()
                 row.operator(DetailMaskMenu.bl_idname)
                 row = layout.row()
-        TexturePropsPanel.show_prop(context, layout,
-                                    ["Metal", "ORM", "Metal Smoothness"],
-                                    ["MetallicAdd"])
-        TexturePropsPanel.show_prop(context, layout,
-                                    ["Roughness", "ORM", "Metal Smoothness"],
-                                    ["RoughnessAdd"])
-        TexturePropsPanel.show_prop(context, layout,
-                                    ["Emission"],
-                                    ["EmissionMult"])
+        if not Material.MATERIALS['CURRENT'].simplified_connection and "Metallic Add" in nodes:
+            TexturePropsPanel.show_prop(context, layout,
+                                        ["Metal", "ORM", "Metal Smoothness"],
+                                        ["MetallicAdd"])
+        if not Material.MATERIALS['CURRENT'].simplified_connection and "Roughness Add" in nodes:
+            TexturePropsPanel.show_prop(context, layout,
+                                        ["Roughness", "ORM", "Metal Smoothness"],
+                                        ["RoughnessAdd"])
+        if not Material.MATERIALS['CURRENT'].simplified_connection and "Emission Strength" in nodes:
+            TexturePropsPanel.show_prop(context, layout,
+                                        ["Emission"],
+                                        ["EmissionMult"])
         TexturePropsPanel.show_prop(context, layout,
                                     ["ORM", "Occlusion"],
                                     ["AO_Strength"])
-        TexturePropsPanel.show_prop(context, layout,
-                                    ["Specular"],
-                                    ["SpecularAdd"])
+        if not Material.MATERIALS['CURRENT'].simplified_connection and "Specular Add" in nodes:
+            TexturePropsPanel.show_prop(context, layout,
+                                        ["Specular"],
+                                        ["SpecularAdd"])
         TexturePropsPanel.show_prop(context, layout,
                                     ["Color Mask"],
                                     ["MixR", "MixG", "MixB"],

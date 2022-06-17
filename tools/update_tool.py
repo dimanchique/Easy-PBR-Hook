@@ -5,7 +5,8 @@ from .create_nodegroups import *
 
 __all__ = ['update_float', 'update_normal', 'update_detail', 'update_color', 'update_path',
            'place_normal_map_inverter', 'place_normal_mix', 'remove_normal_map_inverter',
-           'update_texture_pattern', 'switch_pattern_to_material_name', 'update_alpha', 'update_uv', 'update_opacity_add']
+           'update_texture_pattern', 'switch_pattern_to_material_name', 'update_alpha', 'update_uv',
+           'update_opacity_add', 'use_simplified_material']
 
 
 def update_float(self, context, origin=""):
@@ -140,9 +141,13 @@ def place_normal_map_inverter(origin="Normal"):
                              TO("NormalMix", socket)))
     else:
         link_nodes_in_a_row((FROM("Normal Map", "Color"),
-                             TO("NormalMapInverter", "NM Input")),
-                            (FROM("NormalMapInverter", "NM Output"),
-                             TO("Normal Map Strength", "Color")))
+                             TO("NormalMapInverter", "NM Input")))
+        if Material.MATERIALS['CURRENT'].simplified_connection:
+            link_nodes_in_a_row((FROM("NormalMapInverter", "NM Output"),
+                                 TO("Principled BSDF", "Normal")))
+        else:
+            link_nodes_in_a_row((FROM("NormalMapInverter", "NM Output"),
+                                 TO("Normal Map Strength", "Color")))
 
 
 def place_normal_mix():
@@ -190,7 +195,8 @@ def update_opacity_add(mode):
         node_name = nodes['Principled BSDF'].inputs['Alpha'].links[0].from_node.name
         if node_name == 'Albedo':
             socket_name = 'Alpha'
-            location = (-960, 520) if 'ORM' in Material.MATERIALS['CURRENT'].nodes_list else (-360, 70)
+            location = (-960,
+                        520) if 'ORM' in Material.MATERIALS['CURRENT'].nodes_list else (-360, 70)
         elif node_name == 'Opacity':
             socket_name = 'Color'
             location = (-700, -560)
@@ -200,7 +206,16 @@ def update_opacity_add(mode):
                     operation="ADD",
                     default_input=(1, 0),
                     hide=True)
-        link_nodes_in_a_row((FROM(node_name, socket_name),
-                             TO("Opacity Add", "Value")),
-                            (FROM("Opacity Add", "Value"),
-                             TO("Principled BSDF", "Alpha")))
+        if Material.MATERIALS['CURRENT'].simplified_connection:
+            link_nodes_in_a_row((FROM(node_name, socket_name),
+                                 TO("Principled BSDF", "Alpha")))
+        else:
+            link_nodes_in_a_row((FROM(node_name, socket_name),
+                                 TO("Opacity Add", "Value")),
+                                (FROM("Opacity Add", "Value"),
+                                 TO("Principled BSDF", "Alpha")))
+
+
+def use_simplified_material(self, context):
+    material = context.active_object.active_material
+    Material.MATERIALS['CURRENT'].simplified_connection = material.props.Simplify
