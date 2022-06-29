@@ -26,9 +26,8 @@ class TexturePropsPanel(bpy.types.Panel):
             row = layout.row()
             row.prop(material_prop, "AlbedoColor")
         if "Normal Map" in Material.MATERIALS['CURRENT'].nodes_list:
-            if not Material.MATERIALS['CURRENT'].simplified_connection and "Normal Map Strength" in nodes:
-                row = layout.row()
-                row.prop(material_prop, "NormaMapStrength")
+            row = layout.row()
+            row.prop(material_prop, "NormaMapStrength")
             row = layout.row()
             row.prop(material_prop, "NormalMapInverterEnabled")
             if "NormalMix" in context.object.active_material.node_tree.nodes:

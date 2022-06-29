@@ -59,7 +59,6 @@ class GetTextureOperator(bpy.types.Operator):
                 name = splitter[0]
             
         names = bpy.context.active_object.active_material.props.textures_pattern.lower().split("-")
-        skip_names = None
 
         if len(names) > 1:
             pattern = names[0].strip()
@@ -97,13 +96,13 @@ class GetTextureOperator(bpy.types.Operator):
                         continue
 
         if threshold != 0:
-            if file in bpy.data.images.keys():
+            new_image_path = os.path.join(bpy.context.active_object.active_material.props.textures_path, file)
+            if file in bpy.data.images.keys() and bpy.data.images[file].filepath == new_image_path:
                 bpy.data.images[file].reload()
                 image = bpy.data.images[file]
                 GetTextureOperator.reloaded_images += 1
             else:
-                image = bpy.data.images.load(
-                    filepath=os.path.join(bpy.context.active_object.active_material.props.textures_path, file))
+                image = bpy.data.images.load(filepath=new_image_path)
             if is_tile:
                 image.source = 'TILED'
             image.colorspace_settings.name = Tools.TEXTURES_COLORING[title]

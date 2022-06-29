@@ -27,7 +27,6 @@ class PBRPanel(bpy.types.Panel):
         PBRPanel.update_material(context)
         row = layout.row()
         row.prop(material_prop, "textures_path")
-        row.scale_x = 0.3
         row.operator(SharedPath.bl_idname, text="Set Shared Path")
         row = layout.row()
         row.prop(material_prop, "textures_pattern")
@@ -50,13 +49,12 @@ class PBRPanel(bpy.types.Panel):
         row = layout.row()
         if Material.MATERIALS['CURRENT'].finished:
             row.operator(GetTextureOperator.bl_idname, text="Reload Material")
-            row.scale_x = 0.2
             row.prop(material_prop, "Simplify")
             row = layout.row()
             row.operator(UpdateImagesOperator.bl_idname)
         else:
             row.operator(GetTextureOperator.bl_idname)
-            row.scale_x = 0.2
+            row.scale_x = 0.5
             row.prop(material_prop, "Simplify")
 
 
