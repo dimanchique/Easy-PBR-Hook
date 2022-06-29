@@ -72,11 +72,10 @@ def place_normal_map():
                     loc=(-700, -600),
                     node_name="Normal Map",
                     image=current_material.images["Normal Map"])
-        if not current_material.simplified_connection:
-            create_node(node_type="ShaderNodeNormalMap",
-                        loc=(-360, -600),
-                        node_name="Normal Map Strength",
-                        hide=True)
+        create_node(node_type="ShaderNodeNormalMap",
+                    loc=(-360, -600),
+                    node_name="Normal Map Strength",
+                    hide=True)
         if current_material.found_textures["Detail Map"]:
             create_node(node_type="ShaderNodeTexImage",
                         loc=(-700, -900),
@@ -100,14 +99,10 @@ def place_normal_map():
                                      TO("Principled BSDF", "Normal")))
             Material.add_to_nodes_list("Detail Map")
         else:
-            if current_material.simplified_connection:
-                link_nodes_in_a_row((FROM("Normal Map", "Color"),
-                                     TO("Principled BSDF", "Normal")))
-            else:
-                link_nodes_in_a_row((FROM("Normal Map", "Color"),
-                                     TO("Normal Map Strength", "Color")),
-                                    (FROM("Normal Map Strength", "Normal"),
-                                     TO("Principled BSDF", "Normal")))
+            link_nodes_in_a_row((FROM("Normal Map", "Color"),
+                                    TO("Normal Map Strength", "Color")),
+                                (FROM("Normal Map Strength", "Normal"),
+                                    TO("Principled BSDF", "Normal")))
         Material.add_to_nodes_list("Normal Map")
 
 

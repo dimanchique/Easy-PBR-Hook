@@ -199,7 +199,8 @@ def update_opacity_add(mode):
         node_name = nodes['Principled BSDF'].inputs['Alpha'].links[0].from_node.name
         if node_name == 'Albedo':
             socket_name = 'Alpha'
-            location = (-960, 520) if 'ORM' in Material.MATERIALS['CURRENT'].nodes_list else (-360, 70)
+            location = (-960,
+                        520) if 'ORM' in Material.MATERIALS['CURRENT'].nodes_list else (-360, 70)
         elif node_name == 'Opacity':
             socket_name = 'Color'
             location = (-700, -560)
