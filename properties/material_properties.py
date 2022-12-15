@@ -15,6 +15,7 @@ class SharedPath(bpy.types.Operator):
     def execute(self, context):
         path = context.active_object.active_material.props.textures_path
         materials = context.active_object.data.materials
+
         for material in materials:
             material.props.textures_path = path
             Material.MATERIALS[material.name].current_path = path

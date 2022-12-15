@@ -4,7 +4,7 @@ import importlib
 bl_info = {
     "name": "Easy PBR Hook",
     "author": "Dmitry F.",
-    "version": (1, 7, 1),
+    "version": (1, 8, 1),
     "blender": (2, 80, 0),
     "location": "Properties > Material",
     "description": "Easy PBR Hook is an add-on to set up your PBR materials in Blender in 1 click",

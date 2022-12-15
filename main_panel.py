@@ -1,6 +1,6 @@
 import bpy
 from .material_class import Material
-from .tools.texture_loader import GetTextureOperator
+from .tools.texture_loader import GetTextureOperator, AutoHook
 from .tools.image_updater import UpdateImagesOperator
 from .menus.db_update_menu import DBUpdateMenu
 from .properties.material_properties import SharedPath
@@ -39,6 +39,11 @@ class PBRPanel(bpy.types.Panel):
 
     @classmethod
     def update_material(cls, context):
+        materials = context.active_object.data.materials
+
+        for material in materials:
+            Material.check_material(material.name)
+
         material = context.active_object.active_material
         Material.check_material(material.name)
         Material.MATERIALS['CURRENT'].current_path = material.props.textures_path
@@ -54,6 +59,8 @@ class PBRPanel(bpy.types.Panel):
             row.operator(UpdateImagesOperator.bl_idname)
         else:
             row.operator(GetTextureOperator.bl_idname)
+            row.scale_x = 0.5
+            row.operator(AutoHook.bl_idname)
             row.scale_x = 0.5
             row.prop(material_prop, "Simplify")
 

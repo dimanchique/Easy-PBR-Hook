@@ -4,7 +4,7 @@ from ..material_class import Material
 from .global_tools import Tools
 from .place_nodes import *
 
-__all__ = ['GetTextureOperator']
+__all__ = ['GetTextureOperator', 'AutoHook']
 
 
 class GetTextureOperator(bpy.types.Operator):
@@ -110,9 +110,30 @@ class GetTextureOperator(bpy.types.Operator):
             Material.MATERIALS['CURRENT'].images[title] = image
 
 
+class AutoHook(bpy.types.Operator):
+    bl_idname = "pbr.auto_hook_op"
+    bl_label = "AutoHook"
+    bl_description = "Automatically hook all materials. \nNOTE: It makes all materials use shared path and use material name as a material keyword!"
+
+    @staticmethod
+    def execute(self, context):
+        bpy.ops.pbr.set_path_shared()
+        materials = bpy.context.active_object.material_slots
+        for mat in materials:
+            mat.material.props.UseMaterialNameAsKeyword = True
+            mat.material.props.textures_pattern = mat.material.name
+        for i in range(len(materials)):
+            bpy.context.active_object.active_material_index = i
+            Material.MATERIALS['CURRENT'] = Material.MATERIALS[materials[i].material.name]
+            bpy.ops.pbr.get_textures_op()
+
+        return {"FINISHED"}
+
 def register():
+    bpy.utils.register_class(AutoHook)
     bpy.utils.register_class(GetTextureOperator)
 
 
 def unregister():
+    bpy.utils.unregister_class(AutoHook)
     bpy.utils.unregister_class(GetTextureOperator)
