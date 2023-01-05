@@ -18,23 +18,31 @@ class PipelineMenu(bpy.types.Operator):
     def show_menu(self, context):
         layout = self.layout
         textures = Material.MATERIALS['CURRENT']
-        if Material.pipelines_found():
-            if textures.found_textures["ORM"]:
-                layout.operator(ORMPipeline.bl_idname, text="ORM")
-                if textures.found_textures["Color Mask"]:
-                    layout.operator(ORMMSKPipeline.bl_idname, text="ORM+MSK")
-            if textures.found_textures["Metal Smoothness"]:
-                layout.operator(MetalSmoothnessPipeline.bl_idname, text="Metal Smoothness")
-            if textures.found_textures["Metal"] or textures.found_textures["Roughness"]:
-                if textures.found_textures["Metal"] and textures.found_textures["Roughness"]:
-                    text = "Metal+Roughness"
-                elif textures.found_textures["Metal"]:
-                    text = "Metal"
-                else:
-                    text = "Roughness"
-                layout.operator(MetalRoughnessPipeline.bl_idname, text=text)
-        else:
-            layout.label(text="No options")
+
+        row = layout.row()
+        row.enabled = textures.found_textures["ORM"]
+        row.operator(ORMPipeline.bl_idname, text="ORM")
+
+        row = layout.row()
+        row.enabled = textures.found_textures["Color Mask"]
+        row.operator(ORMMSKPipeline.bl_idname, text="ORM+MSK")
+
+        row = layout.row()
+        row.enabled = textures.found_textures["Metal Smoothness"]
+        row.operator(MetalSmoothnessPipeline.bl_idname, text="Metal Smoothness")
+
+        text = "Metal+Roughness"
+        if textures.found_textures["Metal"] or textures.found_textures["Roughness"]:
+            if textures.found_textures["Metal"] and textures.found_textures["Roughness"]:
+                text = "Metal+Roughness"
+            elif textures.found_textures["Metal"]:
+                text = "Metal"
+            else:
+                text = "Roughness"
+
+        row = layout.row()
+        row.enabled = textures.found_textures["Metal"] or textures.found_textures["Roughness"]
+        row.operator(MetalRoughnessPipeline.bl_idname, text=text)
 
 
 class ORMPipeline(bpy.types.Operator):
