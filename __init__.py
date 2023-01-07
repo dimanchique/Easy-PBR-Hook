@@ -1,6 +1,3 @@
-import sys
-import importlib
-
 bl_info = {
     "name": "Easy PBR Hook",
     "author": "Dmitry F.",
@@ -14,49 +11,88 @@ bl_info = {
     "category": "Material",
 }
 
-modulesNames = ['tools.global_tools',
-                'main_panel',                                   # 1. Main Panel
-                'panels.texture_mode_panel',                    # 2. Mode Section
-                'panels.texture_list_panel',                    # 3. List of founded textures
-                'panels.texture_props_panel',                   # 4. Texture Properties
-                'panels.texture_coordinates_panel',             # 5. Texture Coordinates Section
-                'panels.uv_map_panel',                          # 6. UV Map Choose Sections
-                'panels.detail_map_coordinates_panel',          # 7. Detail Map Coordinates Section
-                'panels.opacity_panel',                         # 8. Opacity Mode Section
-                'properties.uv_map_properties',
-                'properties.db_properties',
-                'properties.material_properties',
-                'menus.pipeline_menu',
-                'menus.db_update_menu',
-                'menus.opacity_menu',
-                'menus.detail_mask_menu',
-                'tools.texture_loader',
-                'tools.image_updater']
+if "bpy" in locals():
+    import importlib
 
-modulesFullNames = {}
-for currentModuleName in modulesNames:
-    modulesFullNames[currentModuleName] = ('{}.{}'.format(__name__, currentModuleName))
-
-for currentModuleFullName in modulesFullNames.values():
-    if currentModuleFullName in sys.modules:
-        importlib.reload(sys.modules[currentModuleFullName])
-    else:
-        globals()[currentModuleFullName] = importlib.import_module(currentModuleFullName)
-        setattr(globals()[currentModuleFullName], 'modulesNames', modulesFullNames)
+    importlib.reload(global_tools)
+    importlib.reload(main_panel)
+    importlib.reload(texture_mode_panel)
+    importlib.reload(texture_list_panel)
+    importlib.reload(texture_props_panel)
+    importlib.reload(texture_coordinates_panel)
+    importlib.reload(uv_map_panel)
+    importlib.reload(detail_map_coordinates_panel)
+    importlib.reload(opacity_panel)
+    importlib.reload(uv_map_properties)
+    importlib.reload(db_properties)
+    importlib.reload(material_properties)
+    importlib.reload(pipeline_menu)
+    importlib.reload(db_update_menu)
+    importlib.reload(opacity_menu)
+    importlib.reload(detail_mask_menu)
+    importlib.reload(texture_loader)
+    importlib.reload(image_updater)
+else:
+    from .tools import global_tools
+    from . import main_panel
+    from .panels import texture_mode_panel
+    from .panels import texture_list_panel
+    from .panels import texture_props_panel
+    from .panels import texture_coordinates_panel
+    from .panels import uv_map_panel
+    from .panels import detail_map_coordinates_panel
+    from .panels import opacity_panel
+    from .properties import uv_map_properties
+    from .properties import db_properties
+    from .properties import material_properties
+    from .menus import pipeline_menu
+    from .menus import db_update_menu
+    from .menus import opacity_menu
+    from .menus import detail_mask_menu
+    from .tools import texture_loader
+    from .tools import image_updater
 
 
 def register():
-    for currentModuleName in modulesFullNames.values():
-        if currentModuleName in sys.modules:
-            if hasattr(sys.modules[currentModuleName], 'register'):
-                sys.modules[currentModuleName].register()
+    global_tools.register()
+    main_panel.register()
+    texture_mode_panel.register()
+    texture_list_panel.register()
+    texture_props_panel.register()
+    texture_coordinates_panel.register()
+    uv_map_panel.register()
+    detail_map_coordinates_panel.register()
+    opacity_panel.register()
+    uv_map_properties.register()
+    db_properties.register()
+    material_properties.register()
+    pipeline_menu.register()
+    db_update_menu.register()
+    opacity_menu.register()
+    detail_mask_menu.register()
+    texture_loader.register()
+    image_updater.register()
 
 
 def unregister():
-    for currentModuleName in modulesFullNames.values():
-        if currentModuleName in sys.modules:
-            if hasattr(sys.modules[currentModuleName], 'unregister'):
-                sys.modules[currentModuleName].unregister()
+    image_updater.unregister()
+    texture_loader.unregister()
+    detail_mask_menu.unregister()
+    opacity_menu.unregister()
+    db_update_menu.unregister()
+    pipeline_menu.unregister()
+    material_properties.unregister()
+    db_properties.unregister()
+    uv_map_properties.unregister()
+    opacity_panel.unregister()
+    detail_map_coordinates_panel.unregister()
+    uv_map_panel.unregister()
+    texture_coordinates_panel.unregister()
+    texture_props_panel.unregister()
+    texture_list_panel.unregister()
+    texture_mode_panel.unregister()
+    main_panel.unregister()
+    global_tools.unregister()
 
 
 if __name__ == "__main__":
