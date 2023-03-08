@@ -89,20 +89,16 @@ def place_normal_map():
                                  TO("NormalMix", "Main")),
                                 (FROM("Detail Map", "Color"),
                                  TO("NormalMix", "Detail")))
-            if current_material.simplified_connection:
-                link_nodes_in_a_row((FROM("NormalMix", "Color"),
-                                     TO("Principled BSDF", "Normal")))
-            else:
-                link_nodes_in_a_row((FROM("NormalMix", "Color"),
-                                     TO("Normal Map Strength", "Color")),
-                                    (FROM("Normal Map Strength", "Normal"),
-                                     TO("Principled BSDF", "Normal")))
+            link_nodes_in_a_row((FROM("NormalMix", "Color"),
+                                 TO("Normal Map Strength", "Color")),
+                                (FROM("Normal Map Strength", "Normal"),
+                                 TO("Principled BSDF", "Normal")))
             Material.add_to_nodes_list("Detail Map")
         else:
             link_nodes_in_a_row((FROM("Normal Map", "Color"),
-                                    TO("Normal Map Strength", "Color")),
+                                 TO("Normal Map Strength", "Color")),
                                 (FROM("Normal Map Strength", "Normal"),
-                                    TO("Principled BSDF", "Normal")))
+                                 TO("Principled BSDF", "Normal")))
         Material.add_to_nodes_list("Normal Map")
 
 

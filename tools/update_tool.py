@@ -141,13 +141,9 @@ def place_normal_map_inverter(origin="Normal"):
                              TO("NormalMix", socket)))
     else:
         link_nodes_in_a_row((FROM("Normal Map", "Color"),
-                             TO("NormalMapInverter", "NM Input")))
-        if Material.MATERIALS['CURRENT'].simplified_connection:
-            link_nodes_in_a_row((FROM("NormalMapInverter", "NM Output"),
-                                 TO("Principled BSDF", "Normal")))
-        else:
-            link_nodes_in_a_row((FROM("NormalMapInverter", "NM Output"),
-                                 TO("Normal Map Strength", "Color")))
+                             TO("NormalMapInverter", "NM Input")),
+                            (FROM("NormalMapInverter", "NM Output"),
+                             TO("Normal Map Strength", "Color")))
 
 
 def place_normal_mix():
@@ -175,11 +171,7 @@ def remove_normal_map_inverter(origin="Normal"):
         if "NormalMix" in nodes:
             link_nodes(FROM(node, "Color"), TO("NormalMix", socket))
         else:
-            if Material.MATERIALS['CURRENT'].simplified_connection:
-                link_nodes(FROM("Normal Map", "Color"), TO("Principled BSDF", "Normal"))
-
-            else:
-                link_nodes(FROM("Normal Map", "Color"), TO("Normal Map Strength", "Color"))
+            link_nodes(FROM("Normal Map", "Color"), TO("Normal Map Strength", "Color"))
 
 
 def update_opacity_add(mode):
