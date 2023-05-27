@@ -56,20 +56,12 @@ class Tools(bpy.types.PropertyGroup):
     @classmethod
     def update_panel_masks(cls):
         if hasattr(bpy.context, 'scene') and hasattr(bpy.context.scene, 'db_strings'):
-            bpy.context.scene.db_strings.albedo = ', '.join(Tools.TEXTURES_KEYWORDS_DICT['Albedo'])
-            bpy.context.scene.db_strings.met_sm = ', '.join(Tools.TEXTURES_KEYWORDS_DICT['Metal Smoothness'])
-            bpy.context.scene.db_strings.metal = ', '.join(Tools.TEXTURES_KEYWORDS_DICT['Metal'])
-            bpy.context.scene.db_strings.rough = ', '.join(Tools.TEXTURES_KEYWORDS_DICT['Roughness'])
-            bpy.context.scene.db_strings.orm = ', '.join(Tools.TEXTURES_KEYWORDS_DICT['ORM'])
-            bpy.context.scene.db_strings.color_mask = ', '.join(Tools.TEXTURES_KEYWORDS_DICT['Color Mask'])
-            bpy.context.scene.db_strings.normal_map = ', '.join(Tools.TEXTURES_KEYWORDS_DICT['Normal Map'])
-            bpy.context.scene.db_strings.emission = ', '.join(Tools.TEXTURES_KEYWORDS_DICT['Emission'])
-            bpy.context.scene.db_strings.specular = ', '.join(Tools.TEXTURES_KEYWORDS_DICT['Specular'])
-            bpy.context.scene.db_strings.occlusion = ', '.join(Tools.TEXTURES_KEYWORDS_DICT['Occlusion'])
-            bpy.context.scene.db_strings.displacement = ', '.join(Tools.TEXTURES_KEYWORDS_DICT['Displacement'])
-            bpy.context.scene.db_strings.opacity = ', '.join(Tools.TEXTURES_KEYWORDS_DICT['Opacity'])
-            bpy.context.scene.db_strings.detail_map = ', '.join(Tools.TEXTURES_KEYWORDS_DICT['Detail Map'])
-            bpy.context.scene.db_strings.detail_mask = ', '.join(Tools.TEXTURES_KEYWORDS_DICT['Detail Mask'])
+            for texture_name in cls.PROP_TO_TEXTURE:
+                setattr(bpy.context.scene.db_strings, texture_name, ', '.join(Tools.TEXTURES_KEYWORDS_DICT[cls.PROP_TO_TEXTURE[texture_name]]))
+
+    @classmethod
+    def get_textures_keywords(cls, texture_type):
+        return ', '.join(Tools.TEXTURES_KEYWORDS_DICT[texture_type])
 
     @staticmethod
     def local_update():

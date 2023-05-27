@@ -12,46 +12,46 @@ class DataBaseProps(bpy.types.PropertyGroup):
                                                                type=cls)
         cls.albedo = bpy.props.StringProperty(name="Albedo",
                                               description="Albedo keyword",
-                                              default=', '.join(Tools.TEXTURES_KEYWORDS_DICT['Albedo']))
+                                              default=Tools.get_textures_keywords('Albedo'))
         cls.met_sm = bpy.props.StringProperty(name="Metal Smoothness",
                                               description="Metal Smoothness keyword",
-                                              default=', '.join(Tools.TEXTURES_KEYWORDS_DICT['Metal Smoothness']))
+                                              default=Tools.get_textures_keywords('Metal Smoothness'))
         cls.metal = bpy.props.StringProperty(name="Metal",
                                              description="Metal keyword",
-                                             default=', '.join(Tools.TEXTURES_KEYWORDS_DICT['Metal']))
+                                             default=Tools.get_textures_keywords('Metal'))
         cls.rough = bpy.props.StringProperty(name="Roughness",
                                              description="Roughness keyword",
-                                             default=', '.join(Tools.TEXTURES_KEYWORDS_DICT['Roughness']))
+                                             default=Tools.get_textures_keywords('Roughness'))
         cls.orm = bpy.props.StringProperty(name="ORM",
                                            description="ORM keyword",
-                                           default=', '.join(Tools.TEXTURES_KEYWORDS_DICT['ORM']))
+                                           default=Tools.get_textures_keywords('ORM'))
         cls.color_mask = bpy.props.StringProperty(name="Color Mask",
                                                   description="Color Mask keyword",
-                                                  default=', '.join(Tools.TEXTURES_KEYWORDS_DICT['Color Mask']))
+                                                  default=Tools.get_textures_keywords('Color Mask'))
         cls.normal_map = bpy.props.StringProperty(name="Normal Map",
                                                   description="Normal Map keyword",
-                                                  default=', '.join(Tools.TEXTURES_KEYWORDS_DICT['Normal Map']))
+                                                  default=Tools.get_textures_keywords('Normal Map'))
         cls.emission = bpy.props.StringProperty(name="Emission",
                                                 description="Emission keyword",
-                                                default=', '.join(Tools.TEXTURES_KEYWORDS_DICT['Emission']))
+                                                default=Tools.get_textures_keywords('Emission'))
         cls.specular = bpy.props.StringProperty(name="Specular",
                                                 description="Specular keyword",
-                                                default=', '.join(Tools.TEXTURES_KEYWORDS_DICT['Specular']))
+                                                default=Tools.get_textures_keywords('Specular'))
         cls.occlusion = bpy.props.StringProperty(name="Occlusion",
                                                  description="Occlusion keyword",
-                                                 default=', '.join(Tools.TEXTURES_KEYWORDS_DICT['Occlusion']))
+                                                 default=Tools.get_textures_keywords('Occlusion'))
         cls.displacement = bpy.props.StringProperty(name="Displacement",
                                                     description="Displacement keyword",
-                                                    default=', '.join(Tools.TEXTURES_KEYWORDS_DICT['Displacement']))
+                                                    default=Tools.get_textures_keywords('Displacement'))
         cls.opacity = bpy.props.StringProperty(name="Opacity",
                                                description="Opacity keyword",
-                                               default=', '.join(Tools.TEXTURES_KEYWORDS_DICT['Opacity']))
+                                               default=Tools.get_textures_keywords('Opacity'))
         cls.detail_map = bpy.props.StringProperty(name="Detail Map",
                                                   description="Detail Map keyword",
-                                                  default=', '.join(Tools.TEXTURES_KEYWORDS_DICT['Detail Map']))
+                                                  default=Tools.get_textures_keywords('Detail Map'))
         cls.detail_mask = bpy.props.StringProperty(name="Detail Mask",
                                                    description="Detail Mask",
-                                                   default=', '.join(Tools.TEXTURES_KEYWORDS_DICT['Detail Mask']))
+                                                   default=Tools.get_textures_keywords('Detail Mask'))
 
         cls.Update = bpy.props.EnumProperty(items=[('Local', 'Local', ''),
                                                    ('Global', 'Global', '')])

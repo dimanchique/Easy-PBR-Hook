@@ -53,20 +53,15 @@ class GetTextureOperator(bpy.types.Operator):
             return
         else:
             splitter = file.lower().split(".")
-            if len(splitter) > 2:
-                name = '.'.join(splitter[:-1])
-            else:
-                name = splitter[0]
+            name = ".".join(splitter[:-1]) if len(splitter) > 2 else splitter[0]
             
         names = bpy.context.active_object.active_material.props.textures_pattern.lower().split("-")
+        pattern = names[0].strip()
 
         if len(names) > 1:
-            pattern = names[0].strip()
             skip_names = list(map(str.strip, names[1:]))
             if any(stop_word in name for stop_word in skip_names):
                 return
-        else:
-            pattern = names[0].strip()
 
         if pattern not in name:
             return
